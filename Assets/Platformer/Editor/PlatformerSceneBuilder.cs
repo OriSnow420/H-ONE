@@ -13,7 +13,7 @@ namespace HOne.Platformer.Editor
         private const string ArtFolder = "Assets/Platformer/Art";
         private const string PhysicsMaterialPath = "Assets/Platformer/Zero Friction.physicsMaterial2D";
         private static readonly Vector2 MapMinimum = Vector2.zero;
-        private static readonly Vector2 MapMaximum = new Vector2(54f, 20f);
+        private static readonly Vector2 MapMaximum = new Vector2(54f, 14f);
 
         [MenuItem("H-ONE/Build Platformer Level")]
         public static void BuildScene()
@@ -21,10 +21,6 @@ namespace HOne.Platformer.Editor
             var scene = SceneManager.GetActiveScene();
             if (!scene.IsValid() || string.IsNullOrEmpty(scene.path))
                 throw new System.InvalidOperationException("Create or open a saved scene before building the level.");
-
-            var basicSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
-            if (basicSprite == null)
-                throw new System.InvalidOperationException("Unity's built-in UI sprite could not be loaded.");
 
             if (AssetDatabase.IsValidFolder(ArtFolder))
                 AssetDatabase.DeleteAsset(ArtFolder);
@@ -38,7 +34,7 @@ namespace HOne.Platformer.Editor
 
             var rootObject = new GameObject(RootName);
             var world = CreateGroup("World", rootObject.transform);
-            var structures = CreateGroup("Platforms and Walls", rootObject.transform);
+            var geometry = CreateGroup("Geometry", rootObject.transform);
             var actors = CreateGroup("Actors", rootObject.transform);
 
             var boundsObject = new GameObject("Map Bounds");
@@ -46,9 +42,8 @@ namespace HOne.Platformer.Editor
             var bounds = boundsObject.AddComponent<LevelBounds2D>();
             bounds.SetBounds(MapMinimum, MapMaximum);
 
-            BuildWorld(world, structures, basicSprite, noFriction);
-            var player = BuildPlayer(actors, basicSprite, noFriction);
-            BuildExit(actors, basicSprite);
+            BuildWorld(world, geometry, noFriction);
+            var player = BuildPlayer(actors, noFriction);
             BuildCamera(rootObject.transform, player.transform, bounds);
 
             var buildScenes = new List<EditorBuildSettingsScene>
@@ -75,40 +70,19 @@ namespace HOne.Platformer.Editor
             return group.transform;
         }
 
-        private static void BuildWorld(Transform world, Transform structures, Sprite sprite, PhysicsMaterial2D material)
+        private static void BuildWorld(Transform world, Transform geometry, PhysicsMaterial2D material)
         {
-            CreateBox("Map Background", new Vector2(27f, 10f), new Vector2(54f, 20f),
-                new Color(0.16f, 0.16f, 0.16f), world, sprite, null, -10);
+            CreateBox("Map Background", new Vector2(27f, 7f), new Vector2(54f, 14f),
+                new Color(0.16f, 0.16f, 0.16f), world, null, -10);
             CreateBox("Ground", new Vector2(27f, 0.35f), new Vector2(54f, 0.7f),
-                new Color(0.38f, 0.38f, 0.38f), structures, sprite, material, 0);
-            CreateBox("West Boundary", new Vector2(-0.45f, 10f), new Vector2(0.9f, 20f),
-                new Color(0.38f, 0.38f, 0.38f), structures, sprite, material, 0);
-            CreateBox("East Boundary", new Vector2(54.45f, 10f), new Vector2(0.9f, 20f),
-                new Color(0.38f, 0.38f, 0.38f), structures, sprite, material, 0);
-            CreateBox("North Boundary", new Vector2(27f, 20.45f), new Vector2(54f, 0.9f),
-                new Color(0.38f, 0.38f, 0.38f), structures, sprite, material, 0);
-
-            CreateBarrier(structures, sprite, material, 12f, 0.7f, 12.5f);
-            CreateBarrier(structures, sprite, material, 25f, 7.5f, 19.3f);
-            CreateBarrier(structures, sprite, material, 38f, 0.7f, 11.5f);
-
-            CreateBox("Platform A", new Vector2(6.5f, 4f), new Vector2(6f, 0.45f),
-                new Color(0.46f, 0.46f, 0.46f), structures, sprite, material, 1);
-            CreateBox("Platform B", new Vector2(19f, 15f), new Vector2(5f, 0.45f),
-                new Color(0.46f, 0.46f, 0.46f), structures, sprite, material, 1);
-            CreateBox("Platform C", new Vector2(33f, 5f), new Vector2(6f, 0.45f),
-                new Color(0.46f, 0.46f, 0.46f), structures, sprite, material, 1);
+                new Color(0.38f, 0.38f, 0.38f), geometry, material, 0);
+            CreateBox("West Boundary", new Vector2(-0.45f, 7f), new Vector2(0.9f, 14f),
+                new Color(0.38f, 0.38f, 0.38f), geometry, material, 0);
+            CreateBox("East Boundary", new Vector2(54.45f, 7f), new Vector2(0.9f, 14f),
+                new Color(0.38f, 0.38f, 0.38f), geometry, material, 0);
         }
 
-        private static void CreateBarrier(Transform parent, Sprite sprite, PhysicsMaterial2D material,
-            float x, float bottom, float top)
-        {
-            var size = new Vector2(1.2f, top - bottom);
-            CreateBox("Barrier", new Vector2(x, (top + bottom) * 0.5f), size,
-                new Color(0.52f, 0.52f, 0.52f), parent, sprite, material, 1);
-        }
-
-        private static GameObject BuildPlayer(Transform parent, Sprite sprite, PhysicsMaterial2D material)
+        private static GameObject BuildPlayer(Transform parent, PhysicsMaterial2D material)
         {
             var player = new GameObject("Player");
             player.transform.SetParent(parent, false);
@@ -116,7 +90,7 @@ namespace HOne.Platformer.Editor
             player.tag = "Player";
 
             var body = player.AddComponent<Rigidbody2D>();
-            body.gravityScale = 0f;
+            body.gravityScale = 1f;
             body.linearDamping = 0f;
             body.angularDamping = 0f;
             body.constraints = RigidbodyConstraints2D.FreezeRotation;
@@ -130,29 +104,11 @@ namespace HOne.Platformer.Editor
             player.AddComponent<PlayerMovement2D>();
 
             var renderer = player.AddComponent<SpriteRenderer>();
-            renderer.sprite = sprite;
             renderer.color = Color.white;
             renderer.sortingOrder = 10;
             player.transform.localScale = new Vector3(0.68f, 1f, 1f);
+            player.AddComponent<SolidShape2D>();
             return player;
-        }
-
-        private static void BuildExit(Transform parent, Sprite sprite)
-        {
-            var exit = new GameObject("Exit Trigger");
-            exit.transform.SetParent(parent, false);
-            exit.transform.position = new Vector3(51f, 1.9f, 0f);
-            exit.transform.localScale = new Vector3(0.6f, 2.4f, 1f);
-
-            var renderer = exit.AddComponent<SpriteRenderer>();
-            renderer.sprite = sprite;
-            renderer.color = new Color(0.78f, 0.78f, 0.78f);
-            renderer.sortingOrder = 5;
-
-            var trigger = exit.AddComponent<BoxCollider2D>();
-            trigger.isTrigger = true;
-            trigger.size = new Vector2(1f, 1f);
-            exit.AddComponent<ExitGate2D>();
         }
 
         private static void BuildCamera(Transform parent, Transform player, LevelBounds2D bounds)
@@ -177,7 +133,7 @@ namespace HOne.Platformer.Editor
         }
 
         private static GameObject CreateBox(string name, Vector2 position, Vector2 size, Color color,
-            Transform parent, Sprite sprite, PhysicsMaterial2D material, int sortingOrder)
+            Transform parent, PhysicsMaterial2D material, int sortingOrder)
         {
             var gameObject = new GameObject(name);
             gameObject.transform.SetParent(parent, false);
@@ -185,9 +141,9 @@ namespace HOne.Platformer.Editor
             gameObject.transform.localScale = new Vector3(size.x, size.y, 1f);
 
             var renderer = gameObject.AddComponent<SpriteRenderer>();
-            renderer.sprite = sprite;
             renderer.color = color;
             renderer.sortingOrder = sortingOrder;
+            gameObject.AddComponent<SolidShape2D>();
 
             if (material != null)
             {

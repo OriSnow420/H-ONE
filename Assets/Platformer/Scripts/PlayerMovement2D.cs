@@ -10,7 +10,7 @@ namespace HOne.Platformer
         [SerializeField, Min(0.1f)] private float acceleration = 6f;
 
         private Rigidbody2D body;
-        private Vector2 moveInput;
+        private float horizontalInput;
 
         public Vector2 Velocity => body != null ? body.linearVelocity : Vector2.zero;
         public float MaxAcceleration => acceleration;
@@ -18,7 +18,7 @@ namespace HOne.Platformer
         private void Awake()
         {
             body = GetComponent<Rigidbody2D>();
-            body.gravityScale = 0f;
+            body.gravityScale = 1f;
             body.linearDamping = 0f;
             body.angularDamping = 0f;
             body.constraints = RigidbodyConstraints2D.FreezeRotation;
@@ -31,25 +31,18 @@ namespace HOne.Platformer
             var keyboard = Keyboard.current;
             if (keyboard == null)
             {
-                moveInput = Vector2.zero;
+                horizontalInput = 0f;
                 return;
             }
 
-            moveInput = new Vector2(
-                (keyboard.dKey.isPressed ? 1f : 0f) - (keyboard.aKey.isPressed ? 1f : 0f),
-                (keyboard.wKey.isPressed ? 1f : 0f) - (keyboard.sKey.isPressed ? 1f : 0f));
-
-            if (moveInput.sqrMagnitude > 1f)
-                moveInput.Normalize();
+            horizontalInput = (keyboard.dKey.isPressed ? 1f : 0f) - (keyboard.aKey.isPressed ? 1f : 0f);
         }
 
         private void FixedUpdate()
         {
-            var desiredVelocity = moveInput * maxSpeed;
-            body.linearVelocity = Vector2.MoveTowards(
-                body.linearVelocity,
-                desiredVelocity,
-                acceleration * Time.fixedDeltaTime);
+            var velocity = body.linearVelocity;
+            velocity.x = Mathf.MoveTowards(velocity.x, horizontalInput * maxSpeed, acceleration * Time.fixedDeltaTime);
+            body.linearVelocity = velocity;
         }
     }
 }
