@@ -7,18 +7,26 @@ namespace HOne.Platformer
     {
         [SerializeField] private Transform target;
         [SerializeField] private LevelBounds2D worldBounds;
+        [SerializeField] private Rigidbody2D targetBody;
+        [SerializeField] private PlayerMovement2D targetMovement;
         [SerializeField, Range(0.05f, 0.45f)] private float horizontalAnchor = 0.24f;
         [SerializeField, Range(0.05f, 0.45f)] private float verticalAnchor = 0.25f;
-        [SerializeField, Min(0.05f)] private float smoothTime = 0.42f;
-        [SerializeField, Min(0.1f)] private float maxSpeed = 20f;
+        [SerializeField, Min(0.01f)] private Vector2 deadZone = new Vector2(0.42f, 0.34f);
+        [SerializeField, Min(0.1f)] private float maxCameraSpeed = 8f;
+        [SerializeField, Min(0.1f)] private float maxCatchUpSpeed = 5.5f;
+        [SerializeField, Min(0.1f)] private float positionGain = 3.5f;
+        [SerializeField, Min(0.1f)] private float maxCameraAcceleration = 12f;
 
         private Camera followCamera;
-        private Vector3 smoothVelocity;
+        private Vector2 cameraVelocity;
+        private bool tracking;
 
         public void Configure(Transform followTarget, LevelBounds2D bounds)
         {
             target = followTarget;
             worldBounds = bounds;
+            targetBody = followTarget != null ? followTarget.GetComponent<Rigidbody2D>() : null;
+            targetMovement = followTarget != null ? followTarget.GetComponent<PlayerMovement2D>() : null;
         }
 
         private void Awake()
@@ -28,29 +36,78 @@ namespace HOne.Platformer
 
         private void LateUpdate()
         {
-            if (target == null || followCamera == null)
+            var deltaTime = Time.deltaTime;
+            if (target == null || followCamera == null || deltaTime <= 0f)
                 return;
 
             var halfHeight = followCamera.orthographicSize;
             var halfWidth = halfHeight * followCamera.aspect;
-            var desired = GetFocusPoint(halfWidth, halfHeight);
-            desired.z = transform.position.z;
+            var desiredCenter = GetFocusPoint(halfWidth, halfHeight);
+            var targetVelocity = targetBody != null ? targetBody.linearVelocity : Vector2.zero;
 
             if (worldBounds != null)
-                desired = worldBounds.ClampCameraCenter(desired, halfWidth, halfHeight);
+            {
+                var clampedCenter = worldBounds.ClampCameraCenter(desiredCenter, halfWidth, halfHeight);
+                if (!Mathf.Approximately(clampedCenter.x, desiredCenter.x))
+                    targetVelocity.x = 0f;
+                if (!Mathf.Approximately(clampedCenter.y, desiredCenter.y))
+                    targetVelocity.y = 0f;
+                desiredCenter = clampedCenter;
+            }
 
-            var next = Vector3.SmoothDamp(
-                transform.position,
-                desired,
-                ref smoothVelocity,
-                smoothTime,
-                maxSpeed,
-                Time.deltaTime);
+            var currentPosition = (Vector2)transform.position;
+            var error = (Vector2)desiredCenter - currentPosition;
+            var insideDeadZone = Mathf.Abs(error.x) <= deadZone.x && Mathf.Abs(error.y) <= deadZone.y;
+
+            if (!tracking && !insideDeadZone)
+                tracking = true;
+
+            if (tracking && insideDeadZone && targetVelocity.sqrMagnitude <= 0.0025f && cameraVelocity.sqrMagnitude <= 0.0025f)
+                tracking = false;
+
+            var desiredVelocity = Vector2.zero;
+            if (tracking)
+            {
+                var brakingAcceleration = GetRelativeBrakingAcceleration();
+                desiredVelocity.x = GetDesiredAxisVelocity(error.x, targetVelocity.x, brakingAcceleration);
+                desiredVelocity.y = GetDesiredAxisVelocity(error.y, targetVelocity.y, brakingAcceleration);
+                desiredVelocity = Vector2.ClampMagnitude(desiredVelocity, maxCameraSpeed);
+            }
+
+            var axisAcceleration = maxCameraAcceleration / Mathf.Sqrt(2f);
+            cameraVelocity.x = Mathf.MoveTowards(cameraVelocity.x, desiredVelocity.x, axisAcceleration * deltaTime);
+            cameraVelocity.y = Mathf.MoveTowards(cameraVelocity.y, desiredVelocity.y, axisAcceleration * deltaTime);
+            var nextPosition = currentPosition + cameraVelocity * deltaTime;
+            var nextCenter = new Vector3(nextPosition.x, nextPosition.y, transform.position.z);
 
             if (worldBounds != null)
-                next = worldBounds.ClampCameraCenter(next, halfWidth, halfHeight);
-            next.z = transform.position.z;
-            transform.position = next;
+            {
+                var clampedCenter = worldBounds.ClampCameraCenter(nextCenter, halfWidth, halfHeight);
+                if (!Mathf.Approximately(clampedCenter.x, nextCenter.x))
+                    cameraVelocity.x = 0f;
+                if (!Mathf.Approximately(clampedCenter.y, nextCenter.y))
+                    cameraVelocity.y = 0f;
+                nextCenter = clampedCenter;
+            }
+
+            transform.position = nextCenter;
+        }
+
+        private float GetRelativeBrakingAcceleration()
+        {
+            var cameraAxisAcceleration = maxCameraAcceleration / Mathf.Sqrt(2f);
+            var targetAxisAcceleration = targetMovement != null ? targetMovement.MaxAcceleration : 0f;
+            return Mathf.Max(0.1f, cameraAxisAcceleration - targetAxisAcceleration);
+        }
+
+        private float GetDesiredAxisVelocity(float error, float targetVelocity, float relativeBrakingAcceleration)
+        {
+            var distance = Mathf.Abs(error);
+            var relativeSpeed = Mathf.Min(
+                maxCatchUpSpeed,
+                positionGain * distance,
+                Mathf.Sqrt(2f * relativeBrakingAcceleration * distance));
+            return targetVelocity + Mathf.Sign(error) * relativeSpeed;
         }
 
         private Vector3 GetFocusPoint(float halfWidth, float halfHeight)

@@ -13,9 +13,7 @@ namespace HOne.Platformer
                 return;
 
             completed = true;
-            var hud = FindFirstObjectByType<LevelHud2D>();
-            if (hud != null)
-                hud.SetCompleted();
+            Debug.Log("Exit reached.", other.gameObject);
         }
     }
 }

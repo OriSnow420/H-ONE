@@ -13,6 +13,7 @@ namespace HOne.Platformer
         private Vector2 moveInput;
 
         public Vector2 Velocity => body != null ? body.linearVelocity : Vector2.zero;
+        public float MaxAcceleration => acceleration;
 
         private void Awake()
         {
