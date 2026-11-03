@@ -12,6 +12,9 @@ namespace HOne.Platformer.Editor
         private const string RootName = "Platformer Level";
         private const string ArtFolder = "Assets/Platformer/Art";
         private const string PhysicsMaterialPath = "Assets/Platformer/Zero Friction.physicsMaterial2D";
+        private const float GroundThickness = 0.7f;
+        private const float GridSpacing = 1f;
+        private const int MajorGridInterval = 5;
         private static readonly Vector2 MapMinimum = Vector2.zero;
         private static readonly Vector2 MapMaximum = new Vector2(54f, 14f);
 
@@ -35,6 +38,7 @@ namespace HOne.Platformer.Editor
             var rootObject = new GameObject(RootName);
             var world = CreateGroup("World", rootObject.transform);
             var geometry = CreateGroup("Geometry", rootObject.transform);
+            var floorGrid = CreateGroup("Floor Grid", geometry);
             var actors = CreateGroup("Actors", rootObject.transform);
 
             var boundsObject = new GameObject("Map Bounds");
@@ -43,6 +47,7 @@ namespace HOne.Platformer.Editor
             bounds.SetBounds(MapMinimum, MapMaximum);
 
             BuildWorld(world, geometry, noFriction);
+            BuildFloorGrid(floorGrid);
             var player = BuildPlayer(actors, noFriction);
             BuildCamera(rootObject.transform, player.transform, bounds);
 
@@ -72,14 +77,43 @@ namespace HOne.Platformer.Editor
 
         private static void BuildWorld(Transform world, Transform geometry, PhysicsMaterial2D material)
         {
+            var mapWidth = MapMaximum.x - MapMinimum.x;
+            var mapCenterX = (MapMinimum.x + MapMaximum.x) * 0.5f;
             CreateBox("Map Background", new Vector2(27f, 7f), new Vector2(54f, 14f),
                 new Color(0.16f, 0.16f, 0.16f), world, null, -10);
-            CreateBox("Ground", new Vector2(27f, 0.35f), new Vector2(54f, 0.7f),
+            CreateBox("Ground", new Vector2(mapCenterX, GroundThickness * 0.5f), new Vector2(mapWidth, GroundThickness),
                 new Color(0.38f, 0.38f, 0.38f), geometry, material, 0);
             CreateBox("West Boundary", new Vector2(-0.45f, 7f), new Vector2(0.9f, 14f),
                 new Color(0.38f, 0.38f, 0.38f), geometry, material, 0);
-            CreateBox("East Boundary", new Vector2(54.45f, 7f), new Vector2(0.9f, 14f),
+            CreateBox("East Boundary", new Vector2(MapMaximum.x + 0.45f, 7f), new Vector2(0.9f, 14f),
                 new Color(0.38f, 0.38f, 0.38f), geometry, material, 0);
+        }
+
+        private static void BuildFloorGrid(Transform parent)
+        {
+            var mapWidth = MapMaximum.x - MapMinimum.x;
+            var mapCenterX = (MapMinimum.x + MapMaximum.x) * 0.5f;
+            var gridHeight = GroundThickness - 0.04f;
+            var lineIndex = 0;
+
+            for (var x = MapMinimum.x + GridSpacing; x < MapMaximum.x; x += GridSpacing)
+            {
+                lineIndex++;
+                var isMajorLine = lineIndex % MajorGridInterval == 0;
+                var lineWidth = isMajorLine ? 0.05f : 0.025f;
+                var lineColor = isMajorLine
+                    ? new Color(0.16f, 0.16f, 0.16f)
+                    : new Color(0.25f, 0.25f, 0.25f);
+
+                CreateBox("Vertical " + lineIndex.ToString("00"),
+                    new Vector2(x, GroundThickness * 0.5f), new Vector2(lineWidth, gridHeight),
+                    lineColor, parent, null, 2);
+            }
+
+            CreateBox("Horizontal Center", new Vector2(mapCenterX, GroundThickness * 0.5f),
+                new Vector2(mapWidth, 0.02f), new Color(0.25f, 0.25f, 0.25f), parent, null, 2);
+            CreateBox("Top Edge", new Vector2(mapCenterX, GroundThickness - 0.015f),
+                new Vector2(mapWidth, 0.03f), new Color(0.52f, 0.52f, 0.52f), parent, null, 2);
         }
 
         private static GameObject BuildPlayer(Transform parent, PhysicsMaterial2D material)
