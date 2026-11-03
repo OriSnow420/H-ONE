@@ -12,6 +12,7 @@ namespace HOne.Platformer.Editor
         private const string RootName = "Platformer Level";
         private const string ArtFolder = "Assets/Platformer/Art";
         private const string PhysicsMaterialPath = "Assets/Platformer/Zero Friction.physicsMaterial2D";
+        private const string RevealMaterialPath = "Assets/Platformer/MapRevealFog.mat";
         private const float GroundThickness = 0.7f;
         private const float GridSpacing = 1f;
         private const int MajorGridInterval = 5;
@@ -50,6 +51,7 @@ namespace HOne.Platformer.Editor
             BuildFloorGrid(floorGrid);
             var player = BuildPlayer(actors, noFriction);
             BuildCamera(rootObject.transform, player.transform, bounds);
+            BuildReveal(rootObject.transform, player.transform, bounds, EnsureRevealMaterial());
 
             var buildScenes = new List<EditorBuildSettingsScene>
             {
@@ -142,7 +144,69 @@ namespace HOne.Platformer.Editor
             renderer.sortingOrder = 10;
             player.transform.localScale = new Vector3(0.68f, 1f, 1f);
             player.AddComponent<SolidShape2D>();
+            player.AddComponent<DistanceFootstepEmitter2D>();
+            player.AddComponent<AudioSource>();
+            player.AddComponent<FootstepSound2D>();
             return player;
+        }
+
+        private static void BuildReveal(Transform parent, Transform player, LevelBounds2D bounds, Material material)
+        {
+            var revealObject = new GameObject("Map Reveal");
+            revealObject.transform.SetParent(parent, false);
+            var reveal = revealObject.AddComponent<MapReveal2D>();
+            reveal.Configure(bounds, player, player.GetComponent<DistanceFootstepEmitter2D>(), material);
+        }
+
+        [MenuItem("H-ONE/Install Map Reveal in Current Level")]
+        public static void InstallRevealInCurrentLevel()
+        {
+            var scene = SceneManager.GetActiveScene();
+            var root = GameObject.Find(RootName);
+            var bounds = root != null ? root.GetComponentInChildren<LevelBounds2D>() : null;
+            var player = root != null ? root.transform.Find("Actors/Player") : null;
+            var cameraTransform = root != null ? root.transform.Find("Main Camera") : null;
+            if (!scene.IsValid() || string.IsNullOrEmpty(scene.path) || bounds == null || player == null)
+                throw new System.InvalidOperationException("Open a saved platformer level first.");
+
+            var steps = player.GetComponent<DistanceFootstepEmitter2D>();
+            if (steps == null)
+                steps = player.gameObject.AddComponent<DistanceFootstepEmitter2D>();
+            if (player.GetComponent<FootstepSound2D>() == null)
+                player.gameObject.AddComponent<FootstepSound2D>();
+            if (cameraTransform != null && cameraTransform.GetComponent<AudioListener>() == null)
+                cameraTransform.gameObject.AddComponent<AudioListener>();
+
+            var revealTransform = root.transform.Find("Map Reveal");
+            if (revealTransform == null)
+            {
+                BuildReveal(root.transform, player, bounds, EnsureRevealMaterial());
+            }
+            else
+            {
+                var reveal = revealTransform.GetComponent<MapReveal2D>();
+                if (reveal == null)
+                    reveal = revealTransform.gameObject.AddComponent<MapReveal2D>();
+                reveal.Configure(bounds, player, steps, EnsureRevealMaterial());
+            }
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            AssetDatabase.SaveAssets();
+        }
+
+        private static Material EnsureRevealMaterial()
+        {
+            var material = AssetDatabase.LoadAssetAtPath<Material>(RevealMaterialPath);
+            if (material != null)
+                return material;
+
+            var shader = Shader.Find("HOne/Map Reveal Fog");
+            if (shader == null)
+                throw new System.InvalidOperationException("Map reveal shader has not imported.");
+            material = new Material(shader) { name = "Map Reveal Fog" };
+            AssetDatabase.CreateAsset(material, RevealMaterialPath);
+            return material;
         }
 
         private static void BuildCamera(Transform parent, Transform player, LevelBounds2D bounds)
@@ -152,6 +216,7 @@ namespace HOne.Platformer.Editor
             cameraObject.tag = "MainCamera";
 
             var camera = cameraObject.AddComponent<Camera>();
+            cameraObject.AddComponent<AudioListener>();
             camera.orthographic = true;
             camera.orthographicSize = 5.5f;
             camera.clearFlags = CameraClearFlags.SolidColor;
@@ -161,7 +226,7 @@ namespace HOne.Platformer.Editor
             follow.Configure(player, bounds);
             var halfHeight = camera.orthographicSize;
             var halfWidth = halfHeight * 16f / 9f;
-            var focus = player.position + new Vector3(halfWidth * 0.52f, halfHeight * 0.5f, 0f);
+            var focus = player.position + new Vector3(halfWidth * 0.42f, halfHeight * 0.5f, 0f);
             cameraObject.transform.position = bounds.ClampCameraCenter(focus, halfWidth, halfHeight);
             cameraObject.transform.position = new Vector3(cameraObject.transform.position.x, cameraObject.transform.position.y, -10f);
         }
