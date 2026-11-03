@@ -165,9 +165,20 @@ namespace HOne.Platformer
                 + 2f * axisAcceleration * distance) - axisAcceleration * deltaTime;
             var maximumSafeCameraVelocity = maximumSafeClosingSpeed - maximumTargetSpeed;
             var safeMaximumReachableVelocity = Mathf.Min(maximumReachableVelocity, maximumSafeCameraVelocity);
-            var nextVelocityTowardTarget = safeMaximumReachableVelocity < minimumReachableVelocity
-                ? minimumReachableVelocity
-                : Mathf.Clamp(requestedVelocityTowardTarget, minimumReachableVelocity, safeMaximumReachableVelocity);
+            float nextVelocityTowardTarget;
+            if (safeMaximumReachableVelocity < minimumReachableVelocity)
+            {
+                var targetIsApproaching = direction * targetVelocity < 0f;
+                nextVelocityTowardTarget = cameraVelocityTowardTarget > 0f || targetIsApproaching
+                    ? minimumReachableVelocity
+                    : Mathf.Clamp(Mathf.Min(requestedVelocityTowardTarget, 0f),
+                        minimumReachableVelocity, maximumReachableVelocity);
+            }
+            else
+            {
+                nextVelocityTowardTarget = Mathf.Clamp(requestedVelocityTowardTarget,
+                    minimumReachableVelocity, safeMaximumReachableVelocity);
+            }
             var nextCameraVelocity = direction * nextVelocityTowardTarget;
             return (nextCameraVelocity - cameraAxisVelocity) / deltaTime;
         }

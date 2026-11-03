@@ -30,7 +30,7 @@ q = max(0, s * v_c,next + V)
 d >= q * dt + q^2 / (2 * a)
 ```
 
-The second term is the camera's braking distance after the target has moved toward it by at most `V * dt` during this frame. Solving the inequality gives the allowed closing-speed bound `sqrt((a * dt)^2 + 2 * a * d) - a * dt`; the controller projects its requested next velocity onto the reachable velocities below that bound. If the current state is already outside the safe set, it uses the strongest reachable braking command. At 60 frames per second and `V = 4.4`, the minimum distance is about 1.21 units for a stationary camera and 4.71 units while the camera matches a player moving at full speed. These are safety minima, not desired offsets; position convergence is secondary to preserving the no-crossing margin.
+The second term is the camera's braking distance after the target has moved toward it by at most `V * dt` during this frame. Solving the inequality gives the allowed closing-speed bound `sqrt((a * dt)^2 + 2 * a * d) - a * dt`; the controller projects its requested next velocity onto the reachable velocities below that bound. If the current state is already outside the safe set, it prevents further approach; it applies maximum braking when the camera is already closing or the target is approaching, and holds a stationary camera while the target is moving away. At 60 frames per second and `V = 4.4`, the minimum distance is about 1.21 units for a stationary camera and 4.71 units while the camera matches a player moving at full speed. These are safety minima, not desired offsets; position convergence is secondary to preserving the no-crossing margin.
 
 ## Why Not a Spring Alone
 
