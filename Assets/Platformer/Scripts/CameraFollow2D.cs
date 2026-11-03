@@ -8,6 +8,7 @@ namespace HOne.Platformer
         [SerializeField] private Transform target;
         [SerializeField] private LevelBounds2D worldBounds;
         [SerializeField] private Rigidbody2D targetBody;
+        [SerializeField] private PlayerMovement2D targetMovement;
         [SerializeField, Range(0.05f, 0.45f)] private float horizontalAnchor = 0.24f;
         [SerializeField, Range(0.05f, 0.45f)] private float verticalAnchor = 0.25f;
         [SerializeField, Min(0.01f)] private Vector2 deadZone = new Vector2(0.42f, 0.34f);
@@ -25,11 +26,19 @@ namespace HOne.Platformer
             target = followTarget;
             worldBounds = bounds;
             targetBody = followTarget != null ? followTarget.GetComponent<Rigidbody2D>() : null;
+            targetMovement = followTarget != null ? followTarget.GetComponent<PlayerMovement2D>() : null;
         }
 
         private void Awake()
         {
             followCamera = GetComponent<Camera>();
+            if (target != null)
+            {
+                if (targetBody == null)
+                    targetBody = target.GetComponent<Rigidbody2D>();
+                if (targetMovement == null)
+                    targetMovement = target.GetComponent<PlayerMovement2D>();
+            }
         }
 
         private void LateUpdate()
@@ -42,12 +51,18 @@ namespace HOne.Platformer
             var halfWidth = halfHeight * followCamera.aspect;
             var desiredCenter = GetFocusPoint(halfWidth, halfHeight);
             var targetVelocity = targetBody != null ? targetBody.linearVelocity : Vector2.zero;
+            var maximumTargetVelocity = targetMovement != null
+                ? new Vector2(targetMovement.MaxSpeed, 0f)
+                : Vector2.zero;
 
             if (worldBounds != null)
             {
                 var clampedCenter = worldBounds.ClampCameraCenter(desiredCenter, halfWidth, halfHeight);
                 if (!Mathf.Approximately(clampedCenter.x, desiredCenter.x))
+                {
                     targetVelocity.x = 0f;
+                    maximumTargetVelocity.x = 0f;
+                }
                 if (!Mathf.Approximately(clampedCenter.y, desiredCenter.y))
                     targetVelocity.y = 0f;
                 desiredCenter = clampedCenter;
@@ -73,8 +88,24 @@ namespace HOne.Platformer
             }
 
             var axisAcceleration = maxCameraAcceleration / Mathf.Sqrt(2f);
-            cameraVelocity.x = Mathf.MoveTowards(cameraVelocity.x, desiredVelocity.x, axisAcceleration * deltaTime);
-            cameraVelocity.y = Mathf.MoveTowards(cameraVelocity.y, desiredVelocity.y, axisAcceleration * deltaTime);
+            var axisSpeedLimit = maxCameraSpeed / Mathf.Sqrt(2f);
+            var cameraAcceleration = new Vector2(
+                Mathf.Clamp((desiredVelocity.x - cameraVelocity.x) / deltaTime, -axisAcceleration, axisAcceleration),
+                Mathf.Clamp((desiredVelocity.y - cameraVelocity.y) / deltaTime, -axisAcceleration, axisAcceleration));
+
+            if (tracking)
+            {
+                cameraAcceleration.x = GetSafeAxisAcceleration(error.x, targetVelocity.x, cameraVelocity.x,
+                    maximumTargetVelocity.x, cameraAcceleration.x, axisAcceleration, deltaTime, axisSpeedLimit);
+                cameraAcceleration.y = GetSafeAxisAcceleration(error.y, targetVelocity.y, cameraVelocity.y,
+                    maximumTargetVelocity.y, cameraAcceleration.y, axisAcceleration, deltaTime, axisSpeedLimit);
+            }
+
+            cameraAcceleration.x = LimitAxisAcceleration(cameraVelocity.x, cameraAcceleration.x,
+                deltaTime, axisSpeedLimit);
+            cameraAcceleration.y = LimitAxisAcceleration(cameraVelocity.y, cameraAcceleration.y,
+                deltaTime, axisSpeedLimit);
+            cameraVelocity += cameraAcceleration * deltaTime;
             var nextPosition = currentPosition + cameraVelocity * deltaTime;
             var nextCenter = new Vector3(nextPosition.x, nextPosition.y, transform.position.z);
 
@@ -104,6 +135,48 @@ namespace HOne.Platformer
                 positionGain * distance,
                 Mathf.Sqrt(2f * brakingAcceleration * distance));
             return targetVelocity + Mathf.Sign(error) * relativeSpeed;
+        }
+
+        private float GetSafeAxisAcceleration(float error, float targetVelocity, float cameraAxisVelocity,
+            float maximumTargetSpeed, float requestedAcceleration, float axisAcceleration, float deltaTime,
+            float axisSpeedLimit)
+        {
+            var direction = Mathf.Sign(error);
+            if (direction == 0f)
+                direction = Mathf.Sign(cameraAxisVelocity);
+            if (direction == 0f)
+                direction = Mathf.Sign(targetVelocity);
+            if (direction == 0f)
+                return requestedAcceleration;
+
+            var distance = Mathf.Abs(error);
+            var cameraVelocityTowardTarget = direction * cameraAxisVelocity;
+            var requestedVelocityTowardTarget = cameraVelocityTowardTarget
+                + direction * requestedAcceleration * deltaTime;
+            var minimumReachableVelocity = Mathf.Max(-axisSpeedLimit,
+                cameraVelocityTowardTarget - axisAcceleration * deltaTime);
+            var maximumReachableVelocity = Mathf.Min(axisSpeedLimit,
+                cameraVelocityTowardTarget + axisAcceleration * deltaTime);
+
+            // After this frame, the remaining distance must still cover maximum-speed target motion
+            // during one frame plus the camera's stopping distance under maximum braking.
+            var maximumSafeClosingSpeed = Mathf.Sqrt(
+                axisAcceleration * axisAcceleration * deltaTime * deltaTime
+                + 2f * axisAcceleration * distance) - axisAcceleration * deltaTime;
+            var maximumSafeCameraVelocity = maximumSafeClosingSpeed - maximumTargetSpeed;
+            var safeMaximumReachableVelocity = Mathf.Min(maximumReachableVelocity, maximumSafeCameraVelocity);
+            var nextVelocityTowardTarget = safeMaximumReachableVelocity < minimumReachableVelocity
+                ? minimumReachableVelocity
+                : Mathf.Clamp(requestedVelocityTowardTarget, minimumReachableVelocity, safeMaximumReachableVelocity);
+            var nextCameraVelocity = direction * nextVelocityTowardTarget;
+            return (nextCameraVelocity - cameraAxisVelocity) / deltaTime;
+        }
+
+        private static float LimitAxisAcceleration(float currentVelocity, float acceleration,
+            float deltaTime, float maximumSpeed)
+        {
+            var nextVelocity = Mathf.Clamp(currentVelocity + acceleration * deltaTime, -maximumSpeed, maximumSpeed);
+            return (nextVelocity - currentVelocity) / deltaTime;
         }
 
         private Vector3 GetFocusPoint(float halfWidth, float halfHeight)

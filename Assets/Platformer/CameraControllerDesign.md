@@ -21,9 +21,16 @@ The camera moves each velocity component toward its request with a bounded accel
 a_camera_axis = 12 / sqrt(2)
 ```
 
-For a fixed target or an interval of constant player velocity, the square-root term is the stopping-speed envelope: a closing speed `u` needs `u^2 / (2 * a_camera_axis)` distance to stop. Limiting `u` to `sqrt(2 * a_camera_axis * abs(e))` keeps that stopping distance within the remaining error. The proportional term reduces speed near the target, and `v_t` feed-forward makes camera velocity converge to player velocity during steady movement. At rest, both velocities converge to zero and the camera settles on the focus point. The current grounded player stays below the camera's minimum vertical center, so the vertical map clamp holds the camera steady while gravity settles the player onto the floor.
+The proportional term reduces speed near the target, and `v_t` feed-forward lets camera velocity match player velocity during steady movement when enough position margin remains. The safety filter can leave a fixed position gap instead of converging to the focus point. Since the player can change from rest to `maxSpeed` immediately, even a stationary camera needs a gap before it can guarantee that a reversing player will not cross it. The current grounded player stays below the camera's minimum vertical center, so the vertical map clamp holds the camera steady while gravity settles the player onto the floor.
 
-The player now switches horizontal velocity immediately between `-maxSpeed`, zero, and `+maxSpeed`. During an interval with constant input, the camera's available per-axis braking acceleration is `a_camera_axis`. Key presses, releases, and collision stops are instantaneous target-velocity changes, so they have no finite acceleration bound; the envelope cannot guarantee no overshoot at those transitions.
+The player switches horizontal velocity immediately between `-maxSpeed`, zero, and `+maxSpeed`, so the camera uses the player's speed limit instead of assuming bounded target acceleration. The controller updates camera position with the new velocity each `LateUpdate`, so the safety filter accounts for that discrete step. For one axis, let `d = abs(e)`, `s = sign(e)`, `v_c,next` be the candidate camera velocity after this frame, `V` be the maximum target speed, `a = 12 / sqrt(2)`, and `dt` be the frame duration. The worst-case closing speed after the step is
+
+```text
+q = max(0, s * v_c,next + V)
+d >= q * dt + q^2 / (2 * a)
+```
+
+The second term is the camera's braking distance after the target has moved toward it by at most `V * dt` during this frame. Solving the inequality gives the allowed closing-speed bound `sqrt((a * dt)^2 + 2 * a * d) - a * dt`; the controller projects its requested next velocity onto the reachable velocities below that bound. If the current state is already outside the safe set, it uses the strongest reachable braking command. At 60 frames per second and `V = 4.4`, the minimum distance is about 1.21 units for a stationary camera and 4.71 units while the camera matches a player moving at full speed. These are safety minima, not desired offsets; position convergence is secondary to preserving the no-crossing margin.
 
 ## Why Not a Spring Alone
 
@@ -31,4 +38,4 @@ A critically damped spring uses `a_c = a_t + 2 * omega * (v_t - v_c) + omega^2 *
 
 ## Guarantee Boundary
 
-For a target with bounded acceleration, the no-crossing argument also requires the camera to begin inside the controller's reachable braking envelope. The current player instead changes speed instantaneously on A/D input. If camera position and velocity match the moving target at steady state, then a key release can leave the camera moving with no distance remaining to brake; no finite-acceleration controller can both stop before the target and prevent overshoot in that case. The camera remains acceleration-limited and the map clamp still prevents views beyond the level, but strict no-overshoot at abrupt input or collision transitions is not guaranteed.
+The discrete safety condition guarantees no camera crossing for a continuous target whose speed stays within `V`, provided the camera begins inside the safe set and map-boundary clamping does not teleport either object. When the camera begins too close to the target, or the target exceeds its configured speed bound, finite camera acceleration cannot guarantee no crossing; the filter brakes as strongly as it can until a safe margin is available. At map edges the clamp has priority and prevents views beyond the level. The controller intentionally gives up exact position matching when that is required to preserve the safety margin.

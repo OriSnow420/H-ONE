@@ -12,6 +12,7 @@ namespace HOne.Platformer
         private float horizontalInput;
 
         public Vector2 Velocity => body != null ? body.linearVelocity : Vector2.zero;
+        public float MaxSpeed => maxSpeed;
 
         private void Awake()
         {
