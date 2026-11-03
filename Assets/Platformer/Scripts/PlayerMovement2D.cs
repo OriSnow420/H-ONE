@@ -7,13 +7,11 @@ namespace HOne.Platformer
     public sealed class PlayerMovement2D : MonoBehaviour
     {
         [SerializeField, Min(0.1f)] private float maxSpeed = 4.4f;
-        [SerializeField, Min(0.1f)] private float acceleration = 6f;
 
         private Rigidbody2D body;
         private float horizontalInput;
 
         public Vector2 Velocity => body != null ? body.linearVelocity : Vector2.zero;
-        public float MaxAcceleration => acceleration;
 
         private void Awake()
         {
@@ -41,7 +39,7 @@ namespace HOne.Platformer
         private void FixedUpdate()
         {
             var velocity = body.linearVelocity;
-            velocity.x = Mathf.MoveTowards(velocity.x, horizontalInput * maxSpeed, acceleration * Time.fixedDeltaTime);
+            velocity.x = horizontalInput * maxSpeed;
             body.linearVelocity = velocity;
         }
     }

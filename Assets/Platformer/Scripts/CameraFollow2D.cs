@@ -8,7 +8,6 @@ namespace HOne.Platformer
         [SerializeField] private Transform target;
         [SerializeField] private LevelBounds2D worldBounds;
         [SerializeField] private Rigidbody2D targetBody;
-        [SerializeField] private PlayerMovement2D targetMovement;
         [SerializeField, Range(0.05f, 0.45f)] private float horizontalAnchor = 0.24f;
         [SerializeField, Range(0.05f, 0.45f)] private float verticalAnchor = 0.25f;
         [SerializeField, Min(0.01f)] private Vector2 deadZone = new Vector2(0.42f, 0.34f);
@@ -26,7 +25,6 @@ namespace HOne.Platformer
             target = followTarget;
             worldBounds = bounds;
             targetBody = followTarget != null ? followTarget.GetComponent<Rigidbody2D>() : null;
-            targetMovement = followTarget != null ? followTarget.GetComponent<PlayerMovement2D>() : null;
         }
 
         private void Awake()
@@ -68,7 +66,7 @@ namespace HOne.Platformer
             var desiredVelocity = Vector2.zero;
             if (tracking)
             {
-                var brakingAcceleration = GetRelativeBrakingAcceleration();
+                var brakingAcceleration = GetBrakingAcceleration();
                 desiredVelocity.x = GetDesiredAxisVelocity(error.x, targetVelocity.x, brakingAcceleration);
                 desiredVelocity.y = GetDesiredAxisVelocity(error.y, targetVelocity.y, brakingAcceleration);
                 desiredVelocity = Vector2.ClampMagnitude(desiredVelocity, maxCameraSpeed);
@@ -93,20 +91,18 @@ namespace HOne.Platformer
             transform.position = nextCenter;
         }
 
-        private float GetRelativeBrakingAcceleration()
+        private float GetBrakingAcceleration()
         {
-            var cameraAxisAcceleration = maxCameraAcceleration / Mathf.Sqrt(2f);
-            var targetAxisAcceleration = targetMovement != null ? targetMovement.MaxAcceleration : 0f;
-            return Mathf.Max(0.1f, cameraAxisAcceleration - targetAxisAcceleration);
+            return maxCameraAcceleration / Mathf.Sqrt(2f);
         }
 
-        private float GetDesiredAxisVelocity(float error, float targetVelocity, float relativeBrakingAcceleration)
+        private float GetDesiredAxisVelocity(float error, float targetVelocity, float brakingAcceleration)
         {
             var distance = Mathf.Abs(error);
             var relativeSpeed = Mathf.Min(
                 maxCatchUpSpeed,
                 positionGain * distance,
-                Mathf.Sqrt(2f * relativeBrakingAcceleration * distance));
+                Mathf.Sqrt(2f * brakingAcceleration * distance));
             return targetVelocity + Mathf.Sign(error) * relativeSpeed;
         }
 
