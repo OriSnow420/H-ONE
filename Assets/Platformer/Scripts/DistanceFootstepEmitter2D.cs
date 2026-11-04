@@ -6,14 +6,14 @@ namespace HOne.Platformer
     [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
     public sealed class DistanceFootstepEmitter2D : MonoBehaviour
     {
-        [SerializeField, Min(0.1f)] private float stepDistance = 1.25f;
+        [SerializeField, Min(0.1f)] private float stepInterval = 0.38f;
         [SerializeField, Min(0.1f)] private float teleportThreshold = 2f;
 
         private readonly ContactPoint2D[] contacts = new ContactPoint2D[8];
         private Rigidbody2D body;
         private Collider2D footCollider;
         private float previousX;
-        private float distanceSinceStep;
+        private float timeSinceStep;
 
         public event Action<Vector2> Step;
 
@@ -29,16 +29,16 @@ namespace HOne.Platformer
             var currentX = body.position.x;
             var traveled = Mathf.Abs(currentX - previousX);
             previousX = currentX;
-            if (traveled > teleportThreshold || !IsGrounded())
+            if (traveled > teleportThreshold || traveled < 0.0001f || !IsGrounded())
             {
-                distanceSinceStep = 0f;
+                timeSinceStep = 0f;
                 return;
             }
 
-            distanceSinceStep += traveled;
-            while (distanceSinceStep >= stepDistance)
+            timeSinceStep += Time.fixedDeltaTime;
+            if (timeSinceStep >= stepInterval)
             {
-                distanceSinceStep -= stepDistance;
+                timeSinceStep -= stepInterval;
                 Step?.Invoke(new Vector2(currentX, footCollider.bounds.min.y));
             }
         }

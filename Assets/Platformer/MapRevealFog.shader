@@ -3,6 +3,7 @@ Shader "HOne/Map Reveal Fog"
     Properties
     {
         _RevealMask ("Reveal Mask", 2D) = "black" {}
+        _FlashMask ("Flash Mask", 2D) = "black" {}
     }
     SubShader
     {
@@ -32,13 +33,12 @@ Shader "HOne/Map Reveal Fog"
 
             TEXTURE2D(_RevealMask);
             SAMPLER(sampler_RevealMask);
+            TEXTURE2D(_FlashMask);
+            SAMPLER(sampler_FlashMask);
             float4 _MapMinimum;
             float4 _MapSize;
-            float4 _PlayerPosition;
-            float _PlayerRadius;
-            float _EdgeFeather;
-            int _PulseCount;
-            float4 _PulseData[32];
+            int _LightCount;
+            float4 _LightData[16];
 
             Varyings Vert(Attributes input)
             {
@@ -52,27 +52,21 @@ Shader "HOne/Map Reveal Fog"
             half4 Frag(Varyings input) : SV_Target
             {
                 float2 uv = (input.positionWS - _MapMinimum.xy) / _MapSize.xy;
-                float reveal = SAMPLE_TEXTURE2D(_RevealMask, sampler_RevealMask, uv).r;
-                float playerDistance = distance(input.positionWS, _PlayerPosition.xy);
-                reveal = max(reveal, 1.0 - smoothstep(_PlayerRadius - _EdgeFeather,
-                    _PlayerRadius + _EdgeFeather, playerDistance));
+                float reveal = saturate(SAMPLE_TEXTURE2D(_RevealMask, sampler_RevealMask, uv).r);
+                float flash = saturate(SAMPLE_TEXTURE2D(_FlashMask, sampler_FlashMask, uv).r);
 
-                float ring = 0.0;
-                for (int i = 0; i < _PulseCount; i++)
+                float pointLight = 0.0;
+                for (int i = 0; i < _LightCount; i++)
                 {
-                    float distanceToPulse = distance(input.positionWS, _PulseData[i].xy);
-                    float radius = _PulseData[i].z;
-                    reveal = max(reveal, 1.0 - smoothstep(radius - _EdgeFeather,
-                        radius + _EdgeFeather, distanceToPulse));
-                    ring = max(ring, (1.0 - smoothstep(0.0, 0.18,
-                        abs(distanceToPulse - radius))) * _PulseData[i].w);
+                    float distanceToPoint = distance(input.positionWS, _LightData[i].xy);
+                    pointLight = max(pointLight,
+                        (1.0 - smoothstep(0.06, 0.35, distanceToPoint)) * _LightData[i].z);
                 }
 
-                float fogAlpha = 1.0 - reveal;
-                float ringAlpha = ring * 0.55;
-                float3 fogColor = float3(0.006, 0.008, 0.012);
-                float3 ringColor = float3(0.53, 0.74, 0.70);
-                return half4(lerp(fogColor, ringColor, ring), max(fogAlpha, ringAlpha));
+                float brightness = max(flash, pointLight);
+                float fogAlpha = 1.0 - 0.42 * reveal;
+                float whiteAlpha = lerp(0.72, 1.0, pointLight);
+                return half4(brightness.xxx, lerp(fogAlpha, whiteAlpha, brightness));
             }
             ENDHLSL
         }
