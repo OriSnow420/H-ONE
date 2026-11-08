@@ -20,11 +20,14 @@ namespace HOne.Game.Tests
         private Scene scene;
         private float fixedStep, scale;
         private InputSettings.EditorInputBehaviorInPlayMode inputBehavior;
+        private InputSettings.BackgroundBehavior backgroundBehavior;
 
         [UnitySetUp] public IEnumerator LoadCoreScene()
         {
             fixedStep = Time.fixedDeltaTime; scale = Time.timeScale;
             inputBehavior = InputSystem.settings.editorInputBehaviorInPlayMode;
+            backgroundBehavior = InputSystem.settings.backgroundBehavior;
+            InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
             InputSystem.settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
             Time.timeScale = 1f; Time.fixedDeltaTime = 0.02f;
             keyboard = InputSystem.AddDevice<Keyboard>(); mouse = InputSystem.AddDevice<Mouse>();
@@ -55,6 +58,7 @@ namespace HOne.Game.Tests
             if (keyboard != null && keyboard.added) InputSystem.RemoveDevice(keyboard);
             if (mouse != null && mouse.added) InputSystem.RemoveDevice(mouse);
             InputSystem.settings.editorInputBehaviorInPlayMode = inputBehavior;
+            InputSystem.settings.backgroundBehavior = backgroundBehavior;
             Time.fixedDeltaTime = fixedStep; Time.timeScale = scale;
         }
 

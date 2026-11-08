@@ -45,7 +45,14 @@ namespace HOne.Game
                     if (touched.Add(fragment.StableId)) fragment.TryCollect();
                 }
                 else
+                {
+                    if (contact.Embedded)
+                    {
+                        var socket = contact.Collider.GetComponent<StarSocket>();
+                        if (socket == null || !socket.TryEmbed()) continue;
+                    }
                     Impact?.Invoke(contact);
+                }
             }
             return path.Ended || path.Travelled >= range - 0.0001f;
         }

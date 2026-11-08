@@ -1,5 +1,5 @@
 {
   "name": "HOne.Game",
   "rootNamespace": "HOne.Game",
-  "references": ["HOne.Platformer", "Unity.InputSystem"]
+  "references": ["HOne.Platformer", "Unity.InputSystem", "Unity.ugui"]
 }

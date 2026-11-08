@@ -31,12 +31,14 @@ namespace HOne.Game
         public readonly Vector2 Point;
         public readonly Vector2 Normal;
         public readonly bool Reflected;
-        public StarContact(RaycastHit2D hit, bool reflected)
+        public readonly bool Embedded;
+        public StarContact(RaycastHit2D hit, bool reflected, bool embedded = false)
         {
             Collider = hit.collider;
             Point = hit.point;
             Normal = hit.normal;
             Reflected = reflected;
+            Embedded = embedded;
         }
     }
 
@@ -61,8 +63,10 @@ namespace HOne.Game
         private static int Priority(Collider2D collider)
         {
             if (collider.GetComponentInParent<Hazard2D>() != null) return 0;
-            if (collider.GetComponentInParent<StarFragment>() != null) return 1;
-            return 2;
+            var socket = collider.GetComponent<StarSocket>();
+            if (socket != null && socket.Available) return 1;
+            if (collider.GetComponentInParent<StarFragment>() != null) return 2;
+            return 3;
         }
 
         private static int CompareHits(RaycastHit2D a, RaycastHit2D b)
@@ -95,7 +99,8 @@ namespace HOne.Game
                         continue;
                     var hazard = collider.GetComponentInParent<Hazard2D>() != null;
                     var fragment = collider.GetComponentInParent<StarFragment>() != null;
-                    if (collider.isTrigger && !hazard)
+                    var socket = collider.GetComponent<StarSocket>();
+                    if (collider.isTrigger && !hazard && socket == null)
                     {
                         if (fragment) contacts?.Add(new StarContact(hit, false));
                         continue;
@@ -109,6 +114,12 @@ namespace HOne.Game
                     state.Travelled += hit.distance;
                     remaining -= hit.distance;
                     points?.Add(state.Position);
+                    if (!hazard && socket != null && socket.Available)
+                    {
+                        contacts?.Add(new StarContact(hit, false, true));
+                        state.Ended = true;
+                        return;
+                    }
                     var reflect = !hazard && state.BouncesLeft > 0 && hit.distance > 0.00001f;
                     contacts?.Add(new StarContact(hit, reflect));
                     if (!reflect)

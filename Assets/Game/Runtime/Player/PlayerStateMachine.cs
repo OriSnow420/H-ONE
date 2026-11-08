@@ -5,6 +5,7 @@ using UnityEngine;
 namespace HOne.Game
 {
     public enum PlayerState { Human, Charging, StarFlight, Reforming }
+    public enum ReformReason { Failure, Embedded, PuzzleReset }
 
     [RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D), typeof(PlayerInputReader))]
     public sealed class PlayerStateMachine : MonoBehaviour
@@ -31,6 +32,7 @@ namespace HOne.Game
         public int WorldMask => worldMask;
         public bool IsGrounded => human != null && human.Grounded;
         public bool Paused { get; private set; }
+        public ReformReason ReformReason { get; private set; }
         public float Charge => Mathf.Clamp01(chargeAge / tuning.ChargeSeconds);
         public Vector2 AimDirection { get; private set; } = Vector2.right;
         public Vector2 Position => body.position;
@@ -55,7 +57,11 @@ namespace HOne.Game
             }
             human = new HumanoidMotor2D(body, shape, tuning, worldMask);
             star = new StarFlightMotor2D(body, tuning, worldMask, transform);
-            star.Impact += contact => StarImpact?.Invoke(contact);
+            star.Impact += contact =>
+            {
+                StarImpact?.Invoke(contact);
+                if (contact.Embedded) BeginReform(ReformReason.Embedded);
+            };
             SetHumanBody();
         }
 
@@ -73,6 +79,8 @@ namespace HOne.Game
         {
             if (Paused) return;
             var input = Input.Consume();
+            if (input.Recall && State != PlayerState.Reforming && session.Shadows != null)
+                session.Shadows.BeginRecall();
             if (bounds != null && (body.position.x < bounds.Minimum.x || body.position.x > bounds.Maximum.x ||
                 body.position.y < bounds.Minimum.y || body.position.y > bounds.Maximum.y)) Fail();
             switch (State)
@@ -151,8 +159,12 @@ namespace HOne.Game
         }
 
         public void Fail()
+        { BeginReform(ReformReason.Failure); }
+
+        private void BeginReform(ReformReason reason)
         {
             if (State == PlayerState.Reforming) return;
+            ReformReason = reason;
             Input.DiscardUntilRelease();
             shape.enabled = false;
             body.linearVelocity = Vector2.zero;
@@ -161,6 +173,17 @@ namespace HOne.Game
             human.Reset();
             reformAge = chargeAge = 0f;
             ChangeState(PlayerState.Reforming);
+        }
+
+        public bool BeginPuzzleReset(Checkpoint checkpoint)
+        {
+            if (checkpoint == null || !checkpoint.TryGetSafePosition(shape.size, worldMask, out var safe)) return false;
+            BeginReform(ReformReason.PuzzleReset);
+            ReformReason = ReformReason.PuzzleReset;
+            reformAge = 0f;
+            body.position = safe;
+            human.Reset();
+            return true;
         }
 
         private void ChangeState(PlayerState value)

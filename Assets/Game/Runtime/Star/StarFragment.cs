@@ -20,8 +20,12 @@ namespace HOne.Game
         private void OnEnable()
         {
             if (session != null)
+            {
+                session.ProgressReset += Refresh;
                 Refresh();
+            }
         }
+        private void OnDisable() { if (session != null) session.ProgressReset -= Refresh; }
 
         public bool TryCollect()
         {

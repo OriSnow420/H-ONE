@@ -6,7 +6,7 @@ namespace HOne.Game
     public struct PlayerInputFrame
     {
         public float Move;
-        public bool Jump, ChargePressed, ChargeReleased, Cancel;
+        public bool Jump, ChargePressed, ChargeReleased, Cancel, Recall;
     }
 
     public sealed class PlayerInputReader : MonoBehaviour
@@ -41,6 +41,7 @@ namespace HOne.Game
                 requireChargeRelease = false;
             };
             gameplay.FindAction("Cancel", true).performed += _ => pending.Cancel = true;
+            gameplay.FindAction("Recall", true).performed += _ => pending.Recall = true;
             instance.FindAction("System/Pause", true).performed += _ => pauseRequested = true;
         }
 

@@ -8,8 +8,11 @@ namespace HOne.Game
         [SerializeField] private string stableId;
         [SerializeField] private Transform spawn;
         [SerializeField] private Transform[] fallbackSpawns = new Transform[0];
+        [SerializeField] private PuzzleGroup puzzle;
+        public PuzzleGroup Puzzle => puzzle;
+        public void ConfigurePuzzle(PuzzleGroup group) => puzzle = group;
         public string StableId => stableId;
-        public Vector2 SpawnPosition => spawn.position;
+        public Vector2 SpawnPosition => spawn != null ? (Vector2)spawn.position : (Vector2)transform.position;
 
         public void Configure(string id, Transform spawnPoint, params Transform[] alternatives)
         {
