@@ -1,0 +1,3 @@
+# CI player entry point, followed by any additional scenes to include.
+# Paths are relative to the Unity project root. Keep scenes and their .meta in Git.
+Assets/Game/Scenes/Chapter01_Core.unity
