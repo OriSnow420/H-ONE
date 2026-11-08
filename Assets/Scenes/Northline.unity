@@ -2083,10 +2083,11 @@ MonoBehaviour:
   player: {fileID: 827897039}
   footstepSource: {fileID: 827897040}
   fogMaterialTemplate: {fileID: 2100000, guid: 255cc6a3aafdde44e85c139088c2326e, type: 2}
-  playerVisibilityRadius: 1.7
-  footstepRevealRadius: 3
-  pulseDuration: 0.7
-  edgeFeather: 0.6
+  initialVisibilityRadius: 1.5
+  movementRevealRadius: 2.3
+  flashDuration: 0.9
+  pointDuration: 0.5
+  edgeFeather: 1.1
 --- !u!1 &729147290
 GameObject:
   m_ObjectHideFlags: 0
@@ -2891,7 +2892,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3214983673565b94d93234a0f1aed3cf, type: 3}
   m_Name:
   m_EditorClassIdentifier:
-  stepDistance: 1.25
+  stepInterval: 0.38
   teleportThreshold: 2
 --- !u!114 &827897041
 MonoBehaviour:
