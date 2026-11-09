@@ -29,6 +29,8 @@
 /ProjectSettings/Packages/com.unity.pipeline/
 /artifacts/
 /dist/
+# Local preparation scripts are kept outside version control.
+/tools/
 # CI activation material must remain in GitHub Secrets.
 *.alf
 *.ulf

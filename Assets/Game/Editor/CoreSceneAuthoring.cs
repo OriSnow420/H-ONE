@@ -148,6 +148,7 @@ namespace HOne.Game.Editor
             audio.Configure(player, AssetDatabase.LoadAssetAtPath<UnityEngine.Audio.AudioMixer>(Root + "Audio/Mixers/Core.mixer").FindMatchingGroups("SFX")[0],
                 Cue("charge_start"), Cue("charge_loop"), Cue("launch"), Cue("wall"), Cue("fail"), Cue("reform"), Cue("collect"));
 
+            DeliveredArtAuthoring.ApplyToScene(root);
             EditorSceneManager.SaveScene(scene, ScenePath);
             AssetDatabase.SaveAssets();
             EditorSceneManager.CloseScene(scene, true);

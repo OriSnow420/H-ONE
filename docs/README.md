@@ -12,7 +12,8 @@
 | [关卡编辑器与 M2 元件](05-关卡编辑器与M2元件.md) | 创建关卡、摆放/连线、谜题复位、Prefab 接口与校验 |
 | [占位美术替换 Checklist](06-占位美术替换Checklist.md) | 当前资源台账、实际使用位置、逐项替换状态、缺失交付与验收证据 |
 | [CI/CD 与 GitHub 配置](07-CI-CD与GitHub配置.md) | 自动测试、多平台构建、WebGL Pages 发布与许可证/Secrets 设置 |
-| [H-ONE-arts 素材核查](08-H-ONE-arts素材核查.md) | 外部原始素材的只读使用限制、程序技术检查、候选映射与接入缺口 |
+| [H-ONE-arts 素材核查](08-H-ONE-arts素材核查.md) | 11-08 历史素材/权限快照、程序技术检查与当时的接入缺口 |
+| [美术试装记录](09-美术试装记录.md) | 当前来源规范、派生素材映射、Unity 试装与运行证据、剩余交付 |
 
 **总体决策：保留现有 Unity 工程，重构玩法层，新建第一章场景。** M0/M1/M2 的程序、场景与运行验证以[开发进度](04-开发进度.md)中的证据为准；核心入口为 `Assets/Game/Scenes/Chapter01_Core.unity`，M2 样例与游戏内关卡编辑器入口为 `Assets/Game/Scenes/Chapter01_ShadowSlice.unity`。另有 H-ONE 菜单下的 Unity Editor 元件摆放工具。正式第一关和整批 P0 美术/音频仍待完成，详见进度记录。
 

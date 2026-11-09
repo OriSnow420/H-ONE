@@ -8,6 +8,9 @@ namespace HOne.Game
         [SerializeField] private RuntimeLevelEditor levelEditor;
         [SerializeField] private GameObject panel;
         [SerializeField] private UnityEngine.UI.Button resume, resetPuzzle, restartLevel;
+        [SerializeField] private PauseArtwork artwork;
+        private bool shown;
+        public void ConfigureArt(PauseArtwork view) => artwork = view;
         public void Configure(PlayerStateMachine owner, GameObject view, UnityEngine.UI.Button resumeButton,
             UnityEngine.UI.Button puzzleButton, UnityEngine.UI.Button restartButton)
         { player = owner; panel = view; resume = resumeButton; resetPuzzle = puzzleButton; restartLevel = restartButton; }
@@ -23,11 +26,16 @@ namespace HOne.Game
             resume.onClick.RemoveListener(Resume);
             resetPuzzle.onClick.RemoveListener(ResetPuzzle);
             restartLevel.onClick.RemoveListener(RestartLevel);
+            if (artwork != null) artwork.SetVisible(false);
+            shown = false;
         }
         private void Update()
         {
             var shouldShow = player.Paused && (levelEditor == null || !levelEditor.IsEditing);
-            if (panel.activeSelf != shouldShow) panel.SetActive(shouldShow);
+            if (artwork == null)
+            { if (panel.activeSelf != shouldShow) panel.SetActive(shouldShow); }
+            else if (shown != shouldShow)
+            { shown = shouldShow; artwork.SetVisible(shouldShow); }
         }
         public void Resume() => player.SetPaused(false);
         public void ResetPuzzle() { if (player.Session.ResetCurrentPuzzle(player)) Resume(); }

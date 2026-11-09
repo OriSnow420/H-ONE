@@ -143,6 +143,7 @@ namespace HOne.Game.Editor
                 Solid(root, session, "RightWall", new Vector2(13.25f, 3f), new Vector2(0.5f, 8f));
                 Solid(root, session, "Ceiling", new Vector2(0.5f, 8.75f), new Vector2(25f, 0.5f));
                 EnsureRuntimeMetadata(root);
+                DeliveredArtAuthoring.ApplyToScene(root);
                 Physics2D.SyncTransforms();
                 EditorSceneManager.SaveScene(scene, path); AssetDatabase.SaveAssets();
             }

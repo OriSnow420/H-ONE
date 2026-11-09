@@ -94,6 +94,7 @@ namespace HOne.Game.Editor
                     go.AddComponent<PressureWeight>().Configure(NewId("stone"), PressureWeightKind.Stone);
                     go.AddComponent<ResettableBody2D>(); break;
             }
+            DeliveredArtAuthoring.ApplyToPiece(go, kind);
             return go;
         }
 
