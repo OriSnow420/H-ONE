@@ -83,6 +83,9 @@ jobs:
       - name: Run EditMode and PlayMode tests
         uses: game-ci/unity-test-runner@32e57712352b500e17974b245a6dce9e11a73213 # v4.4.0
         env:
+          # v4.4.0 emits an unsupported --no-coverageEnabled flag for the false input.
+          # Use the CLI's supported environment option to disable coverage instead.
+          GAME_CI_COVERAGE_ENABLED: 'false'
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
@@ -91,7 +94,6 @@ jobs:
           unityVersion: auto
           cliVersion: v0.1.72
           testMode: all
-          coverageEnabled: false
           artifactsPath: artifacts/tests
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           checkName: Unity test results

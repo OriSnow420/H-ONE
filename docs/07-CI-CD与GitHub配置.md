@@ -14,7 +14,7 @@
 
 执行顺序：工作流 lint → 检查许可证 Secrets → 两类 Unity 测试 → 四个平台构建 → `CI gate` → Pages。任一前置阶段失败，后续部署停止，现有网站保留上次成功版本。`CI gate` 汇总前置阶段的真实状态，适合作为分支保护的必需检查；它不包含部署结果，部署结果见独立的 Pages job。
 
-- 测试在 Linux Editor 中执行，两类测试按顺序运行；关闭了未安装 Code Coverage 包的覆盖率采集。
+- 测试在 Linux Editor 中执行，两类测试按顺序运行；通过 `GAME_CI_COVERAGE_ENABLED: 'false'` 关闭未安装 Code Coverage 包的覆盖率采集。当前固定的 Action 会将 `coverageEnabled: false` 转成 CLI 不接受的 `--no-coverageEnabled`，因此使用 CLI 支持的环境选项；不要改回该 Action input。
 - 桌面版本在 Ubuntu runner 的 Unity 容器中使用 Mono 交叉构建；WebGL 使用 Unity 的 WebGL 工具链。构建成功不等于各平台实机运行已验收。
 - 构建矩阵默认一次运行一个任务，减少单个 workflow 的许可证并发占用。其他分支的手动运行和其他 PR 仍可能同时占用许可证；按实际授权席位安排运行。
 - `Library` 按测试/目标平台分别缓存，包含包和项目设置的指纹；源文件变化继续由 Unity 增量导入。
@@ -104,6 +104,7 @@ WebGL 构建临时使用 **Gzip + Decompression Fallback**，并关闭线程。P
 
 | 现象 | 检查方法 |
 | --- | --- |
+| `Unknown argument: noCoverageEnabled`，无测试 XML | 测试工具参数解析失败，Unity 尚未启动。使用测试步骤的 `GAME_CI_COVERAGE_ENABLED: 'false'`，移除 `with.coverageEnabled: false`，提交修复后新建一次运行；重新运行旧提交仍会使用旧配置 |
 | license configuration 失败 | 检查 Repository secrets 名称、三项 Personal/Pro 凭据或许可服务器地址是否齐全 |
 | 激活失败 / No valid Unity license | 检查 `.ulf` 是否完整、账号授权是否有效、Unity 6 授权流程与 GameCI 是否兼容、是否耗尽并发席位 |
 | Fork / Dependabot PR 没有 Secrets | GitHub 默认不向这些 PR 提供 Unity 凭据；本流程会明确失败。维护者审查后将可信变更带到本仓库普通分支再开 PR；不要改用 `pull_request_target` 执行外部代码或向其暴露 Secrets |
@@ -122,3 +123,7 @@ WebGL 构建临时使用 **Gzip + Decompression Fallback**，并关闭线程。P
 GitHub 只读检查确认：Actions 已启用，允许全部 Actions，默认 token 为只读；尚未设置 Actions Secrets，Pages 站点尚未启用。本次没有提交、推送或更改 GitHub 设置。Docker 镜像目录的网络检查超时，未确认当前版本各模块镜像的远端可用性。
 
 该配置需在 GitHub 配置好 Unity 凭据、合入/推送 workflow 后执行首次云端验收。尚未实际运行云端 Unity 测试、多平台构建或部署；工作流静态 lint、Editor 脚本编译和本地场景清单读取通过，都不能替代云端激活、实际多平台构建、Pages 部署和浏览器游玩验证。验收状态应按实际运行结果记录。
+
+2026-11-09 检查[运行 42481283634](https://github.com/OriSnow420/H-ONE/actions/runs/42481283634)（提交 `5814a8f7533c2da6c448ee2ce5f27583619eea2d`）：lint 和 Secrets 填写预检查通过；测试步骤在 CLI 参数解析阶段报 `Unknown argument: noCoverageEnabled`、退出码 1。Unity 尚未启动，没有测试报告或 artifacts，构建与部署被跳过。这是测试工具的参数兼容性问题，该次运行不能证明游戏测试通过或失败；Secrets 已填写也不能证明许可证已经激活成功。
+
+修复只调整 workflow 的覆盖率参数传递方式。使用经官方 SHA-256 清单核验的 GameCI CLI `v0.1.72` 在本地复现旧错误，再用 Docker 命令替身检查修复后的实际调用：CLI 已完成参数解析，向容器传递 `COVERAGE_ENABLED=false` 和 `TEST_PLATFORMS=playmode;editmode;COMBINE_RESULTS`。此检查没有启动容器或 Unity、没有读取 GitHub Secrets；真实测试结论仍需在提交修复后的新一轮云端运行中取得。
