@@ -70,7 +70,10 @@ namespace HOne.Game
             transform.position = record.position;
             transform.rotation = Quaternion.Euler(0f, 0f, record.rotation);
             gameObject.name = record.name;
-            if (record.size.x > 0f && record.size.y > 0f && GetComponent<BoxCollider2D>() is BoxCollider2D box &&
+            if (TryGetComponent<Rigidbody2D>(out var body))
+            { body.position = record.position; body.rotation = record.rotation; }
+            if (TryGetComponent<ResettableBody2D>(out var resettable)) resettable.CaptureInitialPose();
+            if (record.size.x > 0f && record.size.y > 0f && TryGetComponent<BoxCollider2D>(out var box) &&
                 kind != RuntimeLevelPieceKind.PlatformSocket && kind != RuntimeLevelPieceKind.PlateSocket &&
                 kind != RuntimeLevelPieceKind.PressurePlate)
             {

@@ -92,9 +92,9 @@ workflow 使用官方 Pages artifact + OIDC 部署，不需要 `gh-pages` 分支
 
 ## 构建入口和 WebGL 约定
 
-场景清单为 [`.github/unity-build-scenes.txt`](../.github/unity-build-scenes.txt)，**第一条有效路径就是启动场景**。目前默认只打包已纳入 Git 的 `Assets/Game/Scenes/Chapter01_Core.unity`，因此发布的是 M0/M1 技术样例，不是尚待完成的第一章正式关卡。
+场景清单为 [`.github/unity-build-scenes.txt`](../.github/unity-build-scenes.txt)，**第一条有效路径就是启动场景**。2026-11-10 的 M2 收尾清单为 `Assets/Game/Scenes/MainMenu.unity` → `Assets/Game/Scenes/M2_MechanismGallery.unity`，发布的是带主界面的机制试场，尚非第一章正式两关。Editor Build Settings 使用同序清单，构建保护拒绝分歧。
 
-要发布 M2 样例或将来的正式关卡，先提交对应场景、`.meta` 及其依赖，再修改这份清单。例如将 `Assets/Game/Scenes/Chapter01_ShadowSlice.unity` 放在第一条，并按需追加其他场景。清单支持空行和整行 `#` 注释；重复、缺失或无效场景会使构建失败。将场景加入包不会自动生成关卡选择菜单。
+以后发布正式关卡时，先准备对应场景、`.meta` 及依赖，再同步更新清单、主界面导航和 M2 构建保护的发布策略。当前不将 Core/ShadowSlice/Northline/Sample 加入发布列表。清单支持空行和整行 `#` 注释；重复、缺失或无效场景会使构建失败。将场景加入包不会自动生成关卡选择菜单。
 
 [构建脚本](../Assets/Game/Editor/CiBuild.cs)不调用 `PlatformerSceneBuilder`，不改写本地 `EditorBuildSettings.asset`，也不保存或重建场景。CI 中临时将产品名设为 H-ONE，并在构建结束后恢复设置。版本号沿用项目设置，产物所属提交可在 Actions 运行页追溯。
 

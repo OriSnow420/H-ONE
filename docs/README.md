@@ -14,8 +14,9 @@
 | [CI/CD 与 GitHub 配置](07-CI-CD与GitHub配置.md) | 自动测试、多平台构建、WebGL Pages 发布与许可证/Secrets 设置 |
 | [H-ONE-arts 素材核查](08-H-ONE-arts素材核查.md) | 11-08 历史素材/权限快照、程序技术检查与当时的接入缺口 |
 | [美术试装记录](09-美术试装记录.md) | 当前来源规范、派生素材映射、Unity 试装与运行证据、剩余交付 |
+| [M2 收尾与机关试场](10-M2收尾与机关试场.md) | 默认主界面、暂停、机制陈列、工具复位修复与本次验证 |
 
-**总体决策：保留现有 Unity 工程，重构玩法层，新建第一章场景。** M0/M1/M2 的程序、场景与运行验证以[开发进度](04-开发进度.md)中的证据为准；核心入口为 `Assets/Game/Scenes/Chapter01_Core.unity`，M2 样例与游戏内关卡编辑器入口为 `Assets/Game/Scenes/Chapter01_ShadowSlice.unity`。另有 H-ONE 菜单下的 Unity Editor 元件摆放工具。正式第一关和整批 P0 美术/音频仍待完成，详见进度记录。
+**总体决策：保留现有 Unity 工程，重构玩法层，新建第一章场景。** M0/M1/M2 的程序、场景与运行验证以[开发进度](04-开发进度.md)中的证据为准；2026-11-10 起默认入口为 `Assets/Game/Scenes/MainMenu.unity`，开始进入 `M2_MechanismGallery.unity` 机关试场；Core / ShadowSlice 保留为不进入构建的技术样例。运行编辑器仅在 Editor / Development Build 中提供。另有 H-ONE 菜单下的 Unity Editor 元件摆放工具。正式第一关和整批 P0 美术/音频仍待完成，详见进度记录。
 
 文档中的信息分为三种：
 

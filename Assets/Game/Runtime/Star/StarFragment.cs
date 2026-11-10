@@ -12,9 +12,12 @@ namespace HOne.Game
 
         public void Configure(string id, LevelSession level, GameObject view)
         {
+            if (session != null) session.ProgressReset -= Refresh;
             stableId = id;
             session = level;
             visual = view;
+            if (isActiveAndEnabled && session != null)
+            { session.ProgressReset += Refresh; Refresh(); }
         }
 
         private void OnEnable()
@@ -37,7 +40,7 @@ namespace HOne.Game
 
         private void Refresh()
         {
-            var available = !session.HasFragment(stableId);
+            var available = session == null || !session.HasFragment(stableId);
             foreach (var collider in GetComponentsInChildren<Collider2D>())
                 collider.enabled = available;
             if (visual != null)

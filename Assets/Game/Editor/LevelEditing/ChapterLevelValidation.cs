@@ -35,6 +35,10 @@ namespace HOne.Game.Editor
             if (session.Shadows == null || session.Shadows.gameObject.scene != scene)
                 issues.Add(new LevelIssue("LevelSession needs its own ShadowService.", session));
             var ids = new HashSet<string>(StringComparer.Ordinal);
+            var pieceIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var piece in all.OfType<LevelPieceMetadata>())
+                if (string.IsNullOrWhiteSpace(piece.InstanceId) || !pieceIds.Add(piece.InstanceId))
+                    issues.Add(new LevelIssue("Missing or duplicate piece ID: " + piece.name, piece));
             foreach (var component in all)
             {
                 var serialized = new SerializedObject(component);

@@ -8,8 +8,12 @@ namespace HOne.Game
         private Rigidbody2D body;
         private Vector2 initialPosition;
         private float initialRotation;
-        private void Awake()
-        { body = GetComponent<Rigidbody2D>(); initialPosition = body.position; initialRotation = body.rotation; }
+        private void Awake() => CaptureInitialPose();
+        public void CaptureInitialPose()
+        {
+            if (body == null) body = GetComponent<Rigidbody2D>();
+            initialPosition = transform.position; initialRotation = transform.eulerAngles.z;
+        }
         public void ResetPuzzle()
         {
             body.position = initialPosition; body.rotation = initialRotation;

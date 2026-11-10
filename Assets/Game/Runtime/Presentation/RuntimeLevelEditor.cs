@@ -45,6 +45,7 @@ namespace HOne.Game
         private float grid = 0.25f;
         private string groupId;
         private bool dragging, panning, isPlaytesting;
+        private float savedCameraSize;
 
         public bool IsEditing => mode == Mode.Editing;
         public string CurrentLevelName => current != null ? current.levelId : "untitled";
@@ -55,6 +56,9 @@ namespace HOne.Game
 
         private void Awake()
         {
+#if !UNITY_EDITOR && !DEVELOPMENT_BUILD
+            enabled = false;
+#else
             if (catalog == null || session == null || player == null || worldCamera == null || levelRoot == null)
             {
                 Debug.LogError("RuntimeLevelEditor needs catalog, session, player, camera and level root.", this);
@@ -72,6 +76,7 @@ namespace HOne.Game
             current = CaptureDocument();
             nameInput.text = current.levelId;
             RefreshFileList();
+#endif
         }
 
         private void OnDestroy()
@@ -173,10 +178,12 @@ namespace HOne.Game
         private void EnterEditor()
         {
             if (mode == Mode.Editing) return;
+            savedCameraSize = worldCamera.orthographicSize;
             mode = Mode.Editing;
             player.SetPaused(true);
             player.Input.enabled = false;
             current = CaptureDocument();
+            RefreshGroupResetTargets();
             nameInput.text = current.levelId;
             editorPanel.SetActive(true); gameEditButton.gameObject.SetActive(false);
             RefreshGroupList(); RefreshSelection(null); SetTool(Tool.Select);
@@ -195,6 +202,7 @@ namespace HOne.Game
             isPlaytesting = false;
             gameEditButtonText.text = "Edit level";
             player.Input.enabled = true;
+            worldCamera.orthographicSize = savedCameraSize;
             player.SetPaused(false);
         }
 
@@ -211,6 +219,7 @@ namespace HOne.Game
                 statusText.text = "Saved. Play test starts from the entry dais.";
                 session.SetAllowedFragmentIds(document.pieces
                     .Where(piece => piece.kind == RuntimeLevelPieceKind.Fragment).Select(piece => piece.fragmentId));
+                RefreshGroupResetTargets();
                 isPlaytesting = true;
                 gameEditButtonText.text = "Stop test";
                 mode = Mode.Playing; tool = Tool.Select; pendingBarrier = null;
@@ -225,6 +234,7 @@ namespace HOne.Game
                     return;
                 }
                 player.Input.enabled = true;
+                worldCamera.orthographicSize = savedCameraSize;
                 player.SetPaused(false);
             }
             catch (Exception exception) { statusText.text = exception.Message; }
@@ -348,6 +358,7 @@ namespace HOne.Game
             var body = selected.GetComponent<Rigidbody2D>();
             if (body != null) { body.position = position; body.linearVelocity = Vector2.zero; }
             else selected.transform.position = position;
+            if (selected.TryGetComponent<ResettableBody2D>(out var resettable)) resettable.CaptureInitialPose();
             Physics2D.SyncTransforms();
         }
 
@@ -360,7 +371,7 @@ namespace HOne.Game
             {
                 foreach (var view in selected.GetComponentsInChildren<SpriteRenderer>(true))
                 { originalColors[view] = view.color; view.color = Color.white; }
-                if (selected.GetComponent<BoxCollider2D>() is BoxCollider2D box)
+                if (selected.TryGetComponent<BoxCollider2D>(out var box))
                 { widthInput.text = box.size.x.ToString("0.##", CultureInfo.InvariantCulture); heightInput.text = box.size.y.ToString("0.##", CultureInfo.InvariantCulture); }
             }
             RefreshSelection(selected);
@@ -416,6 +427,7 @@ namespace HOne.Game
                 id = id, name = kind.ToString(), kind = kind, position = position,
                 size = box != null ? box.size : Vector2.one,
                 groupId = puzzleId,
+                barrierSolidWhenTrue = kind != RuntimeLevelPieceKind.Gate,
                 fragmentId = kind == RuntimeLevelPieceKind.Fragment ? Guid.NewGuid().ToString("N") : null,
                 checkpointId = kind == RuntimeLevelPieceKind.Checkpoint ? Guid.NewGuid().ToString("N") : null,
                 socketId = kind == RuntimeLevelPieceKind.PlatformSocket || kind == RuntimeLevelPieceKind.PlateSocket ? Guid.NewGuid().ToString("N") : null,
@@ -615,6 +627,7 @@ namespace HOne.Game
                 document.pieces.Where(p => p.kind == RuntimeLevelPieceKind.Fragment).Select(p => p.fragmentId),
                 entry, groupMap.Values.ToArray());
             current = document; groupId = entry.Puzzle != null ? entry.Puzzle.StableId : groupMap.Keys.FirstOrDefault();
+            GetComponent<ShadowFeedback>()?.RefreshSockets();
             RefreshGroupList(); Select(null); Physics2D.SyncTransforms();
         }
 
@@ -653,6 +666,7 @@ namespace HOne.Game
             var gameObject = new GameObject(record.name); gameObject.transform.SetParent(levelRoot.Find("Mechanisms") ?? levelRoot, false);
             var group = gameObject.AddComponent<PuzzleGroup>(); group.Configure(record.id);
             groupId = record.id; RefreshGroupList();
+            RefreshGroupResetTargets();
         }
 
         private void ChangeGroup(int index)
@@ -691,18 +705,23 @@ namespace HOne.Game
 
         private void RefreshGroupResetTargets()
         {
-            foreach (var group in levelRoot.GetComponentsInChildren<PuzzleGroup>(true))
+            var activeGroups = levelRoot.GetComponentsInChildren<PuzzleGroup>(true)
+                .Where(group => group.gameObject.activeInHierarchy).ToArray();
+            foreach (var group in activeGroups)
             {
                 var targets = group.GetComponentsInChildren<MonoBehaviour>(true)
                     .Where(component => component is IPuzzleResettable && component.GetComponentInParent<PuzzleGroup>() == group)
                     .ToArray();
                 group.Configure(group.StableId, targets);
             }
+            session.ConfigureMechanisms(session.Shadows, activeGroups);
+            GetComponent<ShadowFeedback>()?.RefreshSockets();
         }
 
         private void ResizeSelection()
         {
-            if (selected == null || !selected.TryGetComponent<BoxCollider2D>(out var box) ||
+            if (selected == null || selected.GetComponent<StarSocket>() != null || selected.GetComponent<PressurePlate>() != null ||
+                !selected.TryGetComponent<BoxCollider2D>(out var box) ||
                 !float.TryParse(widthInput.text, NumberStyles.Float, CultureInfo.InvariantCulture, out var width) ||
                 !float.TryParse(heightInput.text, NumberStyles.Float, CultureInfo.InvariantCulture, out var height) || width <= 0f || height <= 0f)
             { statusText.text = "Select a box piece and enter positive width and height."; return; }

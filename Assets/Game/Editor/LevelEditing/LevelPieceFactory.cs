@@ -75,6 +75,7 @@ namespace HOne.Game.Editor
                         sensor.offset = new Vector2(0f, 0.2f);
                         plate.AddComponent<PressurePlate>().Configure(sensor, View(plate.transform, "dais", new Vector2(1.2f, 0.18f), blue));
                         shadow.GetComponent<BoxCollider2D>().size = new Vector2(0.9f, 0.18f);
+                        SetVisualSize(topView, new Vector2(0.9f, 0.18f));
                     }
                     socket.Configure(NewId("socket"), null, shadow); break;
                 case LevelPiece.PressurePlate:

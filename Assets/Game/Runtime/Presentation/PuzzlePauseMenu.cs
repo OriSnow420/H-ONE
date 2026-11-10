@@ -9,8 +9,10 @@ namespace HOne.Game
         [SerializeField] private GameObject panel;
         [SerializeField] private UnityEngine.UI.Button resume, resetPuzzle, restartLevel;
         [SerializeField] private PauseArtwork artwork;
+        [SerializeField] private UnityEngine.UI.Button returnToMenu;
         private bool shown;
         public void ConfigureArt(PauseArtwork view) => artwork = view;
+        public void ConfigureNavigation(UnityEngine.UI.Button menuButton) => returnToMenu = menuButton;
         public void Configure(PlayerStateMachine owner, GameObject view, UnityEngine.UI.Button resumeButton,
             UnityEngine.UI.Button puzzleButton, UnityEngine.UI.Button restartButton)
         { player = owner; panel = view; resume = resumeButton; resetPuzzle = puzzleButton; restartLevel = restartButton; }
@@ -20,12 +22,14 @@ namespace HOne.Game
             resume.onClick.AddListener(Resume);
             resetPuzzle.onClick.AddListener(ResetPuzzle);
             restartLevel.onClick.AddListener(RestartLevel);
+            if (returnToMenu != null) returnToMenu.onClick.AddListener(ReturnToMenu);
         }
         private void OnDisable()
         {
             resume.onClick.RemoveListener(Resume);
             resetPuzzle.onClick.RemoveListener(ResetPuzzle);
             restartLevel.onClick.RemoveListener(RestartLevel);
+            if (returnToMenu != null) returnToMenu.onClick.RemoveListener(ReturnToMenu);
             if (artwork != null) artwork.SetVisible(false);
             shown = false;
         }
@@ -40,5 +44,6 @@ namespace HOne.Game
         public void Resume() => player.SetPaused(false);
         public void ResetPuzzle() { if (player.Session.ResetCurrentPuzzle(player)) Resume(); }
         public void RestartLevel() { if (player.Session.RestartLevel(player)) Resume(); }
+        public void ReturnToMenu() => GameFlow.ReturnToMenu(player);
     }
 }

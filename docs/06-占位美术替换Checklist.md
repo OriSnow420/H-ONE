@@ -98,7 +98,7 @@
 
 - [ ] `ART-022` 世界教学剪影与地标 — **占位｜P1｜CH-12、TUT-01–04、TUT-09**。当前 M2 `LevelRoot/Tutorial` 仅静态半透明 `human.png` + 三个 `ring.png`，没有真实自动示范/重播。替换/扩充壁画、正确角度地贴、无底座演示幽灵和可重绑键帽；实际说明入槽→本体返回→踩影→召回，不将静态摆件算成完整教学。第二关补项见 NEW-007。
 
-- [ ] `ART-023` 暂停菜单皮肤与字体 — **部分已接入待验收｜P1｜UI-06、UI-07、UI-10**。`IMG_6055|6054|6053|main-menu.PNG` → `D/pause_0–3.png`，按实际碎片数 0/1/2/3 显示。两场景 `Presentation/PuzzlePauseMenu/Panel/ArtworkFrame/Illustration` 叠加于 `BlurredGame`，`PauseArtwork` 截取冻结游戏画面并虚化，继续/复位/重开按钮维持原回调和独立文本；Canvas 1920×1080、排序 2000。插画图标仍为图内装饰，缺对应设置/返回标题功能、独立四态按钮、中文字体授权及正式布局签收；标题另见 NEW-010。
+- [ ] `ART-023` 暂停菜单皮肤与字体 — **部分已接入待验收｜P1｜UI-06、UI-07、UI-10**。`IMG_6055|6054|6053|main-menu.PNG` → `D/pause_0–3.png`，按实际碎片数 0/1/2/3 显示。ShadowSlice 与 MechanismGallery 的 `Presentation/PuzzlePauseMenu/Panel/ArtworkFrame/Illustration`（Core 未接入） 叠加于 `BlurredGame`，`PauseArtwork` 截取冻结游戏画面并虚化，继续/复位/重开按钮维持原回调和独立文本；Canvas 1920×1080、排序 2000。插画图标仍为图内装饰；11-10 新试场在 `Panel/MenuControls` 左侧 35% 不透明面板覆盖原图标区，放置中文继续/复位/重开/回标题与音乐/音效控件，保留右侧进度柱，字体来源 `Assets/Game/Art/Fonts/manifest.json|LICENSE.txt`；独立四态按钮/正式布局签收仍缺，标题另见 NEW-010。
 
 ## 4. 尚无资源：新增交付 Checklist
 
@@ -113,7 +113,7 @@
 - [ ] `NEW-007` 完整 HUD、操作图标与第二关教学 — **未制作｜P1/P2｜UI-01/04/05、TUT-05–09**。两关碎片栏、单影四态、动态键位字形、演示/重播/目标图标，以及推石/桥/鼓波/里拉 S1/排箫上下的图组；复用 ART-005/006/022，仍需逐关核对。
 - [ ] `NEW-008` 环境装饰与关卡布局补齐 — **前景部分已交付，其余未制作｜P1/P2｜ENV-06–09、ENV-11；ENV-04 第二关布局**。已有前景草图由 ART-010 接入；辅助构件、马赛克/边饰、装饰陶瓶、残石仍缺，复用 ART-010 背景套件；装饰不能形成假平台或假交互提示。
 - [ ] `NEW-009` 尚缺的共用特效 — **未制作｜P1/P2｜FX-03/04/06/14**。发射尾迹、普通撞石粉、入槽展开、走路/落地/推石轻尘；与 §3 已列蓄力/收集/重组/召回及 NEW-002/003 的素材复用，按事件验收，无需为每个事件重复画全套纹理。
-- [ ] `NEW-010` 标题、设置、转场与菜单补页 — **部分已交付、标题尚未接入｜P1/P2｜UI-06–10**。实际源文件 `tittle-screen.PNG`（README 写作 title-screen）→ `D/title.png`，`ChapterArt.asset.Title` 已配置，仅作未来入口候选；当前没有标题/Bootstrap 流程，右侧 UI 待绘。设置、转场、成功章纹仍缺，暂停插画改记 ART-023。来源/配方/修订沿用 §3；不能把备妥单图视为菜单套件完成。
+- [ ] `NEW-010` 标题、设置、转场与菜单补页 — **部分已接入待验收｜P1/P2｜UI-06–10**。实际源文件 `tittle-screen.PNG`（README 写作 title-screen）→ `D/title.png`，`ChapterArt.asset.Title` 已接入 `MainMenu/MainMenuCanvas/TitleArtwork`；`M2MenuAuthoring` 创作默认布局，`MainMenuController` 进入试场/操作声音页/退出，右侧独立 uGUI 为程序布局。音量设置已接，独立四态按钮/最终字版、转场、成功章纹仍缺，暂停插画改记 ART-023。来源/配方/修订沿用 §3；不能把备妥单图视为菜单套件完成。
 
 ## 5. 保留与排除项
 
@@ -178,8 +178,24 @@
 | `rock-dark.PNG`、`rock-light.PNG` | 暗色接 Stone；亮色仅准备 | ART-018，无新增点亮规则 |
 | `bg-level1.PNG`、`fg-level1-grass.PNG` | 背景与前景 | ART-010，非完整地形/神庙模块 |
 | `IMG_6055.PNG`、`IMG_6054.PNG`、`IMG_6053.PNG`、`main-menu.PNG` | 暂停进度 0/1/2/3 片 | ART-023，叠加虚化游戏画面，不当标题页 |
-| `tittle-screen.PNG` | 标题单图，仅备妥 | NEW-010，右侧 UI 与入口流程未制作 |
+| `tittle-screen.PNG` | 标题单图，11-10 接 MainMenu | NEW-010，独立按钮四态/最终美术仍缺 |
 
 38 张派生 PNG 的完整路径、矩形、画布、pivot、PPU、源 SHA-256 与修订均在 [manifest](../Assets/Game/Art/Delivery01/manifest.json)。原始栅格交付已可用，独立分层工程/来源授权清单仍缺。制作入口 `CoreSceneAuthoring`、`LevelPieceFactory`、`M2SceneAuthoring` 会在存在 `ChapterArt.asset` 时应用 `DeliveredArtAuthoring`；Runtime Catalog 引用已保存的 Prefab，故新建/运行实例同步采用试装图。未提供的地墙、星影、教学、环等保留 P0，不全局替换七图。
 
 本次两副本同步/导入、运行检查和限制集中见[美术试装记录](09-美术试装记录.md)，完整条目仍未勾选。后续返修应复查源 README、更新指纹，保留派生图 `.meta` 和玩法根/碰撞，不重新生成旧 P0 覆盖交付。
+
+## 8. M2 收尾使用映射（2026-11-10）
+
+本节补充现有 ID，不新增美术批次、不勾选完整父项。新场景 `Assets/Game/Scenes/M2_MechanismGallery.unity`（根 `MechanismGallery`）和 `MainMenu.unity` 由 Windows Editor 创作并逐文件同步；原 Core/ShadowSlice 不重建。
+
+| 范围 / ID | 当前引用与剩余状态 | 来源、修订与证据 |
+| --- | --- | --- |
+| ART-001/002/003/004/005/007/010/011/012/015/016/017/018/019/020/021 | 新试场 `Actors/ChapterPlayer`、`Collectibles`、`Checkpoints`、`Background`、`Mechanisms` 下的 `01_StarFlight` / `02_ShadowBridge` / `03_StoneGate`、`Geometry`、`Presentation/Trajectory` 复用现有 Prefab/图；保留对应既有缺失状态，不因多一个使用点视为正式完成 | Delivery01 `delivery01-20261109` / manifest / SOURCE_USAGE 沿用 §3；P0 路径/子 Sprite GUID 与 fileID 保留；新场景见 10 收尾记录 |
+| ART-013/014；ME-03、CH-10/FX-08，P1 | PlateSocket 顶条宽 0.9、高 0.18，位置 y=0.3，与原 Collider 对齐；LevelPieceFactory 默认和新试场覆写一致。ShadowFeedback 召回只缩核心，承重条不缩；正式月桂/星尘/回流线仍缺 | 当前仍 `P0/stone.png`、`P0/star.png`，无新增正式源；程序修改与 Prefab 定点调整，未改 PPU/pivot/根 scale/碰撞 |
+| ART-023 / NEW-010；UI-06–10，P1/P2 | MainMenu 标题/中文按钮/操作声音页；试场暂停中文四按钮和双音量滑条；历史 ShadowSlice 保留原菜单。新菜单默认值由 M2MenuAuthoring 创作，新场景制作由 M2ReleaseAuthoring（new only）执行 | 图片仍 Delivery01 原 manifest/hash，未重新裁图或 AI 生成；字体 `Fonts/MenuSans.ttf` 为 Noto Sans SC 400 子集，`m2-menu-20261110`，manifest/README/OFL-1.1 同目录。最终按钮美术与过场仍缺 |
+| ART-022 / NEW-007；TUT-01–09，P1/P2 | 新试场底部仅键位字形提示；未增加自动幽灵/壁画教学，也不把调试传送当教学。原 ShadowSlice 的静态 P0 幽灵保留 | 字形为同一字体；完整教学图源仍缺。陈列可绕过的碎片是有意的机制试验，不作为正式谜题必要性验收 |
+| KEEP-001/004 | Northline/Sample/Backup 和 Core/ShadowSlice 保留在工程，退出发布清单；RuntimeLevelEditor 与 GalleryDebugNavigation 仅在 Editor/Development Build 显示。普通构建仍保留试场的技术地形，不能声称无占位素材 | 无删除原型；菜单/CI/Editor 使用同一两场景顺序，构建保护拒绝清单分歧 |
+
+| 日期 | 更新范围 | 记录 |
+| --- | --- | --- |
+| 2026-11-10 | 上表所有使用点、作者默认值、字体与菜单 | 已接入待验收；Windows 同步、实测状态、分辨率、Console/构建结果以 [10 收尾记录](10-M2收尾与机关试场.md) 为准。完整 ART/NEW 父项维持未勾选；本次为 M2 程序/布局收尾，不授予正式音画签收 |

@@ -194,6 +194,15 @@ namespace HOne.Game.Editor
                 groups.GetArrayElementAtIndex(groups.arraySize - 1).objectReferenceValue = group;
                 serialized.ApplyModifiedProperties();
             }
+            foreach (var metadata in copy.GetComponentsInChildren<LevelPieceMetadata>(true))
+            {
+                var group = metadata.GetComponent<Checkpoint>()?.Puzzle ?? metadata.GetComponentInParent<PuzzleGroup>();
+                metadata.Configure(metadata.Kind, LevelPieceFactory.NewId("piece"), group != null ? group.StableId : null);
+                EditorUtility.SetDirty(metadata);
+            }
+            // Capture after all IDs changed so copied internal links point at the copied source.
+            foreach (var metadata in copy.GetComponentsInChildren<LevelPieceMetadata>(true))
+                metadata.Capture();
             DeclareFragments(copy, level); Selection.activeGameObject = copy;
             EditorSceneManager.MarkSceneDirty(copy.scene);
         }
