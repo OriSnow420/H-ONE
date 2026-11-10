@@ -2,8 +2,30 @@ using UnityEngine;
 
 namespace HOne.Game
 {
-    internal static class FeedbackMenuStyle
+    public static class FeedbackMenuStyle
     {
+        public static void ApplyTextButton(UnityEngine.UI.Button button)
+        {
+            var image = button.GetComponent<UnityEngine.UI.Image>();
+            if (image != null)
+            {
+                image.color = Color.clear;
+                var rim = image.GetComponent<UnityEngine.UI.Outline>();
+                if (rim != null) rim.enabled = false;
+            }
+            var label = button.GetComponentInChildren<UnityEngine.UI.Text>();
+            button.targetGraphic = label;
+            var colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = colors.selectedColor = new Color(1f, 1f, .78f);
+            colors.pressedColor = new Color(1f, .72f, .32f);
+            colors.disabledColor = new Color(.7f, .7f, .7f, .6f);
+            colors.colorMultiplier = 1f;
+            colors.fadeDuration = .08f;
+            button.colors = colors;
+            button.transition = UnityEngine.UI.Selectable.Transition.ColorTint;
+        }
+
         public static void Apply(Transform root)
         {
             if (!Application.isPlaying) return;

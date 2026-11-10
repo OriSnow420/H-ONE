@@ -72,7 +72,7 @@ namespace HOne.Game.Tests
             Assert.IsFalse(start.IsInteractable()); Assert.IsFalse(open.IsInteractable());
             Assert.AreSame(back.gameObject, EventSystem.current.currentSelectedGameObject);
             var text = string.Join("\n", panel.GetComponentsInChildren<Text>().Select(t => t.text));
-            foreach (var name in new[] { "启程之前", "Larse", "墨鱼仔", "平常不在线", "OriSnow420", "游里", "Uuuyv-325/H-ONE" })
+            foreach (var name in new[] { "启程之前", "Larse", "阿锰", "不眠巷", "OriSnow420", "游里", "Uuuyv-325/H-ONE" })
                 StringAssert.Contains(name, text);
             foreach (var c in text.Where(c => !char.IsWhiteSpace(c)))
                 Assert.IsTrue(panel.GetComponentInChildren<Text>().font.HasCharacter(c), "Missing credits glyph: " + c);
@@ -116,14 +116,64 @@ namespace HOne.Game.Tests
             credits.Open(); yield return new WaitForEndOfFrame(); yield return new WaitForSecondsRealtime(.15f);
             Assert.Greater(source.time, before); Assert.IsTrue(source.isPlaying);
             credits.Close();
-            GameFlow.StartChapter(); yield return null; yield return new WaitForSecondsRealtime(.2f);
+            GameFlow.StartChapter();
+            yield return new WaitWhile(() => SceneTransition.IsActive);
+            yield return null;
             Assert.IsTrue(music == null); Assert.IsTrue(source == null);
             Assert.IsNull(Object.FindFirstObjectByType<MenuMusic>());
             GameFlow.ReturnToMenu(Object.FindFirstObjectByType<PlayerStateMachine>());
-            yield return null; yield return new WaitForSecondsRealtime(.2f);
+            yield return new WaitWhile(() => SceneTransition.IsActive);
+            yield return null;
             menu = SceneManager.GetSceneByPath(GameFlow.MainMenuScene);
             Assert.AreEqual(1, Object.FindObjectsByType<MenuMusic>(FindObjectsSortMode.None).Length);
             Assert.IsTrue(Object.FindFirstObjectByType<MenuMusic>().Source.isPlaying);
+        }
+
+        [UnityTest] public IEnumerator StartFlashesBeforeBlackFadesMusicAndReleasesInputAfterLoading()
+        {
+            yield return new WaitForSecondsRealtime(1f);
+            var canvas = credits.transform;
+            var start = canvas.Find("Home/Start").GetComponent<Button>();
+            var music = Object.FindFirstObjectByType<MenuMusic>();
+            var volume = music.Source.volume;
+            start.onClick.Invoke();
+            // Further requests must not replace the destination or create overlapping transitions.
+            GameFlow.OpenGallery();
+            var transition = Object.FindFirstObjectByType<SceneTransition>();
+            Assert.AreEqual(1, Object.FindObjectsByType<SceneTransition>(FindObjectsSortMode.None).Length);
+            Assert.AreEqual(GameFlow.MainMenuScene, SceneManager.GetActiveScene().path);
+            Assert.AreEqual(0f, transition.Opacity);
+            Assert.Less(start.GetComponent<CanvasGroup>().alpha, .5f);
+            Assert.IsFalse(EventSystem.current.sendNavigationEvents);
+            yield return new WaitForSecondsRealtime(.12f);
+            Assert.Greater(start.GetComponent<CanvasGroup>().alpha, .9f);
+            Assert.AreEqual(0f, transition.Opacity);
+            var deadline = Time.realtimeSinceStartup + 10f;
+            while (transition.Opacity < .25f && Time.realtimeSinceStartup < deadline) yield return null;
+            Assert.AreEqual(GameFlow.MainMenuScene, SceneManager.GetActiveScene().path);
+            Assert.That(transition.Opacity, Is.InRange(.25f, .99f));
+            Assert.That(music.Source.volume, Is.InRange(0f, volume * .9f));
+            deadline = Time.realtimeSinceStartup + 10f;
+            while (SceneManager.GetActiveScene().path == GameFlow.MainMenuScene && Time.realtimeSinceStartup < deadline)
+                yield return null;
+            Assert.IsTrue(SceneTransition.IsActive, "New scene must arrive under the veil");
+            Assert.Greater(transition.Opacity, .9f);
+            var revealedGradually = false;
+            while (SceneTransition.IsActive && Time.realtimeSinceStartup < deadline)
+            {
+                if (transition.Opacity > 0f && transition.Opacity < .95f) revealedGradually = true;
+                yield return null;
+            }
+            Assert.IsTrue(revealedGradually, "Loading time must not skip the new scene's fade-in");
+            Assert.IsFalse(SceneTransition.IsActive, "Transition did not finish");
+            Assert.AreEqual(GameFlow.FirstLevelScene, SceneManager.GetActiveScene().path);
+            Assert.IsTrue(music == null);
+            Assert.AreEqual(1f, Time.timeScale);
+            Assert.IsTrue(Object.FindFirstObjectByType<PlayerInputReader>().enabled);
+            Assert.IsTrue(EventSystem.current.sendNavigationEvents);
+            GameFlow.ReturnToMenu(Object.FindFirstObjectByType<PlayerStateMachine>());
+            yield return new WaitWhile(() => SceneTransition.IsActive);
+            menu = SceneManager.GetSceneByPath(GameFlow.MainMenuScene);
         }
     }
 }

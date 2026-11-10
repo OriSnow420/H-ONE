@@ -1,12 +1,14 @@
-# H-ONE
+# 希腊星
 
-《重生之我在希腊撞撞撞》(暂定名)是一个使用 Unity 开发的单人横版碰撞解谜游戏项目，背景设定在希腊神庙遗迹。
+《希腊星》是一个使用 Unity 开发的单人横版碰撞解谜游戏，背景设定在希腊神庙遗迹。工程代号为 H-ONE。
 
 2026年学院路 GameJam 参赛作品。比赛官网[在这里](https://indiedev.com.cn/#home)。
 
 策划、架构、交付清单与开发进度见 [制作文档索引](docs/README.md)。
 
-音乐 Larse、音效 墨鱼仔、美术 平常不在线、程序 [OriSnow420](https://github.com/OriSnow420)、策划 游里；作品链接与完整署名见 [CREDITS](CREDITS.md)。项目主页：[Uuuyv-325/H-ONE](https://github.com/Uuuyv-325/H-ONE)。
+音效 阿锰、美术 不眠巷、程序 [OriSnow420](https://github.com/OriSnow420)、策划 游里；作品链接与完整署名见 [CREDITS](CREDITS.md)。项目主页：[Uuuyv-325/H-ONE](https://github.com/Uuuyv-325/H-ONE)。
+
+本项目使用了 [Larse](https://space.bilibili.com/18212244) 老师制作的音乐. 感谢 Larse 老师开源! 伟大!
 
 ## 授权说明
 

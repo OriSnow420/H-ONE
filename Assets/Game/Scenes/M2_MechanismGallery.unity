@@ -379,6 +379,8 @@ MonoBehaviour:
   bounds: {fileID: 594801772}
   deadZone: {x: 0.42, y: 0.34}
   followStrength: 12
+  impactStrength: 0.65
+  layout: {fileID: 0}
 --- !u!81 &49074566
 AudioListener:
   m_ObjectHideFlags: 0
@@ -3656,6 +3658,7 @@ MonoBehaviour:
   embed: {fileID: 8300000, guid: 8ebd3796218383d4e9553450040d6a01, type: 3}
   recallStart: {fileID: 8300000, guid: a6462cec77994f141b5f471eadf923a7, type: 3}
   recallEnd: {fileID: 8300000, guid: 491cd29671aae0e44be53e72cf443125, type: 3}
+  delivery: {fileID: 0}
 --- !u!114 &594801768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3677,6 +3680,8 @@ MonoBehaviour:
   fail: {fileID: 8300000, guid: 187f4fd51dc67d74b98fc04008a48467, type: 3}
   reform: {fileID: 8300000, guid: 491cd29671aae0e44be53e72cf443125, type: 3}
   collect: {fileID: 8300000, guid: 8ebd3796218383d4e9553450040d6a01, type: 3}
+  delivery: {fileID: 0}
+  impactVolume: 0.85
 --- !u!114 &594801769
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7427,8 +7432,8 @@ RectTransform:
   - {fileID: 1442821395}
   m_Father: {fileID: 884323944}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.35, y: 1}
+  m_AnchorMin: {x: 0.65, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}

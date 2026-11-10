@@ -20,7 +20,8 @@ namespace HOne.Game.Tests
             yield return null;
             var home = Object.FindFirstObjectByType<MainMenuController>(); Assert.IsNotNull(home);
             home.transform.Find("Home/Start").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
-            yield return null; yield return new WaitForSeconds(0.2f);
+            yield return new WaitWhile(() => SceneTransition.IsActive);
+            yield return null;
             Assert.AreEqual(GameFlow.FirstLevelScene, SceneManager.GetActiveScene().path);
             for (var visit = 0; visit < 2; visit++)
             {
@@ -36,14 +37,18 @@ namespace HOne.Game.Tests
                 var position = player.Position;
                 yield return new WaitForSecondsRealtime(0.12f);
                 Assert.AreEqual(position, player.Position); Assert.AreEqual(0f, Time.timeScale);
-                pause.ReturnToMenu(); yield return null; yield return null;
+                pause.ReturnToMenu();
+                yield return new WaitWhile(() => SceneTransition.IsActive);
+                yield return null;
                 Assert.AreEqual(1f, Time.timeScale);
                 Assert.IsNull(Object.FindFirstObjectByType<LevelSession>());
                 Assert.IsNull(Object.FindFirstObjectByType<PlayerStateMachine>());
                 Assert.AreEqual(1, Object.FindObjectsByType<UnityEngine.EventSystems.EventSystem>(FindObjectsSortMode.None).Length);
                 if (visit == 0)
                 {
-                    GameFlow.OpenGallery(); yield return null; yield return new WaitForSeconds(0.2f);
+                    GameFlow.OpenGallery();
+                    yield return new WaitWhile(() => SceneTransition.IsActive);
+                    yield return null;
                 }
             }
             var menuScene = SceneManager.GetActiveScene();

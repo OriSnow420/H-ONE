@@ -144,7 +144,7 @@ namespace HOne.Game.Editor
             if (File.Exists(GameFlow.FirstLevelScene)) { ChapterFirstPassAuthoring.ConfigureBuild(); return; }
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(GameFlow.MainMenuScene, true), new EditorBuildSettingsScene(GameFlow.GalleryScene, true) };
             EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(GameFlow.MainMenuScene);
-            PlayerSettings.productName = "H-ONE";
+            PlayerSettings.productName = GameFlow.GameTitle;
         }
         [InitializeOnLoadMethod]
         private static void SetDefaultEntry() => EditorApplication.delayCall += () =>

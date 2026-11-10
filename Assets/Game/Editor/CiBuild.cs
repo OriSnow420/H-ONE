@@ -73,7 +73,7 @@ namespace HOne.Game.Editor
             var threads = PlayerSettings.WebGL.threadsSupport;
             try
             {
-                PlayerSettings.productName = "H-ONE";
+                PlayerSettings.productName = GameFlow.GameTitle;
                 if (target == BuildTarget.WebGL)
                 {
                     // Pages cannot set Content-Encoding or cross-origin isolation headers.

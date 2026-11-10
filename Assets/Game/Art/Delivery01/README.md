@@ -60,7 +60,7 @@ See `docs/06-占位美术替换Checklist.md` and `docs/09-美术试装记录.md`
 integration scope, remaining states and runtime validation. P0 fallback assets
 continue serving unsupported states/objects; this is not a completed chapter.
 
-2026-11-11 attribution update: the supplied artwork is by **平常不在线**, as
+2026-11-11 attribution update: the supplied artwork is by **不眠巷**, as
 identified by the user. Credits are also recorded in the main-menu Credits and
 root CREDITS.md; source hashes, usage policy, crops and remaining deliveries above
 are unchanged.

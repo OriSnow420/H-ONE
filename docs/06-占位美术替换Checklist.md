@@ -1,6 +1,6 @@
 # 占位美术资源替换 Checklist
 
-首次盘点：2026-11-08；本次更新：2026-11-10。范围：第一章灰盒、可复用 Prefab、场景直挂视觉和程序生成视觉；含未提交文件。已按更新后的 `../H-ONE-arts/README.md` 试装外部交付，**部分条目为已接入待验收，完整条目正式验收仍为 0 项**。现有 P0 七图保留给尚缺状态、灰盒与工具，不再等同于当前全部画面。
+首次盘点：2026-11-08；本次更新：2026-11-11。范围：第一章灰盒、可复用 Prefab、场景直挂视觉和程序生成视觉；含未提交文件。已按更新后的 `../H-ONE-arts/README.md` 试装外部交付，**部分条目为已接入待验收，完整条目正式验收仍为 0 项**。现有 P0 七图保留给尚缺状态、灰盒与工具，不再等同于当前全部画面。
 
 最新素材映射、裁切/导入规格、使用授权、Windows 实测及限制见 §7 与[美术试装记录](09-美术试装记录.md)。[原核查报告](08-H-ONE-arts素材核查.md)仅保留 11-08 的历史文件名/权限快照，不能作为当前使用规范。
 
@@ -98,7 +98,7 @@
 
 - [ ] `ART-022` 世界教学剪影与地标 — **占位｜P1｜CH-12、TUT-01–04、TUT-09**。当前 M2 `LevelRoot/Tutorial` 仅静态半透明 `human.png` + 三个 `ring.png`，没有真实自动示范/重播。替换/扩充壁画、正确角度地贴、无底座演示幽灵和可重绑键帽；实际说明入槽→本体返回→踩影→召回，不将静态摆件算成完整教学。第二关补项见 NEW-007。
 
-- [ ] `ART-023` 暂停菜单皮肤与字体 — **部分已接入待验收｜P1｜UI-06、UI-07、UI-10**。`IMG_6055|6054|6053|main-menu.PNG` → `D/pause_0–3.png`，按实际碎片数 0/1/2/3 显示。ShadowSlice 与 MechanismGallery 的 `Presentation/PuzzlePauseMenu/Panel/ArtworkFrame/Illustration`（Core 未接入） 叠加于 `BlurredGame`，`PauseArtwork` 截取冻结游戏画面并虚化，继续/复位/重开按钮维持原回调和独立文本；Canvas 1920×1080、排序 2000。插画图标仍为图内装饰；11-10 新试场在 `Panel/MenuControls` 左侧 35% 不透明面板覆盖原图标区，放置中文继续/复位/重开/回标题与音乐/音效控件，保留右侧进度柱，字体来源 `Assets/Game/Art/Fonts/manifest.json|LICENSE.txt`；独立四态按钮/正式布局签收仍缺，标题另见 NEW-010。
+- [ ] `ART-023` 暂停菜单皮肤与字体 — **部分已接入待验收｜P1｜UI-06、UI-07、UI-10**。`IMG_6055|6054|6053|main-menu.PNG` → `D/pause_0–3.png`，按实际碎片数 0/1/2/3 显示。ShadowSlice 与 MechanismGallery 的 `Presentation/PuzzlePauseMenu/Panel/ArtworkFrame/Illustration`（Core 未接入） 叠加于 `BlurredGame`，`PauseArtwork` 截取冻结游戏画面并虚化，继续/复位/重开按钮维持原回调和独立文本；Canvas 1920×1080、排序 2000。插画图标仍为图内装饰；11-10 新试场在 `Panel/MenuControls` 左侧 35% 不透明面板覆盖原图标区，放置中文继续/复位/重开/回标题与音乐/音效控件，保留右侧进度柱，字体来源 `Assets/Game/Art/Fonts/manifest.json|LICENSE.txt`；2026-11-11 按用户要求，Chapter01_01/02 与 Gallery 的同名控件容器整体移到右侧 35%，左侧主插画和进度柱露出；现行锚点、制作默认和验证见 §15。独立四态按钮/正式布局签收仍缺，标题另见 NEW-010。
 
 ## 4. 尚无资源：新增交付 Checklist
 
@@ -274,10 +274,49 @@ KEEP-004 的当前/最终实现路径均为 `Assets/Game/Runtime/Presentation/Ru
 
 - [ ] `NEW-010-a` Credits 补页 — **已接入待验收｜P1/P2｜UI-06/09/10**。保留 NEW-010 标题/设置/转场父项与 ART-023 暂停范围，本项只记录新增署名页。当前/最终程序路径为 `Runtime/Presentation/MainMenuCredits.cs`、`Editor/MainMenuPresentationAuthoring.cs`，使用点 `MainMenu/MainMenuCanvas/{Credits,CreditsPanel/{BlurredMenu,Shade,List}}`；作者默认由 `M2MenuAuthoring.CreateMainMenu` 调用增量 `Apply`，不重建原 Home/Settings。Canvas 仍 1920×1080 / match 0.5；入口右下角锚点/枢轴 (1,0)，152×48、边距 (32,28)，列表中央锚点 (0.16,0.04)–(0.84,0.96)。程序按钮沿用 `FeedbackMenuStyle`；返回/既有 UI Cancel Action 关闭，模态期间阻止后层按钮。
 
-背景为运行时四分之一分辨率 RenderTexture，复用 `Delivery01/PauseBlur.mat/.shader`，无需新 PNG、PPU、pivot 或 Sprite fileID。原 `Delivery01/title.png`、暂停图、所有 Prefab/关卡物理根/Collider/ID/出生点不变；`CoreSceneAuthoring`、`LevelPieceFactory`、`M2SceneAuthoring` 与 Runtime Catalog 没有新增占位依赖。保留图源的 SHA/配方/许可快照仍见 Delivery01/02 `manifest.json` / `SOURCE_USAGE.md`；本轮仅补署名“平常不在线”。分层源/最终按钮图仍缺，不将完整菜单套件标记完成。
+背景为运行时四分之一分辨率 RenderTexture，复用 `Delivery01/PauseBlur.mat/.shader`，无需新 PNG、PPU、pivot 或 Sprite fileID。原 `Delivery01/title.png`、暂停图、所有 Prefab/关卡物理根/Collider/ID/出生点不变；`CoreSceneAuthoring`、`LevelPieceFactory`、`M2SceneAuthoring` 与 Runtime Catalog 没有新增占位依赖。保留图源的 SHA/配方/许可快照仍见 Delivery01/02 `manifest.json` / `SOURCE_USAGE.md`；本轮仅补署名“不眠巷”。分层源/最终按钮图仍缺，不将完整菜单套件标记完成。
 
-字形资源仍为 `Assets/Game/Art/Fonts/MenuSans.ttf`，保留原 .meta GUID 与 178 个既存 codepoint，当前 219 个 codepoint；修订 `menu-credits-20261111`，源 Noto Sans SC regular 400、OFL-1.1。源/产物 SHA 见同目录 `manifest.json`，OFL 与来源见 `LICENSE.txt` / `README.md`；本轮只扩充字体子集，没有图片生成。音乐在独立音频清单与 Music manifest 登记。
+字形资源仍为 `Assets/Game/Art/Fonts/MenuSans.ttf`，初次接入保留原 .meta GUID 与 178 个既存 codepoint 并扩至 219；本次署名更正后为 223 个（保留此前 219 个），当前修订 `credits-attribution-20261111`，源 Noto Sans SC regular 400、OFL-1.1。源/产物 SHA 见同目录 `manifest.json`，OFL 与来源见 `LICENSE.txt` / `README.md`；本轮只扩充字体子集，没有图片生成。音乐在独立音频清单与 Music manifest 登记。
 
 | 日期 | 范围 | 同步与验证 |
 | --- | --- | --- |
 | 2026-11-11 | NEW-010-a / NEW-010、ART-023 共享字体依赖；UI-06/09/10，P1/P2 | 增量保存 MainMenu，35 个任务文件双副本内容一致；三档 Game view、真实 UI 射线、后层遮挡/返回/Esc 与字形检查通过，Console 0 errors、Windows 构建成功。EditMode 29/29，PlayMode 41/42 加既有输入失败项单独复测 1/1；精确边界/证据见 [17 记录](17-主页音乐与制作名单.md)。未签收正式美术批次，父项维持未勾选。 |
+
+## 14. 2026-11-11：主页透明按钮与场景淡黑
+
+- [ ] `NEW-010-b` 主页留白布局与转场程序层 — **已接入待验收｜P1/P2｜UI-06/09/10**。保留 NEW-010 全套菜单及 NEW-010-a 署名页范围。当前/最终路径为 `Assets/Game/Scenes/MainMenu.unity`、`Runtime/Presentation/{MainMenuController,FeedbackMenuStyle,SceneTransition,GameFlow}.cs` 和 `Editor/MainMenuPresentationAuthoring.cs`；可编辑程序修订 `menu-transition-20261111`，逐文件 SHA/来源依赖见 [manifest](menu-transition-manifest.json)。无新增外部图稿，程序代码归项目；标题/字体的来源、许可及指纹继续见 `Art/Delivery01/{manifest.json,SOURCE_USAGE.md}`、`Art/Fonts/{manifest.json,LICENSE.txt}`。正式分层源/完整菜单套件仍缺，父项不勾选。
+
+使用点 `MainMenu/MainMenuCanvas/Home/{Start,Settings,Quit}` 去掉矩形底及 Home 面板，文字按钮移至插画右侧；Home 锚点由 (0.65,0.08)–(0.96,0.92) 调至 (0.79,0.08)–(0.99,0.92)，标题/副标/底注字号 40/22/20，按钮仍 30。Credits 入口同为透明底，设置页与署名页模态沿用原布局。原场景对象/fileID、图片/字体 GUID、Sprite rect/PPU/pivot、1920×1080 Canvas/match 0.5 均保留；无新切片或 PNG。
+
+运行使用 `DontDestroyOnLoad/SceneTransition/Black`：临时排序 32767 的纯黑 uGUI，开始按钮三次闪烁（合计目标 0.48 秒）后 0.65 秒压黑；全黑异步加载，至少保留一帧黑幕，0.65 秒渐隐显露场景。过程锁重复提交、阻挡 UI/玩法输入，使用非缩放时间，不改变机关/收片状态；结束释放遮罩和输入。`MenuMusic` 同步淡出只改自身增益，音乐/音效设置不改。`GameFlow` 的开始/试场/返回、`ChapterCompletionView` 的重玩与 `ChapterExit` 的下一关复用转场，额外闪烁仅主页开始。
+
+新建菜单默认通过 `M2MenuAuthoring.CreateMainMenu → MainMenuPresentationAuthoring.Apply → ApplyHomeLayout` 保持一致；本次现有主页只调用布局修正并明确保存，无重建。`CoreSceneAuthoring`、`LevelPieceFactory`、`M2SceneAuthoring`、Runtime Catalog/实例元件无新增图源或占位依赖；无关卡/Prefab 物理根、Collider、稳定 ID 或出生点改动。转场仅负责场景流程，世界教学保持原渐进提示。
+
+| 日期 | 范围 | 同步与验证 |
+| --- | --- | --- |
+| 2026-11-11 | NEW-010-b / NEW-010-a 入口、UI-06/09/10，P1/P2 | 已同步 Windows，live Editor 增量保存 MainMenu 并回拷 WSL；具体测试、分辨率、帧推进、截图/运行证据、临时设置恢复及限制见 [17 记录](17-主页音乐与制作名单.md) 末节。此项是程序布局/转场验证，不签收完整美术批次。 |
+
+2026-11-11 同日追加（修订 `menu-title-20261111`）：NEW-010-b / UI-06 标题改为“希腊星”，`Home/Subtitle` 与 `Home/Scope` 清空文字并停用，保留既有对象 ID；新建菜单不再创建这两段文字。可见文字仅为 Title 和 Start/Settings/Quit/Credits 的按钮字样。当前/最终程序仍为上表路径，新增制作默认引用 `M2MenuAuthoring.cs`、`ChapterFirstPassAuthoring.cs`；`GameFlow.GameTitle` 供产品/CI/制作入口共用。标题/按钮字号、锚点、原图与字体的 manifest/许可/GUID/PPU/pivot 不改，现有 MenuSans 已含三个字形，无新图稿或字体交付。最新任务 SHA 与两份产品设置的保留差异补记于同一 manifest；Windows 已导入，三档实际 Game view 和全部可见文字/字形检查通过，帧 7243→20323，运行 Console 0 errors。证据、恢复设置与本轮未重跑自动测试/未重建包的边界见 17 记录；父项维持未勾选。
+
+
+## 15. 2026-11-11：暂停控件移至右侧
+
+ART-023 / UI-06、UI-07、UI-10（P1/P2）维持“部分已接入待验收”。本轮程序布局修订 `pause-right-20261111`：`Chapter01_01.unity`、`Chapter01_02.unity` 与 `M2_MechanismGallery.unity` 的 `Presentation/PuzzlePauseMenu/Panel/MenuControls` 锚点从 (0,0)–(0.35,1) 改为 (0.65,0)–(1,1)，偏移仍为零；四个按钮、两个音量滑条、标题与提示整体随父容器移动，留出左侧主插画和三根进度柱。`M2MenuAuthoring.UpgradePause` 同步新建默认；ChapterFirstPassAuthoring / M2ReleaseAuthoring 复用此入口。保留的 ShadowSlice 原菜单本来位于右侧，Core 无该 Canvas；CoreSceneAuthoring、LevelPieceFactory、M2SceneAuthoring 与 Runtime Catalog 没有新增素材依赖。
+
+当前/最终图片仍为 `Assets/Game/Art/Delivery01/pause_0–3.png`，程序字体仍为 `Art/Fonts/MenuSans.ttf`；原始栅格源、修订、SHA、裁切、PPU、pivot、子 Sprite fileID、来源规范/授权继续见 Delivery01 的 `manifest.json|SOURCE_USAGE.md|README.md` 与 Fonts 的 `manifest.json|LICENSE.txt`。本轮只读复核源 README，未改图片/导入设置或制作新素材；分层源和完整按钮四态交付仍缺。精确代码/场景/文档范围与依赖哈希见 [本轮 manifest](pause-menu-manifest.json)。三个场景由 Windows live Editor 增量保存后回写 WSL；原对象 ID 和引用保留，Unity 保存时补写了既有组件的空引用/默认字段及空白格式，没有重建关卡。
+
+2026-11-11：Windows Unity 6000.0.84f1 / RTX 4060 Laptop，Chapter01_01 Game view 在 1280×720、1920×1080、1280×800 下实际暂停，检查右侧布局、左侧完整插画/进度柱、文字边界和继续按钮；帧 607→5545，四按钮与两滑条的 UI 射线命中通过，实际 PointerClick 继续回调通过。证据 `Screenshots/PauseRight20261111/editor-{1280x720,1920x1080,1280x800}.png`（Windows 本机产物，不提交）；其余两场景核对相同锚点和对象 ID。此次仅调整布局，未重跑无关玩法测试、未作整关通关或正式美术批次签收。最终构建、同步和独立包检查见 manifest。
+
+
+本轮诊断与交付补记：初次 Editor 测试会话恢复控制时出现 PlayerStateMachine / TrajectoryPreview 初始化异常和 Input System 状态断言，诊断保留在同目录 `editor-errors.json`；不把该会话算作玩法回归通过。另行全新启动 Windows x64 普通包，以真实键鼠完成主页进入、移动、Esc 暂停、右侧按钮继续和正常关闭，`player-{menu,game,moved,paused,resumed}.png` 与 `player.log` 留证，独立日志未发现异常。新构建 `GreekStar-Windows-x64-20261111-r2` 为 0 errors / 186 条既有包警告；ZIP 完整性校验通过。原包保留，r2 包含本次右移。Play 已退出、MainMenu 保持干净，启动场景/Free Aspect/自定义尺寸和构建临时 preloadedAssets 均恢复；诊断导出后清理测试 Console，最终状态另见 manifest。
+
+
+## 16. 2026-11-11：Credits 署名更正
+
+NEW-010-a / UI-06/09/10（P1/P2）维持“已接入待验收”。按用户指定，美术署名为“不眠巷”，音效为“阿锰”；当前/最终使用点 `MainMenu/MainMenuCanvas/CreditsPanel/List/{Art,Sound}`，制作源 `Assets/Game/Editor/MainMenuPresentationAuthoring.cs`，现有场景 `Assets/Game/Scenes/MainMenu.unity`。根 CREDITS/README、Delivery01/02 美术与 Delivery01 音效的 README/manifest、相关清单同步署名。
+
+共享字体 `Assets/Game/Art/Fonts/MenuSans.ttf` 修订 `credits-attribution-20261111`：保留此前 219 个 codepoint，仅新增“眠、巷、阿、锰”（223 个），源 Noto Sans SC regular 400 / OFL-1.1，源/产物 SHA、工具版本见同目录 `manifest.json`，许可/来源见 `LICENSE.txt` / `README.md`。原字体 .meta GUID 保留；本轮不涉及 Sprite rect/PPU/pivot/9-slice、图片或图源政策变更。代码/运行时使用点只改变两段署名文字，CoreSceneAuthoring、LevelPieceFactory、M2SceneAuthoring、Runtime Catalog 与 Prefab/关卡物理引用不新增素材依赖；分层源与完整菜单套件继续待交，父项不勾选。
+
+更新记录：代码、字体和文档已更新；Windows 导入、场景保存/回写及本轮精确验证范围见 [17 记录](17-主页音乐与制作名单.md) 的署名更正记录。历史三档截图和整批签收不视为本轮字形的验收。本次 1423×656 实际截图、灰度副本、字形与返回检查通过；精确范围和未完成检查见 [本轮 manifest](credits-attribution-manifest.json)。
+
+2026-11-11 r3 交付补记：NEW-010-a / NEW-010-b / ART-023 已随当前菜单与署名构建 Windows x64 包，0 errors / 186 包警告，快速 ZIP/CRC 通过；独立 1280×720 启动/退出检查通过，Credits 仍以上述 Editor 实际画面验证为界。未重跑整关或正式美术验收，父项状态不变。包指纹与限制见 [17 记录](17-主页音乐与制作名单.md) r3 节及 [署名 manifest](credits-attribution-manifest.json)。

@@ -13,7 +13,11 @@ namespace HOne.Game
         private void OnEnable()
         {
             FeedbackMenuStyle.Apply(transform);
-            start.onClick.AddListener(GameFlow.StartChapter);
+            foreach (var button in homePanel.GetComponentsInChildren<UnityEngine.UI.Button>(true))
+                FeedbackMenuStyle.ApplyTextButton(button);
+            var credits = transform.Find("Credits");
+            if (credits != null) FeedbackMenuStyle.ApplyTextButton(credits.GetComponent<UnityEngine.UI.Button>());
+            start.onClick.AddListener(StartChapter);
             settings.onClick.AddListener(OpenSettings);
             back.onClick.AddListener(CloseSettings);
             quit.onClick.AddListener(Quit);
@@ -21,11 +25,12 @@ namespace HOne.Game
         }
         private void OnDisable()
         {
-            start.onClick.RemoveListener(GameFlow.StartChapter);
+            start.onClick.RemoveListener(StartChapter);
             settings.onClick.RemoveListener(OpenSettings);
             back.onClick.RemoveListener(CloseSettings);
             quit.onClick.RemoveListener(Quit);
         }
+        private void StartChapter() => GameFlow.StartChapter(start);
         private void OpenSettings() { homePanel.SetActive(false); settingsPanel.SetActive(true); }
         private void CloseSettings() { settingsPanel.SetActive(false); homePanel.SetActive(true); }
         private void Quit()

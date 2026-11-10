@@ -245,13 +245,14 @@ namespace HOne.Game.Editor
             {
                 var menu=scene.GetRootGameObjects()[0].GetComponentInChildren<MainMenuController>(true);
                 menu.transform.Find("Home/Start/Label").GetComponent<UnityEngine.UI.Text>().text="开始第一章";
-                menu.transform.Find("Home/Subtitle").GetComponent<UnityEngine.UI.Text>().text="希腊神庙 · 第一章";
+                MainMenuPresentationAuthoring.ApplyHomeLayout(menu.transform);
                 EditorSceneManager.SaveScene(scene,GameFlow.MainMenuScene);
             }
             finally { if(opened) EditorSceneManager.CloseScene(scene,true); }
         }
         public static void ConfigureBuild()
         {
+            PlayerSettings.productName = GameFlow.GameTitle;
             EditorBuildSettings.scenes=new[]{GameFlow.MainMenuScene,GameFlow.FirstLevelScene,GameFlow.SecondLevelScene,GameFlow.GalleryScene}
                 .Select(p=>new EditorBuildSettingsScene(p,true)).ToArray();
             EditorSceneManager.playModeStartScene=AssetDatabase.LoadAssetAtPath<SceneAsset>(GameFlow.MainMenuScene);

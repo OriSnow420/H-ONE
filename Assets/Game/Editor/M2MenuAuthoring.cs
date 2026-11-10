@@ -69,12 +69,10 @@ namespace HOne.Game.Editor
             // Underlay fills the margins at non-16:9 resolutions.
             var underlay = Panel(canvas, "Underlay", Vector2.zero, Vector2.one, Ink); underlay.SetAsFirstSibling();
             var home = Panel(canvas, "Home", new Vector2(0.65f, 0.08f), new Vector2(0.96f, 0.92f), Ink);
-            Label(home, "Title", "星 弹 发 射", new Vector2(0.04f, 0.78f), new Vector2(0.96f, 0.94f), 48);
-            Label(home, "Subtitle", "希腊神庙 · 机关试场", new Vector2(0.04f, 0.69f), new Vector2(0.96f, 0.78f), 25);
+            Label(home, "Title", GameFlow.GameTitle, new Vector2(0.04f, 0.78f), new Vector2(0.96f, 0.94f), 48);
             var play = Button(home, "Start", "进入试场", new Vector2(0.10f, 0.48f), new Vector2(0.90f, 0.59f));
             var settings = Button(home, "Settings", "操作与声音", new Vector2(0.10f, 0.33f), new Vector2(0.90f, 0.44f));
             var quit = Button(home, "Quit", "退出游戏", new Vector2(0.10f, 0.18f), new Vector2(0.90f, 0.29f));
-            Label(home, "Scope", "走跳 · 星弹 · 留影 · 召回", new Vector2(0.06f, 0.04f), new Vector2(0.94f, 0.13f), 24);
             var controls = Panel(canvas, "Settings", new Vector2(0.59f, 0.08f), new Vector2(0.97f, 0.92f), Ink);
             Label(controls, "Heading", "操作与声音", new Vector2(0.05f, 0.83f), new Vector2(0.95f, 0.96f), 40);
             Label(controls, "Controls", "A / D    移动\nSpace    跳跃\n按住 E + 鼠标    蓄力瞄准\n松开 E    发射\n鼠标右键    取消蓄力\nR    召回星影\nEsc    暂停 / 继续",
@@ -109,7 +107,7 @@ namespace HOne.Game.Editor
         {
             var panel = pause.transform.Find("Panel");
             // Keep the existing capture/progress-art hierarchy and its callbacks.
-            var controls = Panel(panel, "MenuControls", Vector2.zero, new Vector2(0.35f, 1f), new Color(0.035f, 0.065f, 0.12f, 1f));
+            var controls = Panel(panel, "MenuControls", new Vector2(0.65f, 0f), Vector2.one, new Color(0.035f, 0.065f, 0.12f, 1f));
             Label(controls, "Heading", "暂停", new Vector2(0.08f, 0.86f), new Vector2(0.92f, 0.97f), 44);
             var names = new[] { "Resume", "Reset puzzle", "Restart level" };
             var labels = new[] { "继续游戏", "重置当前谜题", "重新开始试场" };

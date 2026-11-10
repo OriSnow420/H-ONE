@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace HOne.Game
 {
@@ -30,7 +29,7 @@ namespace HOne.Game
             if (!string.IsNullOrEmpty(session.Definition.NextScene))
             {
                 player.SetPaused(false);
-                SceneManager.LoadScene(session.Definition.NextScene);
+                GameFlow.LoadScene(session.Definition.NextScene);
             }
             else if (completionPanel != null) completionPanel.SetActive(true);
         }
