@@ -14,7 +14,9 @@
 
 执行顺序：工作流 lint → 检查许可证 Secrets → 两类 Unity 测试 → 四个平台构建 → `CI gate` → Pages。任一前置阶段失败，后续部署停止，现有网站保留上次成功版本。`CI gate` 汇总前置阶段的真实状态，适合作为分支保护的必需检查；它不包含部署结果，部署结果见独立的 Pages job。
 
-- 测试在 Linux Editor 中执行，两类测试按顺序运行；通过 `GAME_CI_COVERAGE_ENABLED: 'false'` 关闭未安装 Code Coverage 包的覆盖率采集。当前固定的 Action 会将 `coverageEnabled: false` 转成 CLI 不接受的 `--no-coverageEnabled`，因此使用 CLI 支持的环境选项；不要改回该 Action input。
+- 测试在 Linux Editor 中按顺序执行。EditMode 保持 batchmode；PlayMode 使用 GameCI 的 Xvfb 虚拟显示和软件图形渲染，以非 batchmode Editor 运行全部测试，支持暂停截图所需的 `WaitForEndOfFrame`。两类测试均保留原有断言，失败继续阻止构建和部署。
+- 测试 job 从项目指定版本的 `unityci/editor:ubuntu-<version>-linux-il2cpp-3` 临时构建本地镜像 `h-one-unity-tests:local`，配方见 [Dockerfile.tests](../.github/ci/Dockerfile.tests) 与 [unity-editor.sh](../.github/ci/unity-editor.sh)。启动器只在 `-runTests -testPlatform playmode` 时移除调用参数和镜像原启动器中的 `-batchmode`，同时移除 `-nographics`；保留原 Xvfb 设置和版本适配 hooks。激活、EditMode、汇总和许可证归还继续走原 batchmode 启动器，镜像不会发布到 Registry。非 batchmode 测试限时 20 分钟，超时返回失败，让 GameCI 继续执行许可证清理。
+- 通过 `GAME_CI_COVERAGE_ENABLED: 'false'` 关闭未安装 Code Coverage 包的覆盖率采集。当前固定的 Action 会将 `coverageEnabled: false` 转成 CLI 不接受的 `--no-coverageEnabled`，因此使用 CLI 支持的环境选项；不要改回该 Action input。
 - 桌面版本在 Ubuntu runner 的 Unity 容器中使用 Mono 交叉构建；WebGL 使用 Unity 的 WebGL 工具链。构建成功不等于各平台实机运行已验收。
 - 构建矩阵默认一次运行一个任务，减少单个 workflow 的许可证并发占用。其他分支的手动运行和其他 PR 仍可能同时占用许可证；按实际授权席位安排运行。
 - `Library` 按测试/目标平台分别缓存，包含包和项目设置的指纹；源文件变化继续由 Unity 增量导入。
@@ -105,6 +107,7 @@ WebGL 构建临时使用 **Gzip + Decompression Fallback**，并关闭线程。P
 | 现象 | 检查方法 |
 | --- | --- |
 | `Unknown argument: noCoverageEnabled`，无测试 XML | 测试工具参数解析失败，Unity 尚未启动。使用测试步骤的 `GAME_CI_COVERAGE_ENABLED: 'false'`，移除 `with.coverageEnabled: false`，提交修复后新建一次运行；重新运行旧提交仍会使用旧配置 |
+| `UnityTest yielded WaitForEndOfFrame, which is not evoked in batchmode` | 确认测试使用 `h-one-unity-tests:local`，PlayMode 日志出现 `[H-ONE CI] PlayMode` 标记且实际 Editor 参数中没有 `-batchmode` / `-nographics`。GameCI 的测试脚本和镜像原启动器都会添加 batchmode，仅增加 Xvfb 无法解决；无需忽略截图断言或更改游戏截图实现 |
 | license configuration 失败 | 检查 Repository secrets 名称、三项 Personal/Pro 凭据或许可服务器地址是否齐全 |
 | 激活失败 / No valid Unity license | 检查 `.ulf` 是否完整、账号授权是否有效、Unity 6 授权流程与 GameCI 是否兼容、是否耗尽并发席位 |
 | Fork / Dependabot PR 没有 Secrets | GitHub 默认不向这些 PR 提供 Unity 凭据；本流程会明确失败。维护者审查后将可信变更带到本仓库普通分支再开 PR；不要改用 `pull_request_target` 执行外部代码或向其暴露 Secrets |
@@ -127,3 +130,5 @@ GitHub 只读检查确认：Actions 已启用，允许全部 Actions，默认 to
 2026-11-09 检查[运行 42481283634](https://github.com/OriSnow420/H-ONE/actions/runs/42481283634)（提交 `5814a8f7533c2da6c448ee2ce5f27583619eea2d`）：lint 和 Secrets 填写预检查通过；测试步骤在 CLI 参数解析阶段报 `Unknown argument: noCoverageEnabled`、退出码 1。Unity 尚未启动，没有测试报告或 artifacts，构建与部署被跳过。这是测试工具的参数兼容性问题，该次运行不能证明游戏测试通过或失败；Secrets 已填写也不能证明许可证已经激活成功。
 
 修复只调整 workflow 的覆盖率参数传递方式。使用经官方 SHA-256 清单核验的 GameCI CLI `v0.1.72` 在本地复现旧错误，再用 Docker 命令替身检查修复后的实际调用：CLI 已完成参数解析，向容器传递 `COVERAGE_ENABLED=false` 和 `TEST_PLATFORMS=playmode;editmode;COMBINE_RESULTS`。此检查没有启动容器或 Unity、没有读取 GitHub Secrets；真实测试结论仍需在提交修复后的新一轮云端运行中取得。
+
+2026-11-10 检查[运行 42760069461](https://github.com/OriSnow420/H-ONE/actions/runs/42760069461)（提交 `703b8134349e52dc22af5f36dd987f3474e247c5`）：已进入实际测试，EditMode 26/26、PlayMode 21/22 通过；暂停截图测试因 batchmode 不执行 `WaitForEndOfFrame` 失败，构建和 Pages 跳过。此次增加上述 CI 专用测试镜像及启动器，保持项目代码与测试断言不变。此处记录的是修复前运行结果，修复后的云端结果以对应新提交的 Actions 运行记录为准。
