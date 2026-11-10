@@ -65,6 +65,27 @@ namespace HOne.Game.Tests
             var point = camera.WorldToScreenPoint(target); Set(mouse.position, new Vector2(point.x, point.y));
         }
 
+        [UnityTest] public IEnumerator EditorToolbarReceivesClicksAboveGalleryNavigation()
+        {
+            var editor = player.transform.root.GetComponent<RuntimeLevelEditor>();
+            var canvas = editor.transform.Find("RuntimeLevelEditorCanvas");
+            canvas.Find("Edit level").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            var save = canvas.Find("EditorPanel/Toolbar/Save").GetComponent<UnityEngine.UI.Button>();
+            var pointer = new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current)
+            {
+                position = RectTransformUtility.WorldToScreenPoint(null, save.transform.position)
+            };
+            var hits = new System.Collections.Generic.List<UnityEngine.EventSystems.RaycastResult>();
+            UnityEngine.EventSystems.EventSystem.current.RaycastAll(pointer, hits);
+            Assert.IsNotEmpty(hits);
+            Assert.AreSame(save, hits[0].gameObject.GetComponentInParent<UnityEngine.UI.Button>(),
+                "The visible Save button must receive the click instead of the gallery navigation.");
+            canvas.Find("EditorPanel/Toolbar/Return").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            Assert.IsFalse(editor.IsEditing);
+        }
+
         [UnityTest] public IEnumerator GrassSeamsJumpArtworkAndPauseKeepTheOriginalMotor()
         {
             var root = scene.GetRootGameObjects()[0];

@@ -122,7 +122,7 @@
 | KEEP-001：`Assets/Scenes/Northline.unity`、`EditorScratchBackup.unity`、`SampleScene.unity`；`Assets/Settings/Scenes/URP2DSceneTemplate.unity` | 原型/备份/模板单独保留。旧方块与格线由 `SolidShape2D` 使用 `Texture2D.whiteTexture` 运行时生成，不是漏掉的 PNG；不为它们下单正式首章美术，不运行破坏性 `PlatformerSceneBuilder.BuildScene()` |
 | KEEP-002：`Assets/Platformer/MapRevealFog.mat` / `.shader` 与 `MapReveal2D.cs` | 旧地图揭示实验，遮罩运行时生成；第一章默认不用，保留待单独决定。两工作树材质不同，不随美术盘点互相覆盖 |
 | KEEP-003：URP/Renderer2D、Volume、内置 Sprite/UI Shader、物理材质与包内资源 | 渲染/工程依赖，不因“当前是占位”全部重制或删除；正式素材需改变 Lit/Unlit 等分配时单独说明并验收。字体替换只跟踪实际运行菜单的需求 |
-| KEEP-004：`RuntimeLevelEditor.cs` 的程序生成 uGUI、`ChapterLevelEditorWindow.uxml/.uss` 和编辑期 Gizmo/辅助线 | 创作工具视觉，当前为功能性控件。新资源需要更新元件预览/引用并保持工具可用；不把整套工具换肤升级为本期游戏美术的必交项。工具/调试标记不得误留在正式游戏画面 |
+| KEEP-004：`RuntimeLevelEditor.cs` 的程序生成 uGUI、`ChapterLevelEditorWindow.uxml/.uss` 和编辑期 Gizmo/辅助线 | 创作工具视觉，当前为功能性控件。新资源需要更新元件预览/引用并保持工具可用；不把整套工具换肤升级为本期游戏美术的必交项。工具/调试标记不得误留在正式游戏画面。2026-11-10 Windows Demo 修复：`RuntimeLevelEditorCanvas` 排序从 40 改为 60，高于 GalleryNavigation 的 50，避免其覆盖保存/加载/试玩工具栏；仍使用原程序控件与内置 LegacyRuntime 字体，无新增图片或交付规格变更。验证记录见本文末尾。 |
 
 占位淘汰以**正式场景和正式制作入口的引用**为准；旧灰盒、备份或测试仍引用 P0 可以保留。删除 P0 前必须证明所有保留场景、Prefab、Catalog、测试和路径加载均不再需要，不能只搜索当前打开的场景。
 
@@ -220,3 +220,11 @@
 | 2026-11-10 | ART-001/008/009、NEW-002/003/008-a，新增占位 NEW-003-a | 93 个任务文件已同步 Windows/WSL；三场景与四类 Prefab 已导入/保存。最终 EditMode 26/26、PlayMode 29/29；实际走跳、两乐器发射、碎墙及笔刷去重/Undo 通过，720p/1080p/16:10、静音/无后处理/灰度局部检查完成。最终 Console 0 错误，Play 与临时设置已恢复。证据、热重载导致的早期失败及剩余教学/状态/音频边界见 [11 接入记录](11-剩余美术与格点地形接入.md)；各父项仍未勾选，不授予整批正式美术验收 |
 
 更新记录：本轮实现并导入跳跃、三方地块/土层和圆形编辑笔刷、里拉/手鼓试区，保留三个旧试区和两技术样例；正式两关、最终状态/音画包仍待验收。最终运行范围与限制以 11 记录为准。
+
+### 2026-11-10 Windows Demo 工具层级修复
+
+KEEP-004 的当前/最终实现路径均为 `Assets/Game/Runtime/Presentation/RuntimeLevelEditor.cs`，运行层级为 `MechanismGallery/RuntimeLevelEditorCanvas`；本轮唯一视觉改动是 Canvas 排序 40→60，盖在 `Presentation/GalleryNavigation`（50）上方。原程序生成控件、内置 LegacyRuntime 字体及既有素材引用不变，没有新增图片、可编辑美术源、manifest 或交付批次；这是保留工具修复，不提升任何 ART/NEW 父项验收状态。
+
+两份工程已逐文件比较，397 个 `Assets/Game` 文件内容一致；本轮只同步上述脚本和 `M2GalleryGameplayTests.cs`，增加真实 UI 射线验证 Save 按钮优先收到点击。最终 EditMode 26/26、PlayMode 30/30，Editor 测试期间观测帧数 10769→后续测试完成；Windows x64 Development 独立构建 0 错误、1 条既有 App UI Settings 警告。Windows Unity 6000.0.84f1 / RTX 4060 Laptop、键鼠、1280×720 下实测主菜单、走动/发射/暂停、工具栏、新建/放置/连线、Save/Load、Play test/Stop test、退出后重启加载与推石压板开门。独立日志无异常；Editor 当前 Console 0 错误。Play 已退出，原 MainMenu 启动场景、auto tick=true、runInBackground=false 已恢复，没有修改项目渲染配置。
+
+精确源码范围和哈希、两份 Git 状态、测试和 BuildReport 见本机忽略目录 `artifacts/H-ONE-Demo-Windows-x64-20261110-194118/`；实际独立程序截图包括 `final-03-editor-toolbar.png`、`final-05-gallery-saved.png`、`final-32-loaded-persisted.png`、`final-34-stone-on-plate.png`，打包说明见 [Windows Demo 使用说明](12-Windows-Demo与关卡编辑器使用说明.md)。本次只验工具可用性，未重新执行最终美术的多分辨率/灰度/静音整批验收。
