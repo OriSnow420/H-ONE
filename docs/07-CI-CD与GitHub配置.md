@@ -14,8 +14,8 @@
 
 执行顺序：工作流 lint → 检查许可证 Secrets → 两类 Unity 测试 → 四个平台构建 → `CI gate` → Pages。任一前置阶段失败，后续部署停止，现有网站保留上次成功版本。`CI gate` 汇总前置阶段的真实状态，适合作为分支保护的必需检查；它不包含部署结果，部署结果见独立的 Pages job。
 
-- 测试在 Linux Editor 中按顺序执行。EditMode 保持 batchmode；PlayMode 使用 GameCI 的 Xvfb 虚拟显示和软件图形渲染，以非 batchmode Editor 运行全部测试，支持暂停截图所需的 `WaitForEndOfFrame`。两类测试均保留原有断言，失败继续阻止构建和部署。
-- 测试 job 从项目指定版本的 `unityci/editor:ubuntu-<version>-linux-il2cpp-3` 临时构建本地镜像 `h-one-unity-tests:local`，配方见 [Dockerfile.tests](../.github/ci/Dockerfile.tests) 与 [unity-editor.sh](../.github/ci/unity-editor.sh)。启动器只在 `-runTests -testPlatform playmode` 时移除调用参数和镜像原启动器中的 `-batchmode`，同时移除 `-nographics`；保留原 Xvfb 设置和版本适配 hooks。激活、EditMode、汇总和许可证归还继续走原 batchmode 启动器，镜像不会发布到 Registry。非 batchmode 测试限时 20 分钟，超时返回失败，让 GameCI 继续执行许可证清理。
+- 测试使用 GameCI 默认 Linux 镜像，EditMode 与 PlayMode 均以 batchmode 顺序执行。2026-11-10 按用户决定，远程 CI 临时通过 `customParameters` 的 `-testFilter` 排除且仅排除 `HOne.Game.Tests.DeliveredArtTests.PauseShowsActualProgressFreezesAnimationAndReleasesCapture`；完整测试名使用锚定正则，其他用例继续执行，失败继续阻止构建与部署。
+- 暂停截图测试及原断言仍保留在项目中，本地 GUI Editor 运行时不受 CI 参数影响。被过滤的用例不算通过；当前基线预计为 EditMode 26 个、PlayMode 21 个执行。临时非 batchmode 镜像、启动器及原生调用栈诊断已移除，相关尝试可从 Git 历史查阅。恢复此测试前须先解决下方“待解决问题”中的远程图形 Editor 启动故障。
 - 通过 `GAME_CI_COVERAGE_ENABLED: 'false'` 关闭未安装 Code Coverage 包的覆盖率采集。当前固定的 Action 会将 `coverageEnabled: false` 转成 CLI 不接受的 `--no-coverageEnabled`，因此使用 CLI 支持的环境选项；不要改回该 Action input。
 - 桌面版本在 Ubuntu runner 的 Unity 容器中使用 Mono 交叉构建；WebGL 使用 Unity 的 WebGL 工具链。构建成功不等于各平台实机运行已验收。
 - 构建矩阵默认一次运行一个任务，减少单个 workflow 的许可证并发占用。其他分支的手动运行和其他 PR 仍可能同时占用许可证；按实际授权席位安排运行。
@@ -107,7 +107,7 @@ WebGL 构建临时使用 **Gzip + Decompression Fallback**，并关闭线程。P
 | 现象 | 检查方法 |
 | --- | --- |
 | `Unknown argument: noCoverageEnabled`，无测试 XML | 测试工具参数解析失败，Unity 尚未启动。使用测试步骤的 `GAME_CI_COVERAGE_ENABLED: 'false'`，移除 `with.coverageEnabled: false`，提交修复后新建一次运行；重新运行旧提交仍会使用旧配置 |
-| `UnityTest yielded WaitForEndOfFrame, which is not evoked in batchmode` | 确认测试使用 `h-one-unity-tests:local`，PlayMode 日志出现 `[H-ONE CI] PlayMode` 标记且实际 Editor 参数中没有 `-batchmode` / `-nographics`。GameCI 的测试脚本和镜像原启动器都会添加 batchmode，仅增加 Xvfb 无法解决；无需忽略截图断言或更改游戏截图实现 |
+| `UnityTest yielded WaitForEndOfFrame, which is not evoked in batchmode` | batchmode 不执行帧末等待；暂停截图测试当前仅在远程 CI 按完整名称临时排除。确认 workflow 的 `customParameters` 仍有对应排除项；其他测试若出现相同错误，单独定位并报告，不扩大跳过范围。恢复图形测试见下方待办 |
 | license configuration 失败 | 检查 Repository secrets 名称、三项 Personal/Pro 凭据或许可服务器地址是否齐全 |
 | 激活失败 / No valid Unity license | 检查 `.ulf` 是否完整、账号授权是否有效、Unity 6 授权流程与 GameCI 是否兼容、是否耗尽并发席位 |
 | Fork / Dependabot PR 没有 Secrets | GitHub 默认不向这些 PR 提供 Unity 凭据；本流程会明确失败。维护者审查后将可信变更带到本仓库普通分支再开 PR；不要改用 `pull_request_target` 执行外部代码或向其暴露 Secrets |
@@ -138,3 +138,9 @@ GitHub 只读检查确认：Actions 已启用，允许全部 Actions，默认 to
 [运行 42764660810](https://github.com/OriSnow420/H-ONE/actions/runs/42764660810) 的启动追踪显示非 batchmode Editor 尝试执行 `dbus-launch`，镜像中未安装而返回 `ENOENT`；EditMode 26/26。CI 测试镜像补装 `dbus-x11` 提供该程序，追踪器改用独立进程，避免等待仍存活的 LicensingClient。这些调整只涉及 Linux CI 启动环境；PlayMode、四平台构建和 Pages 仍待新运行验证。
 
 [运行 42769225402](https://github.com/OriSnow420/H-ONE/actions/runs/42769225402) 的文件追踪进一步显示：非 batchmode Editor 连续查找光标主题与 `left_ptr`、`watch` 等光标均为 `ENOENT`，随后退出。CI 镜像补装 `dmz-cursor-theme`，显式设置 `XCURSOR_THEME=DMZ-White`，并在构建镜像时检查所需光标存在；定位后移除进程追踪，避免干扰许可证后台进程和编译子进程。该轮 EditMode 的失败是 Bee 内部管道关闭，汇总步骤随后完成导入与编译，未报告项目源码错误。新的真实测试结果仍以 Actions 报告为准。
+
+## 待解决问题：远程图形 Editor 启动与暂停截图测试
+
+2026-11-10 用户决定暂时跳过上述单项远程截图测试，保留其他测试与四平台构建、Pages 的成功门槛。batchmode 已确认不支持该用例依赖的 `WaitForEndOfFrame`；改用 Xvfb 下的非 batchmode Editor 后，Unity `6000.0.84f1` 在项目导入与测试执行之前以退出码 1 结束，没有生成 PlayMode XML。补装 D-Bus、光标主题后仍未解决，不能将这些缺失依赖认定为最终根因。最后的原生诊断配置见提交 `7e64b3e`，[诊断运行 42771364778](https://github.com/OriSnow420/H-ONE/actions/runs/42771364778)；本次不继续调试这一启动问题。
+
+后续验收：先让相同 Unity 版本的远程图形 Editor 稳定启动，再运行完整暂停截图用例，确认截图、暂停动画、恢复释放和重置后的进度状态通过；最后移除 workflow 的单项排除过滤器，确认该用例重新出现在真实测试报告中。跳过后的测试通过不代表该问题已修复。
