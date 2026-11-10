@@ -18,6 +18,7 @@ namespace HOne.Game
         { player = owner; panel = view; resume = resumeButton; resetPuzzle = puzzleButton; restartLevel = restartButton; }
         private void OnEnable()
         {
+            FeedbackMenuStyle.Apply(transform);
             if (levelEditor == null) levelEditor = GetComponentInParent<RuntimeLevelEditor>();
             resume.onClick.AddListener(Resume);
             resetPuzzle.onClick.AddListener(ResetPuzzle);

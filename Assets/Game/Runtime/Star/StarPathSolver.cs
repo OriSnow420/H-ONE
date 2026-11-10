@@ -27,6 +27,8 @@ namespace HOne.Game
         }
     }
 
+    public enum StarImpactKind { Stone, Lyre, Drum, Ceramic, Socket, UnavailableSocket, Hazard }
+
     public readonly struct StarContact
     {
         public readonly Collider2D Collider;
@@ -34,14 +36,39 @@ namespace HOne.Game
         public readonly Vector2 Normal;
         public readonly bool Reflected;
         public readonly bool Embedded;
-        public StarContact(RaycastHit2D hit, bool reflected, bool embedded = false)
+        public readonly StarImpactKind Kind;
+        public readonly Vector2 IncomingDirection;
+        public readonly Vector2 OutgoingDirection;
+        public readonly float Speed;
+        public readonly float Charge;
+        public readonly int ShotId;
+        public StarContact(RaycastHit2D hit, bool reflected, bool embedded = false, Vector2 incoming = default)
         {
             Collider = hit.collider;
             Point = hit.point;
             Normal = hit.normal;
             Reflected = reflected;
             Embedded = embedded;
+            IncomingDirection = incoming;
+            OutgoingDirection = reflected ? Vector2.Reflect(incoming, hit.normal).normalized : incoming;
+            Speed = Charge = 0f;
+            ShotId = 0;
+            var instrument = hit.collider != null ? hit.collider.GetComponentInParent<StarInstrument>() : null;
+            Kind = hit.collider == null ? StarImpactKind.Stone :
+                hit.collider.GetComponentInParent<Hazard2D>() != null ? StarImpactKind.Hazard :
+                hit.collider.GetComponentInParent<BrittleWall>() != null ? StarImpactKind.Ceramic :
+                instrument != null ? (instrument.Kind == StarInstrumentKind.Lyre ? StarImpactKind.Lyre : StarImpactKind.Drum) :
+                hit.collider.GetComponent<StarSocket>() != null ? (embedded ? StarImpactKind.Socket : StarImpactKind.UnavailableSocket) : StarImpactKind.Stone;
         }
+
+        private StarContact(StarContact contact, float speed, float charge, int shotId)
+        {
+            Collider = contact.Collider; Point = contact.Point; Normal = contact.Normal;
+            Reflected = contact.Reflected; Embedded = contact.Embedded; Kind = contact.Kind;
+            IncomingDirection = contact.IncomingDirection; OutgoingDirection = contact.OutgoingDirection;
+            Speed = speed; Charge = charge; ShotId = shotId;
+        }
+        public StarContact WithShot(float speed, float charge, int shotId) => new StarContact(this, speed, charge, shotId);
     }
 
     // A read-only query: callers decide whether to apply contacts to gameplay.
@@ -102,7 +129,7 @@ namespace HOne.Game
                     var wall = collider.GetComponentInParent<BrittleWall>();
                     if (wall != null)
                     {
-                        if (!wall.Broken && state.PredictedBroken.Add(wall)) contacts?.Add(new StarContact(hit, false));
+                        if (!wall.Broken && state.PredictedBroken.Add(wall)) contacts?.Add(new StarContact(hit, false, false, state.Direction));
                         continue;
                     }
                     var hazard = collider.GetComponentInParent<Hazard2D>() != null;
@@ -110,7 +137,7 @@ namespace HOne.Game
                     var socket = collider.GetComponent<StarSocket>();
                     if (collider.isTrigger && !hazard && socket == null)
                     {
-                        if (fragment) contacts?.Add(new StarContact(hit, false));
+                        if (fragment) contacts?.Add(new StarContact(hit, false, false, state.Direction));
                         continue;
                     }
                     // A cast may still report the surface we are leaving at distance zero.
@@ -129,12 +156,12 @@ namespace HOne.Game
                                 state.PredictedBroken.Add(target);
                     if (!hazard && socket != null && socket.Available)
                     {
-                        contacts?.Add(new StarContact(hit, false, true));
+                        contacts?.Add(new StarContact(hit, false, true, state.Direction));
                         state.Ended = true;
                         return;
                     }
                     var reflect = !hazard && state.BouncesLeft > 0 && hit.distance > 0.00001f;
-                    contacts?.Add(new StarContact(hit, reflect));
+                    contacts?.Add(new StarContact(hit, reflect, false, state.Direction));
                     if (!reflect)
                     {
                         state.Ended = true;
@@ -146,6 +173,7 @@ namespace HOne.Game
                     state.LastNormal = hit.normal;
                     var separation = Mathf.Min(Skin, remaining);
                     state.Position += hit.normal * separation;
+                    if (separation > 0f) points?.Add(state.Position);
                     state.Travelled += separation;
                     remaining -= separation;
                     blocked = true;

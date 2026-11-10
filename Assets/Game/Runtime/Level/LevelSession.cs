@@ -22,6 +22,9 @@ namespace HOne.Game
         public event Action<Checkpoint> CheckpointChanged;
         public event Action ProgressReset;
         public event Action PuzzleReset;
+        public event Action<BrittleWall> WallBroken;
+        public IReadOnlyCollection<string> AllowedFragmentIds => allowedFragments;
+        internal void NotifyWallBroken(BrittleWall wall) => WallBroken?.Invoke(wall);
         public ShadowService Shadows => shadows;
         public int FragmentCount => collected.Count;
         public LevelDefinition Definition => definition;

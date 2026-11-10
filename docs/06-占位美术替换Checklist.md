@@ -50,11 +50,11 @@
 
 - [ ] `ART-002` 星弹主体 — **部分已接入待验收｜P1｜CH-07**。`sprite_02.PNG` → `D/star_00–03.png`，704²、512 PPU；`ChapterPlayer.prefab/Visual/Star` 由 `PlayerView` 6 fps 循环，显示 scale 0.55，原查询半径不改。月桂/光晕独立拆层尚缺，四帧运动轮廓/高速可读性仍需美术确认；星槽内的星影核心继续用原 P0，未全局覆盖 `star.png`。
 
-- [ ] `ART-003` 蓄力环与满蓄 — **占位｜P1｜UI-02、FX-02**。当前 `ring.png` 随蓄力缩放；接入玩家 `Visual/ChargeRing`、`PlayerView.cs`。换成底环/进度遮罩/满蓄闪层，明确未满与满蓄；方向、进度和角色剪影不能互相遮挡。
+- [ ] `ART-003` 蓄力环与满蓄 — **占位｜P1｜UI-02、FX-02**。旧 `ring.png` 制作引用保留，新组件有效时仅在蓄力状态隐藏旧环（飞行/重组环仍在），另有 `GameplayFeedbackView` 程序进度/满蓄层（2026-11-10，§11）；接入玩家 `Visual/ChargeRing`、`PlayerView.cs` 与独立 `ProceduralFeedback`。正式交付仍需底环/进度遮罩/满蓄闪层，明确未满与满蓄；方向、进度和角色剪影不能互相遮挡。
 
-- [ ] `ART-004` 失败消散与星台重组 — **占位｜P1｜CH-09、FX-07**。当前 `PlayerView.cs` 以同一圆环扩张代替重组，未有完整炸散/重聚素材。补齐独立效果并接到失败/重组状态，约 0.5 秒恢复控制由玩法决定；消散后返回位置和安全星台可读。
+- [ ] `ART-004` 失败消散与星台重组 — **占位｜P1｜CH-09、FX-07**。当前 `PlayerView.cs` 保留圆环，2026-11-10 增加 `ImpactFeedbackView` 程序消散/聚合样板（§11），正式完整炸散/重聚素材仍未交付。补齐独立效果并接到失败/重组状态，约 0.5 秒恢复控制由玩法决定；消散后返回位置和安全星台可读。
 
-- [ ] `ART-005` 世界星座碎片与收集反馈 — **部分已接入待验收｜P0→P1/P2｜ME-01、FX-05**。`sprite_02.PNG` → `D/fragment_00–03.png`，256²、256 PPU；`Fragment.prefab/Visual`、Core `F1/Visual`、两场景实例由 `SpriteSequenceView` 转动，保留原 `StarFragment` 触发器/稳定 ID。尚为共用黄色收集物，缺两关各三片独特星图、空位、HUD/门一致映射和收集 VFX；Core 的 ART-006 节点未替换。
+- [ ] `ART-005` 世界星座碎片与收集反馈 — **部分已接入待验收｜P0→P1/P2｜ME-01、FX-05**。`sprite_02.PNG` → `D/fragment_00–03.png`，256²、256 PPU；`Fragment.prefab/Visual`、Core `F1/Visual`、两场景实例由 `SpriteSequenceView` 转动，保留原 `StarFragment` 触发器/稳定 ID。尚为共用黄色收集物，缺两关各三片独特星图、空位、HUD/门一致映射和正式收集 VFX；2026-11-10 加程序收片/真实 ID HUD 样板，见 §11，Core 的 ART-006 世界节点未替换。
 
 - [ ] `ART-006` 收集进度节点 — **占位｜P1/P2｜UI-01、ME-15 的节点**。当前 Core `LevelRoot/Mechanisms/CollectedFragmentNode` 在 `empty_node.png` / `fragment.png` 间切换；`SessionView.cs` 只判断是否收过任意一片。替换需实际三片图形进度和门连线支持；此节点不是已实现的正式 HUD 或星座出口。完整 HUD/出口另见 NEW-006/007。
 
@@ -72,13 +72,13 @@
 
 以下机关 Prefab 均在 `Assets/Game/Prefabs/Mechanisms/`。核查共享 Prefab 后仍须检查场景实例覆盖；当前 `CoreSceneAuthoring.cs`、`LevelPieceFactory.cs`、`M2SceneAuthoring.cs` 还会加载 P0 路径，正式制作入口和默认引用也要一起维护，保留灰盒入口须注明。
 
-- [ ] `ART-011` 空槽/占用/不可用槽 — **部分已接入待验收｜P0→P1｜ME-02**。2026-11-10 按用户要求，将两型槽根下 `Visual` 从 `P0/empty_node.png` 替换为 `rock-dark.PNG|rock-light.PNG` → `D/rock_dark.png|rock_light.png`，分别表示空 / 实际占槽。沿用 `delivery01-20261109` 原图源指纹、裁切和 995×1024 / 512 PPU / 中心 pivot，接入修订 `socket-art-20261110` 见 `D/manifest.json.integrations.star_socket` / `SOURCE_USAGE.md` / `D/README.md`；分层源和独立授权清单仍缺。接入 `PlatformSocket.prefab|PlateSocket.prefab/Visual`，实例为 ShadowSlice `LevelRoot/Mechanisms/Puzzle_A/PlatformSocket|PlateSocket`、Gallery `MechanismGallery/Mechanisms/02_ShadowBridge/PlatformSocket|BridgeSocket`。`StarSocketArtView.cs` 只读实际占用，召回完整 1 秒后变暗；`ShadowFeedback` 对已接入槽跳过旧整体染色。`DeliveredArtAuthoring.ApplyToPiece|ApplyToScene`、`LevelPieceFactory` / `M2SceneAuthoring` 新建默认和 Runtime Catalog 已覆盖；临时场景实测新建两型槽均为暗图、单个表现组件、高 0.7 unit。原根/吸附区/碰撞/稳定 ID/出生点保留，核心排序在岩石之后、承重条在前。Windows 已导入、保存并回写 WSL；Gallery 实际 Input Actions 发射入槽，召回/暂停/失败/复位/重开及 ShadowSlice 压板召回通过；720p/1080p/16:10、静音/无后处理和离线灰度局部检查见 09 记录。仍缺独立外框/光层、可嵌/额度锁形和完整 TUT-03/04；额度不可用降亮度仅为临时提示，父项不勾选。
+- [ ] `ART-011` 空槽/占用/不可用槽 — **部分已接入待验收｜P0→P1｜ME-02**。2026-11-10 按用户要求，将两型槽根下 `Visual` 从 `P0/empty_node.png` 替换为 `rock-dark.PNG|rock-light.PNG` → `D/rock_dark.png|rock_light.png`，分别表示空 / 实际占槽。沿用 `delivery01-20261109` 原图源指纹、裁切和 995×1024 / 512 PPU / 中心 pivot，接入修订 `socket-art-20261110` 见 `D/manifest.json.integrations.star_socket` / `SOURCE_USAGE.md` / `D/README.md`；分层源和独立授权清单仍缺。接入 `PlatformSocket.prefab|PlateSocket.prefab/Visual`，实例为 ShadowSlice `LevelRoot/Mechanisms/Puzzle_A/PlatformSocket|PlateSocket`、Gallery `MechanismGallery/Mechanisms/02_ShadowBridge/PlatformSocket|BridgeSocket`。`StarSocketArtView.cs` 只读实际占用，召回完整 1 秒后变暗；`ShadowFeedback` 对已接入槽跳过旧整体染色。`DeliveredArtAuthoring.ApplyToPiece|ApplyToScene`、`LevelPieceFactory` / `M2SceneAuthoring` 新建默认和 Runtime Catalog 已覆盖；临时场景实测新建两型槽均为暗图、单个表现组件、高 0.7 unit。原根/吸附区/碰撞/稳定 ID/出生点保留，核心排序在岩石之后、承重条在前。Windows 已导入、保存并回写 WSL；Gallery 实际 Input Actions 发射入槽，召回/暂停/失败/复位/重开及 ShadowSlice 压板召回通过；720p/1080p/16:10、静音/无后处理和离线灰度局部检查见 09 记录。2026-11-10 补可嵌开口/额度锁形的程序样板（§11）；正式独立外框/光层与完整 TUT-03/04 仍缺，父项不勾选。
 
 - [ ] `ART-012` 星影主体 — **占位｜P1｜CH-08**。两种槽 `ShadowPlatform/Visual` 内以 `star.png` 作核心；11-10 起排序在 ART-011 岩石层之后，保留独立召回缩放，不覆盖原画星纹（`DeliveredArtAuthoring`，见 §9；源仍 P0，正式 CH-08 未交）。补半透明、中空/月桂轮廓和独立星点；实际入槽后看得出本体已返回、此处留下不可操控星影；与 ART-022 的演示幽灵区分。
 
 - [ ] `ART-013` 星影承重面 — **占位｜P1｜ME-03**。两种槽的 `ShadowPlatform` 使用拉伸 `stone.png` 作顶条；11-10 起排序在 ART-011 岩石之前，2 / 0.9 unit 宽和高 0.18、位置与原 Collider 对齐，图源/PPU/pivot 未变（`DeliveredArtAuthoring`，§9）。补显现/稳定/撤除的独立顶面与星尘；核对两型实际 Collider 尺寸和 offset，不能按“默认 2 unit”盲配所有实例。脚底准确落在可见承重线上。
 
-- [ ] `ART-014` 召回视觉 — **占位｜P1｜CH-10、FX-08**。当前 `ShadowFeedback.cs` 仅缩放 `ShadowPlatform/Visual` 的第一个核心子物体，承重条保持；11-10 新岩石槽本体不缩放，完整召回结束才切回暗图，暂停/复位时序见 §9 / 09 记录。仍无完整回流线与拆层素材。补 1 秒收拢、回流和完成态；完成前承重轮廓保持清楚，暂停/复位/卸载清理表现；撤碰撞由 `ShadowService` 决定，不能靠动画结束事件。
+- [ ] `ART-014` 召回视觉 — **占位｜P1｜CH-10、FX-08**。当前 `ShadowFeedback.cs` 仅缩放 `ShadowPlatform/Visual` 的第一个核心子物体，承重条保持；11-10 新岩石槽本体不缩放，完整召回结束才切回暗图，暂停/复位时序见 §9 / 09 记录。2026-11-10 补程序召回弧/星点回流（§11），正式回流纹理/拆层素材仍缺。正式交付需完整 1 秒收拢、回流和完成态；完成前承重轮廓保持清楚，暂停/复位/卸载清理表现；撤碰撞由 `ShadowService` 决定，不能靠动画结束事件。
 
 - [ ] `ART-015` 压力星板 — **部分已接入待验收｜P2｜ME-09**。`sprite_02.PNG` → `D/plate_up.png|plate_down.png`，同 544×128 画布、384 PPU；`PressurePlate.prefab/Visual`、`PlateSocket.prefab/PressurePlate/Visual` 及场景实例由 `PressurePlateArtView` 读取实际 `Value` 切图，显示宽度匹配传感器，保留上下表面形变。测试验证占槽压下、召回前 0.8 s 仍压下、1 s 完成恢复；尚缺占用亮纹/星石星影标识/连接点与正式 P2 关卡验收。
 
@@ -92,9 +92,9 @@
 
 ### 3.4 轨迹、教学与菜单
 
-- [ ] `ART-020` 轨迹线 — **占位｜P1｜UI-03**。当前两场景 `Presentation/Trajectory` 为单条 LineRenderer + `Trajectory.mat`。补星点/虚线/箭头/反弹标等组件，仍由 `TrajectoryPreview.cs` 和共享求解器提供几何；不能把轨迹烘焙成固定图片或产生玩法副作用。
+- [ ] `ART-020` 轨迹线 — **占位｜P1｜UI-03**。当前 `Presentation/Trajectory` 保留 LineRenderer + `Trajectory.mat` 作为制作引用，2026-11-10 运行时隐藏旧线，`StarPathShapes` Mesh 提供星点/箭头/反弹标（§11），正式笔触素材仍缺；仍由 `TrajectoryPreview.cs` 和共享求解器提供几何；不能把轨迹烘焙成固定图片或产生玩法副作用。
 
-- [ ] `ART-021` 轨迹终点/阻断标 — **占位｜P1｜UI-03**。当前两场景 `Presentation/TrajectoryEnd` 复用 `ring.png`。补终点/阻断等形状差异，核对预测落点、入槽终止与一次反弹，不单靠颜色；与蓄力月桂环分开接入。
+- [ ] `ART-021` 轨迹终点/阻断标 — **占位｜P1｜UI-03**。当前 `Presentation/TrajectoryEnd` 保留 `ring.png` 制作引用，2026-11-10 运行隐藏，`TrajectoryPreview` 程序绘制范围/阻断/入槽/锁定形状（§11）；正式素材验收须核对预测落点、入槽终止与一次反弹，不单靠颜色；与蓄力月桂环分开接入。
 
 - [ ] `ART-022` 世界教学剪影与地标 — **占位｜P1｜CH-12、TUT-01–04、TUT-09**。当前 M2 `LevelRoot/Tutorial` 仅静态半透明 `human.png` + 三个 `ring.png`，没有真实自动示范/重播。替换/扩充壁画、正确角度地贴、无底座演示幽灵和可重绑键帽；实际说明入槽→本体返回→踩影→召回，不将静态摆件算成完整教学。第二关补项见 NEW-007。
 
@@ -110,9 +110,9 @@
 - [ ] `NEW-004` 排箫控制器与升降平台 — **未制作｜P2｜ME-06/07、FX-12**。有效上/下管口、方向纹样、移动台/端点与流光；不能以普通平台/星桥占位算已交付。
 - [ ] `NEW-005` 锁存开关与机关连接语言 — **未制作｜P2｜ME-12/16**。S1/S2 独立纹样、未亮/撞亮/锁存、配对接收端与连线；不把当前持续压板当作锁存开关。
 - [ ] `NEW-006` 星座出口与两关完整星图 — **未制作｜P1/P2｜ME-15、UI-08、FX-13**。共用门框/门扇、各关三片节点/连线，第二关额外两开关徽记；开门条件和独立通关效果有真实程序接入后再验收。
-- [ ] `NEW-007` 完整 HUD、操作图标与第二关教学 — **未制作｜P1/P2｜UI-01/04/05、TUT-05–09**。两关碎片栏、单影四态、动态键位字形、演示/重播/目标图标，以及推石/桥/鼓波/里拉 S1/排箫上下的图组；复用 ART-005/006/022，仍需逐关核对。
+- [ ] `NEW-007` 完整 HUD、操作图标与第二关教学 — **程序占位已接入、正式素材未制作｜P1/P2｜UI-01/04/05、TUT-05–09**。两关碎片栏、单影四态、动态键位字形、演示/重播/目标图标，以及推石/桥/鼓波/里拉 S1/排箫上下的图组；复用 ART-005/006/022，仍需逐关核对。
 - [ ] `NEW-008` 环境装饰与关卡布局补齐 — **前景部分已交付，其余未制作｜P1/P2｜ENV-06–09、ENV-11；ENV-04 第二关布局**。已有前景草图由 ART-010 接入；辅助构件、马赛克/边饰、装饰陶瓶、残石仍缺，复用 ART-010 背景套件；装饰不能形成假平台或假交互提示。 **本轮更新：** 2026-11-10 增加格点草地与圆形笔刷用途，见 ART-008/009 / NEW-008-a；装饰环境交付范围未取消。
-- [ ] `NEW-009` 尚缺的共用特效 — **未制作｜P1/P2｜FX-03/04/06/14**。发射尾迹、普通撞石粉、入槽展开、走路/落地/推石轻尘；与 §3 已列蓄力/收集/重组/召回及 NEW-002/003 的素材复用，按事件验收，无需为每个事件重复画全套纹理。
+- [ ] `NEW-009` 尚缺的共用特效 — **部分程序占位已接入、正式素材未制作｜P1/P2｜FX-03/04/06/14**。发射尾迹、普通撞石粉、入槽展开、走路/落地/推石轻尘；与 §3 已列蓄力/收集/重组/召回及 NEW-002/003 的素材复用，按事件验收，无需为每个事件重复画全套纹理。
 - [ ] `NEW-010` 标题、设置、转场与菜单补页 — **部分已接入待验收｜P1/P2｜UI-06–10**。实际源文件 `tittle-screen.PNG`（README 写作 title-screen）→ `D/title.png`，`ChapterArt.asset.Title` 已接入 `MainMenu/MainMenuCanvas/TitleArtwork`；`M2MenuAuthoring` 创作默认布局，`MainMenuController` 进入试场/操作声音页/退出，右侧独立 uGUI 为程序布局。音量设置已接，独立四态按钮/最终字版、转场、成功章纹仍缺，暂停插画改记 ART-023。来源/配方/修订沿用 §3；不能把备妥单图视为菜单套件完成。
 
 ## 5. 保留与排除项
@@ -228,3 +228,22 @@ KEEP-004 的当前/最终实现路径均为 `Assets/Game/Runtime/Presentation/Ru
 两份工程已逐文件比较，397 个 `Assets/Game` 文件内容一致；本轮只同步上述脚本和 `M2GalleryGameplayTests.cs`，增加真实 UI 射线验证 Save 按钮优先收到点击。最终 EditMode 26/26、PlayMode 30/30，Editor 测试期间观测帧数 10769→后续测试完成；Windows x64 Development 独立构建 0 错误、1 条既有 App UI Settings 警告。Windows Unity 6000.0.84f1 / RTX 4060 Laptop、键鼠、1280×720 下实测主菜单、走动/发射/暂停、工具栏、新建/放置/连线、Save/Load、Play test/Stop test、退出后重启加载与推石压板开门。独立日志无异常；Editor 当前 Console 0 错误。Play 已退出，原 MainMenu 启动场景、auto tick=true、runInBackground=false 已恢复，没有修改项目渲染配置。
 
 精确源码范围和哈希、两份 Git 状态、测试和 BuildReport 见本机忽略目录 `artifacts/H-ONE-Demo-Windows-x64-20261110-194118/`；实际独立程序截图包括 `final-03-editor-toolbar.png`、`final-05-gallery-saved.png`、`final-32-loaded-persisted.png`、`final-34-stone-on-plate.png`，打包说明见 [Windows Demo 使用说明](12-Windows-Demo与关卡编辑器使用说明.md)。本次只验工具可用性，未重新执行最终美术的多分辨率/灰度/静音整批验收。
+
+## 11. 2026-11-10：无新增图源的碰撞与操作反馈
+
+本轮沿用原 ID/批次，以下为技术反馈部分接入，ART/NEW 父项继续 `[ ]`。程序形状没有 PNG/PPU/pivot/子 Sprite fileID；所有既有 Delivery01/02/P0 `.meta`、画布、裁切、锚点和玩法根/Collider/稳定 ID 均保留。可编辑源是下表 C#，修订 `procedural-feedback-20261110`；逐文件 SHA-256 与来源记录见 [程序反馈 manifest](procedural-feedback-manifest.json)，运行/同步证据见 [13 记录](13-程序反馈改进与碰撞质感.md)。代码为项目内新增程序，不含外部图片/字体/音频；既有图源授权快照仍在 Delivery01/02 `SOURCE_USAGE.md`，P0 来源在原 README。正式美术源工程/完整许可交付仍缺，技术代码不能补齐它们。
+
+| 既有条目 / 交付与批次 | 当前路径、实际使用与制作默认 | 剩余正式状态 |
+| --- | --- | --- |
+| ART-002/003/004/005/007；CH-07/09、UI-02、ME-01/13、FX-02/05/07，P1 | `Runtime/Presentation/PlayerView.cs` 只变形玩家 `Visual/Star`；`ImpactFeedbackView.cs` 运行生成短尾迹/星闪/消散/聚合/收片/检查点；`GameplayFeedbackView.cs` 独立蓄力/满蓄形状。`GameFeelInstaller.cs` 从有效 `PlayerStateMachine.Start` 安装 `Actors/ChapterPlayer/ProceduralFeedback/{ImpactGeometry,ChargeAndShadowShapes,GameplayFeedbackHUD}`，覆盖 Core/ShadowSlice/Gallery 和制作/Runtime Catalog 玩家。星弹/碎片/星台仍原图，不拉伸角色根 | 月桂拆层、绘本纹理、独特碎片/星图与完整动作；ART-007 的持续当前星台状态仍缺 |
+| NEW-002/003/003-a/009；ME-04/05/08、FX-03/04/06/09/10，P1/P2 | `InstrumentArtView.cs` 在里拉 `Visual` 做约 0.36 s 轻振，保留 Delivery02 鼓帧与 3-unit 波纹；`ImpactFeedbackView` 用真命中法线/破墙完成事件画石粉、星闪和 0.6 s 陶片。实际使用为 Gallery `04_Instruments/Lyre|Drum|DrumWaveWall` 及新建相同 Prefab/运行元件；24 个有界事件、96 路径点，0.14 s 短尾迹 | 琴弦独立层、完整陶墙/残缘及最终 FX；走路/落地/推石轻尘未在本轮实现，NEW-009 原范围保留 |
+| ART-011/012/013/014；ME-02/03、CH-08/10、FX-08，P1/P2 | 两型槽暗/亮原画、既有星影核心/顶条不改；`GameplayFeedbackView` 用开口/菱形/锁形/召回弧与星点回流补四态，并按真实 Collider 顶边标记承重面。用于 ShadowSlice `Puzzle_A`、Gallery `02_ShadowBridge` 及动态元件；`ShadowFeedback` 原音频/核心缩放保持 | 正式月桂影、召回纹理/拆层及无说明教学仍缺；程序不提前撤除支撑 |
+| ART-020/021；UI-03，P1 | `Runtime/Star/TrajectoryPreview.cs` 在既有 `Presentation/Trajectory/StarPathShapes` 运行生成星点/箭头/反弹菱形、范围开环/实体阻断/入槽/锁定标；既有 LineRenderer 与 `TrajectoryEnd` 仅运行时隐藏，制作引用仍保留。复用 `P0/Trajectory.mat` / `Sprites/Default`，同一求解器 | 正式绘本笔触/层次与完整两关预测/教学验收；不删除保留的灰盒资源 |
+| NEW-007；UI-01/04/05，P1/P2 | `GameplayFeedbackView.cs` + `ProceduralHudGraphic.cs` 图形碎片栏按当前 `AllowedFragmentIds` 显示，单影四态/召回进度、动态 Input Action E/R 字形；1920×1080 参考 uGUI、排序 25，低于开发工具/暂停 Canvas，所有新增图形不抢射线 | 两关独特图标、出口映射、完整壁画/幽灵教学仍缺；ART-006 世界旧节点没有被冒认成 HUD |
+| ART-023/NEW-010；UI-06–10，P1/P2 | `FeedbackMenuStyle.cs` 给 MainMenu/PuzzlePauseMenu 既有按钮加暗蓝底、金边与悬停/按下色；`MainMenuController` / `PuzzlePauseMenu` 运行安装，不改层级布局/回调/字体/原插画。`ChapterCamera2D.cs` 平滑瞄准构图、把可调短冲击与跟随位置分开 | 独立按钮原画、过场与完整菜单套件仍未交付；原字体 manifest/OFL 保持，未迁移 UI 框架 |
+
+`CoreSceneAuthoring`、`LevelPieceFactory`、`M2SceneAuthoring` 与 Runtime Catalog 的既有引用未重写；新反馈依附于共用玩家/轨迹/乐器组件自动生效。没有全局替换 `stone/ring/dais/empty_node`，没有重建美术 Prefab/生产场景，也没有修改渲染配置或外部源目录。
+
+| 更新日期 | 范围 | 同步与运行状态 |
+| --- | --- | --- |
+| 2026-11-10 | 上表技术层；声音另见音频交付清单 | Windows 已导入并完成本轮局部程序反馈验证：EditMode 29/29、PlayMode 35/35，画面返修后 CoreGameplay 8/8；Game view 四弹/召回暂停/三分辨率/静音/无后处理与灰度检查，最终 Console 0 errors。帧数、证据、恢复设置及听感限制见 13 记录；正式美术批次未签收 |

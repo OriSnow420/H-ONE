@@ -20,7 +20,14 @@ namespace HOne.Game
         }
         private void OnEnable() { if (session != null) session.ProgressReset += Restore; }
         private void OnDisable() { if (session != null) session.ProgressReset -= Restore; }
-        public void Break() { if (Broken) return; session?.TryTriggerMechanism(stableId); Broken = true; Apply(); }
+        public void Break()
+        {
+            if (Broken) return;
+            session?.TryTriggerMechanism(stableId);
+            Broken = true;
+            Apply();
+            session?.NotifyWallBroken(this);
+        }
         private void Restore() { Broken = false; Apply(); }
         private void Apply() { collision.enabled = !Broken; visual.SetActive(!Broken); }
     }

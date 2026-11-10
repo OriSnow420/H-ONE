@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using HOne.Platformer;
 using UnityEngine;
 
@@ -23,6 +24,7 @@ namespace HOne.Game
 
         public event Action<PlayerState> StateChanged;
         public event Action<StarContact> StarImpact;
+        public event Action<IReadOnlyList<Vector2>> StarPathAdvanced;
         public event Action Jumped;
         public event Action Reformed;
         public PlayerState State { get; private set; }
@@ -57,12 +59,18 @@ namespace HOne.Game
             }
             human = new HumanoidMotor2D(body, shape, tuning, worldMask);
             star = new StarFlightMotor2D(body, tuning, worldMask, transform);
+            star.PathAdvanced += points => StarPathAdvanced?.Invoke(points);
             star.Impact += contact =>
             {
                 StarImpact?.Invoke(contact);
                 if (contact.Embedded) BeginReform(ReformReason.Embedded);
             };
             SetHumanBody();
+        }
+
+        private void Start()
+        {
+            if (star != null) GameFeelInstaller.Ensure(this);
         }
 
         private void Update()

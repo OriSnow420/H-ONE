@@ -10,13 +10,18 @@ namespace HOne.Game
         private readonly Rigidbody2D body;
         private readonly PlayerTuning tuning;
         private readonly List<StarContact> contacts = new List<StarContact>(16);
+        private readonly List<Vector2> points = new List<Vector2>(12);
         private readonly HashSet<string> touched = new HashSet<string>(StringComparer.Ordinal);
         private readonly HashSet<StarInstrument> instruments = new HashSet<StarInstrument>();
         private StarFlightState path;
         private float speed;
         private float range;
+        private float charge;
+        private int shotId;
         public StarFlightState Path => path;
         public event Action<StarContact> Impact;
+        // Borrowed list: consumers must copy points during this callback.
+        public event Action<IReadOnlyList<Vector2>> PathAdvanced;
 
         public StarFlightMotor2D(Rigidbody2D rigidbody, PlayerTuning config, int mask, Transform self)
         {
@@ -30,6 +35,8 @@ namespace HOne.Game
             path = new StarFlightState(body.position, aim);
             speed = tuning.SpeedAt(charge);
             range = tuning.RangeAt(charge);
+            this.charge = Mathf.Clamp01(charge);
+            shotId++;
             touched.Clear();
             instruments.Clear();
         }
@@ -37,10 +44,14 @@ namespace HOne.Game
         public bool Tick(float deltaTime)
         {
             contacts.Clear();
-            solver.Advance(ref path, Mathf.Min(speed * deltaTime, range - path.Travelled), null, contacts);
+            points.Clear();
+            points.Add(path.Position);
+            solver.Advance(ref path, Mathf.Min(speed * deltaTime, range - path.Travelled), points, contacts);
             body.position = path.Position;
-            foreach (var contact in contacts)
+            PathAdvanced?.Invoke(points);
+            foreach (var queryContact in contacts)
             {
+                var contact = queryContact.WithShot(speed, charge, shotId);
                 var fragment = contact.Collider.GetComponentInParent<StarFragment>();
                 if (fragment != null)
                 {
@@ -49,9 +60,17 @@ namespace HOne.Game
                 else
                 {
                     var instrument = contact.Collider.GetComponentInParent<StarInstrument>();
-                    if (instrument != null && instruments.Add(instrument)) instrument.Strike();
+                    if (instrument != null)
+                    {
+                        if (!instruments.Add(instrument)) continue;
+                        instrument.Strike();
+                    }
                     var wall = contact.Collider.GetComponentInParent<BrittleWall>();
-                    if (wall != null) wall.Break();
+                    if (wall != null)
+                    {
+                        if (wall.Broken) continue;
+                        wall.Break();
+                    }
                     if (contact.Embedded)
                     {
                         var socket = contact.Collider.GetComponent<StarSocket>();

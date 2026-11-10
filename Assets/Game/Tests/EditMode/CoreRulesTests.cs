@@ -163,6 +163,74 @@ namespace HOne.Game.Tests
             Assert.AreEqual(new Vector3(0f, 0f, -10f), bounds.ClampCameraCenter(new Vector3(500f, -200f, -10f), 9.6f, 5.4f));
         }
 
+        [Test] public void ActualPathReportsBounceVertexAndEnrichedContactWithoutChangingBudget()
+        {
+            Wall(new Vector2(1f, 0f), new Vector2(0.02f, 10f));
+            var body = New("star").AddComponent<Rigidbody2D>(); body.bodyType = RigidbodyType2D.Kinematic;
+            var tuning = ScriptableObject.CreateInstance<PlayerTuning>(); owned.Add(tuning);
+            var motor = new StarFlightMotor2D(body, tuning, Mask, body.transform);
+            var reported = new List<Vector2>();
+            var impacts = new List<StarContact>();
+            motor.PathAdvanced += points => { reported.Clear(); reported.AddRange(points); };
+            motor.Impact += impacts.Add;
+            motor.Launch(Vector2.right, 1f); motor.Tick(0.1f);
+            Assert.That(reported.Count, Is.GreaterThanOrEqualTo(3));
+            Assert.AreEqual(Vector2.zero, reported[0]);
+            Assert.That(reported[1].x, Is.EqualTo(0.99f - tuning.StarRadius).Within(0.01f));
+            Assert.AreEqual(body.position, reported[reported.Count - 1]);
+            Assert.AreEqual(0, motor.Path.BouncesLeft);
+            Assert.AreEqual(1, impacts.Count);
+            Assert.AreEqual(StarImpactKind.Stone, impacts[0].Kind);
+            Assert.AreEqual(Vector2.right, impacts[0].IncomingDirection);
+            Assert.That(impacts[0].OutgoingDirection.x, Is.LessThan(-0.99f));
+            Assert.AreEqual(tuning.SpeedAt(1f), impacts[0].Speed);
+            Assert.AreEqual(1f, impacts[0].Charge);
+            var firstShot = impacts[0].ShotId;
+            body.position = Vector2.zero;
+            motor.Launch(Vector2.right, 0f); motor.Tick(0.1f);
+            Assert.That(impacts[impacts.Count - 1].ShotId, Is.GreaterThan(firstShot));
+        }
+
+        [Test] public void PredictionDoesNotEmitWallBreakAndRealBreakNotifiesOnlyAfterApplying()
+        {
+            var session = Session();
+            var shape = Wall(Vector2.right, new Vector2(0.1f, 2f));
+            var visual = New("ceramic visual");
+            var wall = shape.gameObject.AddComponent<BrittleWall>();
+            wall.Configure(session, shape, visual, "ceramic-test");
+            var notifications = 0;
+            session.WallBroken += broken =>
+            {
+                notifications++;
+                Assert.IsTrue(broken.Broken);
+                Assert.IsFalse(shape.enabled);
+                Assert.IsFalse(visual.activeSelf);
+            };
+            var state = new StarFlightState(Vector2.zero, Vector2.right);
+            var contacts = new List<StarContact>();
+            new StarPathSolver(0.22f, Mask).Advance(ref state, 3f, null, contacts);
+            Assert.AreEqual(0, notifications); Assert.IsFalse(wall.Broken);
+            Assert.AreEqual(StarImpactKind.Ceramic, contacts[0].Kind);
+            wall.Break(); wall.Break();
+            Assert.AreEqual(1, notifications);
+        }
+
+        [Test] public void VeryShortRemainderStillReportsTheActualSeparatedBouncePosition()
+        {
+            Wall(Vector2.right, new Vector2(.02f, 10f));
+            var body = New("star").AddComponent<Rigidbody2D>(); body.bodyType = RigidbodyType2D.Kinematic;
+            var tuning = ScriptableObject.CreateInstance<PlayerTuning>(); owned.Add(tuning);
+            var hit = Physics2D.CircleCast(Vector2.zero, tuning.StarRadius, Vector2.right, 2f, Mask);
+            var motor = new StarFlightMotor2D(body, tuning, Mask, body.transform);
+            var reported = new List<Vector2>();
+            motor.PathAdvanced += points => reported.AddRange(points);
+            motor.Launch(Vector2.right, 1f);
+            motor.Tick((hit.distance + StarPathSolver.Skin * .5f) / tuning.SpeedAt(1f));
+            Assert.AreEqual(0, motor.Path.BouncesLeft);
+            Assert.AreEqual(3, reported.Count);
+            Assert.That(Vector2.Distance(reported[reported.Count - 1], body.position), Is.LessThan(.00001f));
+        }
+
         [TestCase(0f, 10f)] [TestCase(1f, 18f)]
         public void MeasuredOpenFlightRangeRespectsTimeAndDistance(float charge, float expected)
         {

@@ -1,54 +1,118 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
 namespace HOne.Game
 {
-    // Technical P0 feedback. Gameplay never waits for or reads playback state.
+    // Event-driven technical feedback. Gameplay never waits for or reads playback state.
     public sealed class CoreAudioFeedback : MonoBehaviour
     {
         [SerializeField] private PlayerStateMachine player;
         [SerializeField] private AudioMixerGroup bus;
         [SerializeField] private AudioClip chargeStart, chargeLoop, launch, wall, fail, reform, collect;
+        [SerializeField, Range(0f, 1f)] private float impactVolume = 0.85f;
         private AudioSource loop, oneShot;
+        private ProceduralImpactAudio samples;
+        private PlayerStateMachine boundPlayer;
+        private LevelSession boundSession;
+        private readonly HashSet<int> struckInstruments = new HashSet<int>();
+        private int stoneVariant, ceramicVariant, currentShotId = -1;
+        private float lastFractureAt = float.NegativeInfinity;
         private bool paused;
+
+        public int GeneratedClipCount => samples?.ClipCount ?? 0;
+        public int ImpactPlaybackCount { get; private set; }
+        public int FracturePlaybackCount { get; private set; }
+        public int CollectionPlaybackCount { get; private set; }
+        public int LastCollectionStage { get; private set; }
+        public StarImpactKind LastImpactKind { get; private set; }
+        public bool SourcesPaused => paused;
 
         public void Configure(PlayerStateMachine owner, AudioMixerGroup output, AudioClip start, AudioClip sustain,
             AudioClip shot, AudioClip hit, AudioClip failure, AudioClip reappear, AudioClip fragment)
         {
+            StopPlayback();
             player = owner; bus = output; chargeStart = start; chargeLoop = sustain;
             launch = shot; wall = hit; fail = failure; reform = reappear; collect = fragment;
+            RouteSources();
+            if (isActiveAndEnabled) Bind();
         }
 
         private void Awake()
         {
             loop = gameObject.AddComponent<AudioSource>(); loop.playOnAwake = false; loop.loop = true;
             oneShot = gameObject.AddComponent<AudioSource>(); oneShot.playOnAwake = false;
-            loop.outputAudioMixerGroup = oneShot.outputAudioMixerGroup = bus;
             loop.spatialBlend = oneShot.spatialBlend = 0f;
+            loop.priority = 100; oneShot.priority = 80;
+            RouteSources();
+            samples = new ProceduralImpactAudio();
         }
 
-        private void OnEnable()
+        private void RouteSources()
         {
-            if (player == null) return;
-            player.StateChanged += StateChanged;
-            player.StarImpact += Impact;
-            player.Reformed += Reformed;
-            player.Session.FragmentCollected += Collected;
+            if (loop != null) loop.outputAudioMixerGroup = bus;
+            if (oneShot != null) oneShot.outputAudioMixerGroup = bus;
         }
+
+        private void OnEnable() => Bind();
+
+        private void Bind()
+        {
+            if (boundPlayer == player && boundSession == (player != null ? player.Session : null)) return;
+            Unbind();
+            StopPlayback();
+            if (player == null) return;
+            boundPlayer = player;
+            boundSession = player.Session;
+            boundPlayer.StateChanged += StateChanged;
+            boundPlayer.StarImpact += Impact;
+            boundPlayer.Reformed += Reformed;
+            if (boundSession != null)
+            {
+                boundSession.FragmentCollected += Collected;
+                boundSession.WallBroken += WallBroken;
+                boundSession.ProgressReset += ResetFeedback;
+                boundSession.PuzzleReset += ResetFeedback;
+            }
+            paused = boundPlayer.Paused;
+        }
+
         private void OnDisable()
         {
-            if (loop != null) loop.Stop();
-            if (oneShot != null) oneShot.Stop();
-            if (player == null) return;
-            player.StateChanged -= StateChanged;
-            player.StarImpact -= Impact;
-            player.Reformed -= Reformed;
-            player.Session.FragmentCollected -= Collected;
+            StopPlayback();
+            Unbind();
         }
 
-        private void Play(AudioClip clip) { if (clip != null) oneShot.PlayOneShot(clip); }
+        private void Unbind()
+        {
+            if (boundPlayer != null)
+            {
+                boundPlayer.StateChanged -= StateChanged;
+                boundPlayer.StarImpact -= Impact;
+                boundPlayer.Reformed -= Reformed;
+            }
+            if (boundSession != null)
+            {
+                boundSession.FragmentCollected -= Collected;
+                boundSession.WallBroken -= WallBroken;
+                boundSession.ProgressReset -= ResetFeedback;
+                boundSession.PuzzleReset -= ResetFeedback;
+            }
+            boundPlayer = null; boundSession = null;
+        }
+
+        private bool Play(AudioClip clip, float volume = 1f)
+        {
+            // A missing bus must stay silent rather than bypass the player's SFX volume.
+            if (clip == null || oneShot == null || bus == null || !isActiveAndEnabled ||
+                player == null || player.Paused) return false;
+            oneShot.PlayOneShot(clip, volume);
+            return true;
+        }
+
         private void Update()
         {
+            if (player == null) return;
             if (paused == player.Paused) return;
             paused = player.Paused;
             if (paused) { loop.Pause(); oneShot.Pause(); }
@@ -60,15 +124,94 @@ namespace HOne.Game
             if (state == PlayerState.Charging)
             {
                 Play(chargeStart); loop.clip = chargeLoop;
-                if (chargeLoop != null) loop.Play();
+                if (chargeLoop != null && bus != null && !player.Paused) loop.Play();
             }
-            else if (state == PlayerState.StarFlight) Play(launch);
+            else if (state == PlayerState.StarFlight)
+            {
+                struckInstruments.Clear();
+                currentShotId = -1;
+                Play(launch);
+            }
             else if (state == PlayerState.Reforming && player.ReformReason == ReformReason.Failure) Play(fail);
         }
+
         private void Impact(StarContact contact)
-        { if (!contact.Embedded && contact.Collider.GetComponent<StarSocket>() == null &&
-              contact.Collider.GetComponentInParent<StarInstrument>() == null) Play(wall); }
+        {
+            if (samples == null || contact.Collider == null) return;
+            LastImpactKind = contact.Kind;
+            var strength = impactVolume * Mathf.Lerp(0.72f, 1f, Mathf.Clamp01(contact.Charge));
+            switch (contact.Kind)
+            {
+                case StarImpactKind.Stone:
+                    if (Play(samples.Stone[stoneVariant], strength))
+                    {
+                        stoneVariant = (stoneVariant + 1) % samples.Stone.Length;
+                        ImpactPlaybackCount++;
+                    }
+                    break;
+                case StarImpactKind.Lyre:
+                case StarImpactKind.Drum:
+                    if (contact.ShotId != currentShotId)
+                    {
+                        currentShotId = contact.ShotId;
+                        struckInstruments.Clear();
+                    }
+                    var instrument = contact.Collider.GetComponentInParent<StarInstrument>();
+                    var target = instrument != null ? instrument.GetInstanceID() : contact.Collider.GetInstanceID();
+                    if (!struckInstruments.Add(target)) return;
+                    if (Play(contact.Kind == StarImpactKind.Lyre ? samples.Lyre : samples.Drum, strength))
+                    {
+                        ImpactPlaybackCount++;
+                        if (contact.Kind == StarImpactKind.Drum) Play(samples.DrumWave, strength * 0.55f);
+                    }
+                    break;
+                // WallBroken owns ceramic sound, including walls reached by the drum wave.
+                // ShadowFeedback owns success/unavailable/recall, so sockets are silent here.
+            }
+        }
+
+        private void WallBroken(BrittleWall broken)
+        {
+            if (samples == null || broken == null || !broken.Broken || player == null || player.Paused) return;
+            if (Time.time - lastFractureAt < 0.075f) return;
+            if (!Play(samples.Ceramic[ceramicVariant], impactVolume * 0.82f)) return;
+            lastFractureAt = Time.time;
+            ceramicVariant = (ceramicVariant + 1) % samples.Ceramic.Length;
+            FracturePlaybackCount++;
+        }
+
         private void Reformed() => Play(reform);
-        private void Collected(string id) => Play(collect);
+
+        private void Collected(string id)
+        {
+            if (boundSession == null) return;
+            LastCollectionStage = Mathf.Clamp(boundSession.FragmentCount, 1, 3);
+            if (Play(samples != null ? samples.Collection[LastCollectionStage - 1] : collect))
+                CollectionPlaybackCount++;
+        }
+
+        private void StopPlayback()
+        {
+            if (loop != null) { loop.Stop(); loop.clip = null; }
+            if (oneShot != null) oneShot.Stop();
+        }
+
+        private void ResetFeedback()
+        {
+            StopPlayback();
+            struckInstruments.Clear();
+            currentShotId = -1;
+            lastFractureAt = float.NegativeInfinity;
+            LastCollectionStage = boundSession != null ? Mathf.Clamp(boundSession.FragmentCount, 0, 3) : 0;
+        }
+
+        private void OnDestroy()
+        {
+            StopPlayback();
+            samples?.Dispose();
+            samples = null;
+            if (loop != null) Destroy(loop);
+            if (oneShot != null) Destroy(oneShot);
+        }
     }
 }
