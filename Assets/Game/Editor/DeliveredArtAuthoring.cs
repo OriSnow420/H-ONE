@@ -46,6 +46,21 @@ namespace HOne.Game.Editor
             var visual = go.transform.Find("Visual");
             switch (kind)
             {
+                case LevelPiece.PlatformSocket:
+                case LevelPiece.PlateSocket:
+                    if (visual == null || art.RockDark == null || art.RockLight == null) break;
+                    var socket = go.GetComponent<StarSocket>();
+                    var socketView = visual.GetComponent<SpriteRenderer>();
+                    // Keep the receiver inside its old 0.7-unit envelope and above the shadow core.
+                    Set(socketView, art.RockDark, Vector3.zero,
+                        0.7f / Mathf.Max(art.RockDark.bounds.size.x, art.RockDark.bounds.size.y));
+                    var shadowVisuals = socket.Shadow.transform.Find("Visual");
+                    var core = shadowVisuals.GetChild(0).GetComponent<SpriteRenderer>();
+                    socketView.sortingOrder = core.sortingOrder + 1;
+                    var support = shadowVisuals.GetChild(1).GetComponent<SpriteRenderer>();
+                    support.sortingOrder = socketView.sortingOrder + 1;
+                    Ensure<StarSocketArtView>(go).Configure(socket, socketView, art);
+                    break;
                 case LevelPiece.Fragment:
                     if (visual == null) break;
                     var fragment = visual.GetComponent<SpriteRenderer>();
@@ -81,6 +96,9 @@ namespace HOne.Game.Editor
             if (player != null) ApplyPlayer(player.gameObject);
             foreach (var fragment in root.GetComponentsInChildren<StarFragment>(true)) ApplyToPiece(fragment.gameObject, LevelPiece.Fragment);
             foreach (var checkpoint in root.GetComponentsInChildren<Checkpoint>(true)) ApplyToPiece(checkpoint.gameObject, LevelPiece.Checkpoint);
+            foreach (var socket in root.GetComponentsInChildren<StarSocket>(true))
+                ApplyToPiece(socket.gameObject, socket.GetComponentInChildren<PressurePlate>(true) != null
+                    ? LevelPiece.PlateSocket : LevelPiece.PlatformSocket);
             foreach (var plate in root.GetComponentsInChildren<PressurePlate>(true)) ApplyToPiece(plate.gameObject, LevelPiece.PressurePlate);
             foreach (var stone in root.GetComponentsInChildren<PressureWeight>(true))
                 if (stone.Kind == PressureWeightKind.Stone) ApplyToPiece(stone.gameObject, LevelPiece.Stone);

@@ -65,6 +65,7 @@ namespace HOne.Game
             foreach (var socket in sockets)
             {
                 if (socket == null) continue;
+                if (socket.TryGetComponent<StarSocketArtView>(out var artView) && artView.isActiveAndEnabled) continue;
                 var view = socket.transform.Find("Visual");
                 if (view != null && view.TryGetComponent<SpriteRenderer>(out var renderer))
                     renderer.color = socket.Available || shadows.ActiveSocket == socket ? new Color(1f, 0.8f, 0.3f) : new Color(0.45f, 0.5f, 0.55f);

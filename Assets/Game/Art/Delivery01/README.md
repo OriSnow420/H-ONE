@@ -39,9 +39,14 @@ Multiple-mode slice, scene GUID or gameplay collider is rewritten.
   for occupancy; PressurePlateArtView only chooses the drawing.
 - Checkpoint: cropped original standing stone, behind the player. No activated
   drawing was supplied; this is not presented as a complete checkpoint state set.
-- RockDark is used on the Stone prefab. RockLight and Title are prepared and
-  referenced in the art set for future use, without inventing an activation
-  rule or replacing the current game entry flow.
+- RockDark remains the Stone prefab drawing. As of `socket-art-20261110`,
+  PlatformSocket and PlateSocket use RockDark when empty and RockLight while
+  actually occupied, including the full one-second recall. StarSocketArtView
+  reads the real ShadowService state; the old socket tint no longer recolors
+  these drawings. The centered 995x1024, 512 PPU sprites keep their GUIDs and
+  pivots; socket visuals are 0.7 units tall. Shadow support colliders and
+  gameplay roots stay unchanged. The shadow core and supporting edge remain
+  separate layers. Title is used by MainMenu (2026-11-10).
 - Background/grass and pause drawings retain 16:9 layouts at 1920x1080.
   Pause variants map 0=IMG_6055, 1=IMG_6054, 2=IMG_6053, 3=main-menu.
   The illustrated icons remain part of the supplied illustration; functional

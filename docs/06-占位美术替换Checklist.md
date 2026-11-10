@@ -1,6 +1,6 @@
 # 占位美术资源替换 Checklist
 
-首次盘点：2026-11-08；本次更新：2026-11-09。范围：第一章灰盒、可复用 Prefab、场景直挂视觉和程序生成视觉；含未提交文件。已按更新后的 `../H-ONE-arts/README.md` 试装外部交付，**部分条目为已接入待验收，完整条目正式验收仍为 0 项**。现有 P0 七图保留给尚缺状态、灰盒与工具，不再等同于当前全部画面。
+首次盘点：2026-11-08；本次更新：2026-11-10。范围：第一章灰盒、可复用 Prefab、场景直挂视觉和程序生成视觉；含未提交文件。已按更新后的 `../H-ONE-arts/README.md` 试装外部交付，**部分条目为已接入待验收，完整条目正式验收仍为 0 项**。现有 P0 七图保留给尚缺状态、灰盒与工具，不再等同于当前全部画面。
 
 最新素材映射、裁切/导入规格、使用授权、Windows 实测及限制见 §7 与[美术试装记录](09-美术试装记录.md)。[原核查报告](08-H-ONE-arts素材核查.md)仅保留 11-08 的历史文件名/权限快照，不能作为当前使用规范。
 
@@ -72,13 +72,13 @@
 
 以下机关 Prefab 均在 `Assets/Game/Prefabs/Mechanisms/`。核查共享 Prefab 后仍须检查场景实例覆盖；当前 `CoreSceneAuthoring.cs`、`LevelPieceFactory.cs`、`M2SceneAuthoring.cs` 还会加载 P0 路径，正式制作入口和默认引用也要一起维护，保留灰盒入口须注明。
 
-- [ ] `ART-011` 空槽/占用/不可用槽 — **占位｜P0→P1｜ME-02**。`PlatformSocket.prefab` / `PlateSocket.prefab` 的根下 `Visual` 共用 `empty_node.png`，`ShadowFeedback.cs` 以换色表示额度不可用。替换为马赛克外框、孔和独立光层，补空/可嵌/占用/额度锁定形状；两种槽共享语义，吸附中心与捕获区对齐。
+- [ ] `ART-011` 空槽/占用/不可用槽 — **部分已接入待验收｜P0→P1｜ME-02**。2026-11-10 按用户要求，将两型槽根下 `Visual` 从 `P0/empty_node.png` 替换为 `rock-dark.PNG|rock-light.PNG` → `D/rock_dark.png|rock_light.png`，分别表示空 / 实际占槽。沿用 `delivery01-20261109` 原图源指纹、裁切和 995×1024 / 512 PPU / 中心 pivot，接入修订 `socket-art-20261110` 见 `D/manifest.json.integrations.star_socket` / `SOURCE_USAGE.md` / `D/README.md`；分层源和独立授权清单仍缺。接入 `PlatformSocket.prefab|PlateSocket.prefab/Visual`，实例为 ShadowSlice `LevelRoot/Mechanisms/Puzzle_A/PlatformSocket|PlateSocket`、Gallery `MechanismGallery/Mechanisms/02_ShadowBridge/PlatformSocket|BridgeSocket`。`StarSocketArtView.cs` 只读实际占用，召回完整 1 秒后变暗；`ShadowFeedback` 对已接入槽跳过旧整体染色。`DeliveredArtAuthoring.ApplyToPiece|ApplyToScene`、`LevelPieceFactory` / `M2SceneAuthoring` 新建默认和 Runtime Catalog 已覆盖；临时场景实测新建两型槽均为暗图、单个表现组件、高 0.7 unit。原根/吸附区/碰撞/稳定 ID/出生点保留，核心排序在岩石之后、承重条在前。Windows 已导入、保存并回写 WSL；Gallery 实际 Input Actions 发射入槽，召回/暂停/失败/复位/重开及 ShadowSlice 压板召回通过；720p/1080p/16:10、静音/无后处理和离线灰度局部检查见 09 记录。仍缺独立外框/光层、可嵌/额度锁形和完整 TUT-03/04；额度不可用降亮度仅为临时提示，父项不勾选。
 
-- [ ] `ART-012` 星影主体 — **占位｜P1｜CH-08**。两种槽 `ShadowPlatform/Visual` 内以 `star.png` 作核心。补半透明、中空/月桂轮廓和独立星点；实际入槽后看得出本体已返回、此处留下不可操控星影；与 ART-022 的演示幽灵区分。
+- [ ] `ART-012` 星影主体 — **占位｜P1｜CH-08**。两种槽 `ShadowPlatform/Visual` 内以 `star.png` 作核心；11-10 起排序在 ART-011 岩石层之后，保留独立召回缩放，不覆盖原画星纹（`DeliveredArtAuthoring`，见 §9；源仍 P0，正式 CH-08 未交）。补半透明、中空/月桂轮廓和独立星点；实际入槽后看得出本体已返回、此处留下不可操控星影；与 ART-022 的演示幽灵区分。
 
-- [ ] `ART-013` 星影承重面 — **占位｜P1｜ME-03**。两种槽的 `ShadowPlatform` 使用拉伸 `stone.png` 作顶条。补显现/稳定/撤除的独立顶面与星尘；核对两型实际 Collider 尺寸和 offset，不能按“默认 2 unit”盲配所有实例。脚底准确落在可见承重线上。
+- [ ] `ART-013` 星影承重面 — **占位｜P1｜ME-03**。两种槽的 `ShadowPlatform` 使用拉伸 `stone.png` 作顶条；11-10 起排序在 ART-011 岩石之前，2 / 0.9 unit 宽和高 0.18、位置与原 Collider 对齐，图源/PPU/pivot 未变（`DeliveredArtAuthoring`，§9）。补显现/稳定/撤除的独立顶面与星尘；核对两型实际 Collider 尺寸和 offset，不能按“默认 2 unit”盲配所有实例。脚底准确落在可见承重线上。
 
-- [ ] `ART-014` 召回视觉 — **占位｜P1｜CH-10、FX-08**。当前 `ShadowFeedback.cs` 缩放 `ShadowPlatform/Visual`，未有完整回流线与拆层素材。补 1 秒收拢、回流和完成态；完成前承重轮廓保持清楚，暂停/复位/卸载清理表现；撤碰撞由 `ShadowService` 决定，不能靠动画结束事件。
+- [ ] `ART-014` 召回视觉 — **占位｜P1｜CH-10、FX-08**。当前 `ShadowFeedback.cs` 仅缩放 `ShadowPlatform/Visual` 的第一个核心子物体，承重条保持；11-10 新岩石槽本体不缩放，完整召回结束才切回暗图，暂停/复位时序见 §9 / 09 记录。仍无完整回流线与拆层素材。补 1 秒收拢、回流和完成态；完成前承重轮廓保持清楚，暂停/复位/卸载清理表现；撤碰撞由 `ShadowService` 决定，不能靠动画结束事件。
 
 - [ ] `ART-015` 压力星板 — **部分已接入待验收｜P2｜ME-09**。`sprite_02.PNG` → `D/plate_up.png|plate_down.png`，同 544×128 画布、384 PPU；`PressurePlate.prefab/Visual`、`PlateSocket.prefab/PressurePlate/Visual` 及场景实例由 `PressurePlateArtView` 读取实际 `Value` 切图，显示宽度匹配传感器，保留上下表面形变。测试验证占槽压下、召回前 0.8 s 仍压下、1 s 完成恢复；尚缺占用亮纹/星石星影标识/连接点与正式 P2 关卡验收。
 
@@ -86,7 +86,7 @@
 
 - [ ] `ART-017` 普通机关门 — **占位｜P2｜ME-14**。当前 `Gate.prefab` 是石块竖条，已有信号/净空保护代码，未有完整门框与运动素材。补分离门框/门扇、开/关/受阻状态及连接纹；等待净空时可读，不作碾压演出。不是星座出口门。
 
-- [ ] `ART-018` 可推星石 — **部分已接入待验收｜P2｜ME-10、FX-14**。`rock-dark.PNG` → `D/rock_dark.png`；`Stone.prefab/Visual` 及新建元件默认外观，Alpha 裁边/最大 1024、512 PPU，显示宽度 1 unit，动态重物根/Collider 不改。`rock_light.png` 仅备妥数据引用，点亮切换未接；不为素材增加新玩法。平顶/四侧星纹、轻尘与完整侧推/坑边恢复仍缺，当前图形与矩形碰撞的轮廓差异需正式 P2 复核。
+- [ ] `ART-018` 可推星石 — **部分已接入待验收｜P2｜ME-10、FX-14**。`rock-dark.PNG` → `D/rock_dark.png`；`Stone.prefab/Visual` 及新建元件默认外观，Alpha 裁边/最大 1024、512 PPU，显示宽度 1 unit，动态重物根/Collider 不改。可推 Stone 自身未接点亮切换；`rock_light.png` 自 11-10 起另用于 ART-011 星槽占用，不新增星石点亮玩法。平顶/四侧星纹、轻尘与完整侧推/坑边恢复仍缺，当前图形与矩形碰撞的轮廓差异需正式 P2 复核。
 
 - [ ] `ART-019` 深坑/失败边界 — **占位｜P1｜ENV-10**。当前 M2 `Hazard.prefab` 是红色石条，Core `PitHazard` 仅有 Trigger。用坑口结构与深处暗层/星雾提示危险，按实际进入失败的边界验收；不为触发体随意添加实体碰撞，也不改成尖刺/敌人设定。
 
@@ -175,7 +175,7 @@
 | `sprite_01.PNG`、`turn_star.gif` | PNG 10 帧变星，GIF 11 帧仅参考 | ART-001，重叠实际飞行 0.18 s，不等待 1.76 s 演示 |
 | `sprite_02.PNG` | 星弹 4 / 碎片 4 / 压板 2 | ART-002/005/015；不再误记为星台或 Core 节点 |
 | `spawn-point.PNG` | 未点亮星台单图 | ART-007，点亮状态缺 |
-| `rock-dark.PNG`、`rock-light.PNG` | 暗色接 Stone；亮色仅准备 | ART-018，无新增点亮规则 |
+| `rock-dark.PNG`、`rock-light.PNG` | 暗色仍接 Stone；11-10 起两图另接两型星槽的空 / 占槽 | ART-011 / ART-018；仅槽随实际占用切换，Stone 无新增点亮规则 |
 | `bg-level1.PNG`、`fg-level1-grass.PNG` | 背景与前景 | ART-010，非完整地形/神庙模块 |
 | `IMG_6055.PNG`、`IMG_6054.PNG`、`IMG_6053.PNG`、`main-menu.PNG` | 暂停进度 0/1/2/3 片 | ART-023，叠加虚化游戏画面，不当标题页 |
 | `tittle-screen.PNG` | 标题单图，11-10 接 MainMenu | NEW-010，独立按钮四态/最终美术仍缺 |
@@ -199,3 +199,9 @@
 | 日期 | 更新范围 | 记录 |
 | --- | --- | --- |
 | 2026-11-10 | 上表所有使用点、作者默认值、字体与菜单 | 已接入待验收；Windows 同步、实测状态、分辨率、Console/构建结果以 [10 收尾记录](10-M2收尾与机关试场.md) 为准。完整 ART/NEW 父项维持未勾选；本次为 M2 程序/布局收尾，不授予正式音画签收 |
+
+## 9. 星槽双状态替换（2026-11-10）
+
+| 日期 | 范围 | 变化与验证 |
+| --- | --- | --- |
+| 2026-11-10 | ART-011；ME-02，P0→P1；ART-012/013/014 分层依赖 | 按当前源 README 复核原图指纹，复用 Delivery01 双图；Windows live Editor 保存两型槽 Prefab/两场景、导入新组件并同步 WSL。实际发射入槽、完整召回与暂停、压板/桥、失败保留、谜题复位/重开及三种分辨率检查通过；两型新建默认也已检查。五个原 Prefab 物理块、场景物理覆盖、稳定 ID/出生点未改，双副本任务文件一致。仍缺完整拆层/锁形/教学，父项不勾选；证据及两次诊断截图失败见 09 记录 |

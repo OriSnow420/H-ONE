@@ -774,5 +774,35 @@
       ],
       "ppu": 100
     }
-  ]
+  ],
+  "integrations": {
+    "star_socket": {
+      "revision": "socket-art-20261110",
+      "date": "2026-11-10",
+      "delivery_ids": [
+        "ME-02"
+      ],
+      "checklist_ids": [
+        "ART-011"
+      ],
+      "empty_sprite": "rock_dark.png",
+      "occupied_sprite": "rock_light.png",
+      "state_authority": "StarSocket.Shadows.ActiveSocket",
+      "recall": "Keep RockLight until the real 1-second recall completes, then RockDark.",
+      "visual_height_units": 0.7,
+      "import_change": false,
+      "prefabs": [
+        "Assets/Game/Prefabs/Mechanisms/PlatformSocket.prefab",
+        "Assets/Game/Prefabs/Mechanisms/PlateSocket.prefab"
+      ],
+      "presentation": "Assets/Game/Runtime/Presentation/StarSocketArtView.cs",
+      "provenance": "SOURCE_USAGE.md; asset source hashes and crop/pivot/PPU remain in assets[]; layered sources and separate attribution/license manifest remain missing.",
+      "scenes": [
+        "Assets/Game/Scenes/Chapter01_ShadowSlice.unity",
+        "Assets/Game/Scenes/M2_MechanismGallery.unity"
+      ],
+      "validation_record": "docs/09-美术试装记录.md#2026-11-10：星槽暗/亮岩石替换",
+      "status": "Integrated and checked in Windows Editor; full ME-02 delivery acceptance remains pending."
+    }
+  }
 }
