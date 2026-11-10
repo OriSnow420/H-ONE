@@ -31,8 +31,10 @@ if [[ "$run_tests" == true && "${test_platform,,}" == playmode ]]; then
   # environment values (Unity tools may launch with authentication tokens).
   trace_log="${test_log:?PlayMode requires -logFile}.startup-trace.log"
   set +e
-  timeout --kill-after=30s 20m strace -f -e trace=execve -s 200 \
-    -o >(sed -nE 's@^([0-9]+[[:space:]]+)?execve\(("[^"]*"),.*\) = (.*)$@\1execve(\2, [arguments omitted]) = \3@p' > "$trace_log") \
+  # Detach the tracer so a surviving LicensingClient does not delay the
+  # launcher's return or hide the Editor's actual exit code.
+  timeout --kill-after=30s 20m strace -D -f -e trace=execve -s 200 \
+    -o >(sed -unE 's@^([0-9]+[[:space:]]+)?execve\(("[^"]*"),.*\) = (.*)$@\1execve(\2, [arguments omitted]) = \3@p' > "$trace_log") \
     /usr/bin/unity-editor-rendering "${rendering_arguments[@]}"
   test_exit=$?
   set -e
