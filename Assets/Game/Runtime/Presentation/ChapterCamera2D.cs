@@ -21,6 +21,8 @@ namespace HOne.Game
         private float impulseAge = 1f;
         private bool trackingInitialized;
         private PlayerState previousState;
+        [SerializeField] private ChapterCameraLayout layout;
+        public void ConfigureRooms(ChapterCameraLayout frames) => layout = frames;
         public float ImpactStrength { get => impactStrength; set => impactStrength = Mathf.Clamp01(value); }
         public void Configure(PlayerStateMachine owner, LevelBounds2D world)
         {
@@ -66,6 +68,11 @@ namespace HOne.Game
 
         private Vector3 Focus()
         {
+            if (layout != null)
+            {
+                var room = layout.RoomAt(player.Position.x);
+                return new Vector3(room.Center.x, room.Center.y, transform.position.z);
+            }
             var halfHeight = view.orthographicSize;
             var halfWidth = halfHeight * view.aspect;
             var state = player.State;
@@ -87,6 +94,7 @@ namespace HOne.Game
         {
             if (player == null || view == null) return;
             previousTarget = player.transform.position;
+            if (layout != null) view.orthographicSize = layout.RoomAt(player.Position.x).HalfHeight;
             horizontalAnchor = 0.4f;
             verticalAnchor = 0.30f;
             aimOffset = impulse = Vector2.zero;
@@ -99,6 +107,8 @@ namespace HOne.Game
         private void LateUpdate()
         {
             if (player == null || Time.deltaTime <= 0f) return;
+            if (layout != null) view.orthographicSize = Mathf.Lerp(view.orthographicSize,
+                layout.RoomAt(player.Position.x).HalfHeight, 1f - Mathf.Exp(-6f * Time.deltaTime));
             var aiming = player.State == PlayerState.Charging || player.State == PlayerState.StarFlight;
             verticalAnchor = Mathf.MoveTowards(verticalAnchor, aiming ? 0.42f : 0.30f, Time.deltaTime * 0.35f);
             var direction = player.State == PlayerState.StarFlight ? player.Flight.Direction : player.AimDirection;

@@ -13,7 +13,7 @@ namespace HOne.Game
         private void OnEnable()
         {
             FeedbackMenuStyle.Apply(transform);
-            start.onClick.AddListener(GameFlow.OpenGallery);
+            start.onClick.AddListener(GameFlow.StartChapter);
             settings.onClick.AddListener(OpenSettings);
             back.onClick.AddListener(CloseSettings);
             quit.onClick.AddListener(Quit);
@@ -21,7 +21,7 @@ namespace HOne.Game
         }
         private void OnDisable()
         {
-            start.onClick.RemoveListener(GameFlow.OpenGallery);
+            start.onClick.RemoveListener(GameFlow.StartChapter);
             settings.onClick.RemoveListener(OpenSettings);
             back.onClick.RemoveListener(CloseSettings);
             quit.onClick.RemoveListener(Quit);

@@ -31,8 +31,12 @@ namespace HOne.Game
         public void Strike()
         {
             if (kind == StarInstrumentKind.Lyre) { session?.TryTriggerMechanism(stableId); SetValue(true); }
-            else foreach (var target in waveTargets)
-                if (target != null && Vector2.Distance(transform.position, target.transform.position) <= waveRadius) target.Break();
+            else
+            {
+                session?.TryTriggerMechanism(stableId); SetValue(true);
+                foreach (var target in waveTargets)
+                    if (target != null && Vector2.Distance(transform.position, target.transform.position) <= waveRadius) target.Break();
+            }
             Struck?.Invoke();
         }
         private void ResetProgress() => SetValue(false);

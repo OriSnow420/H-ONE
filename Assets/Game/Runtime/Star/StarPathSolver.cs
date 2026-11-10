@@ -137,7 +137,9 @@ namespace HOne.Game
                     var socket = collider.GetComponent<StarSocket>();
                     if (collider.isTrigger && !hazard && socket == null)
                     {
-                        if (fragment) contacts?.Add(new StarContact(hit, false, false, state.Direction));
+                        if (fragment || collider.GetComponentInParent<StarSwitch>() != null ||
+                            collider.GetComponentInParent<FlutePort>() != null)
+                            contacts?.Add(new StarContact(hit, false, false, state.Direction));
                         continue;
                     }
                     // A cast may still report the surface we are leaving at distance zero.

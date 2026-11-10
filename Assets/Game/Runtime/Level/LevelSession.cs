@@ -14,11 +14,17 @@ namespace HOne.Game
         private readonly HashSet<string> collected = new HashSet<string>(StringComparer.Ordinal);
         private readonly HashSet<string> mechanisms = new HashSet<string>(StringComparer.Ordinal);
         public bool HasMechanism(string id) => mechanisms.Contains(id);
-        public bool TryTriggerMechanism(string id) => !string.IsNullOrWhiteSpace(id) && mechanisms.Add(id);
+        public bool TryTriggerMechanism(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id) || !mechanisms.Add(id)) return false;
+            MechanismTriggered?.Invoke(id);
+            return true;
+        }
         private HashSet<string> allowedFragments = new HashSet<string>(StringComparer.Ordinal);
         private string runtimeLevelId;
 
         public event Action<string> FragmentCollected;
+        public event Action<string> MechanismTriggered;
         public event Action<Checkpoint> CheckpointChanged;
         public event Action ProgressReset;
         public event Action PuzzleReset;
@@ -27,6 +33,8 @@ namespace HOne.Game
         internal void NotifyWallBroken(BrittleWall wall) => WallBroken?.Invoke(wall);
         public ShadowService Shadows => shadows;
         public int FragmentCount => collected.Count;
+        public bool Completed { get; private set; }
+        internal void Complete() => Completed = true;
         public LevelDefinition Definition => definition;
         public string LevelId => string.IsNullOrEmpty(runtimeLevelId) ? definition != null ? definition.LevelId : "untitled" : runtimeLevelId;
         private Checkpoint currentCheckpoint;
@@ -66,6 +74,7 @@ namespace HOne.Game
             allowedFragments = new HashSet<string>(fragmentIds ?? Enumerable.Empty<string>(), StringComparer.Ordinal);
             collected.Clear();
             mechanisms.Clear();
+            Completed = false;
             puzzles = groups ?? Array.Empty<PuzzleGroup>();
             shadows?.Clear();
             ProgressReset?.Invoke();
@@ -92,6 +101,7 @@ namespace HOne.Game
             currentCheckpoint = entry;
             collected.Clear();
             mechanisms.Clear();
+            Completed = false;
             if (shadows != null) shadows.Clear();
             ProgressReset?.Invoke();
             foreach (var puzzle in puzzles) if (puzzle != null) puzzle.ResetObjects();

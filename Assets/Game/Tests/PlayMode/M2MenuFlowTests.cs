@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -20,11 +21,12 @@ namespace HOne.Game.Tests
             var home = Object.FindFirstObjectByType<MainMenuController>(); Assert.IsNotNull(home);
             home.transform.Find("Home/Start").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
             yield return null; yield return new WaitForSeconds(0.2f);
+            Assert.AreEqual(GameFlow.FirstLevelScene, SceneManager.GetActiveScene().path);
             for (var visit = 0; visit < 2; visit++)
             {
                 var player = Object.FindFirstObjectByType<PlayerStateMachine>(); Assert.IsNotNull(player);
                 Assert.AreEqual(0, player.Session.FragmentCount);
-                Assert.IsTrue(player.Session.TryCollect("gallery-f1"));
+                Assert.IsTrue(player.Session.TryCollect(player.Session.AllowedFragmentIds.First()));
                 var socket = player.transform.root.GetComponentInChildren<StarSocket>();
                 Assert.IsTrue(socket.TryEmbed());
                 player.SetPaused(true);

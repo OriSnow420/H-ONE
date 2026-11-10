@@ -36,7 +36,7 @@ namespace HOne.Game
         }
         private void Update()
         {
-            var shouldShow = player.Paused && (levelEditor == null || !levelEditor.IsEditing);
+            var shouldShow = player.Paused && !player.Session.Completed && (levelEditor == null || !levelEditor.IsEditing);
             if (artwork == null)
             { if (panel.activeSelf != shouldShow) panel.SetActive(shouldShow); }
             else if (shown != shouldShow)

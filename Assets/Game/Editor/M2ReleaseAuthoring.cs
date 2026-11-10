@@ -141,6 +141,7 @@ namespace HOne.Game.Editor
         [MenuItem("H-ONE/Use M2 Entry for Play and Build")]
         public static void ConfigureBuild()
         {
+            if (File.Exists(GameFlow.FirstLevelScene)) { ChapterFirstPassAuthoring.ConfigureBuild(); return; }
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(GameFlow.MainMenuScene, true), new EditorBuildSettingsScene(GameFlow.GalleryScene, true) };
             EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(GameFlow.MainMenuScene);
             PlayerSettings.productName = "H-ONE";
@@ -161,9 +162,9 @@ namespace HOne.Game.Editor
         public void OnPreprocessBuild(BuildReport report)
         {
             var published = CiBuild.ReadScenes();
-            if (!published.SequenceEqual(new[] { GameFlow.MainMenuScene, GameFlow.GalleryScene }) ||
+            if (!published.SequenceEqual(new[] { GameFlow.MainMenuScene, GameFlow.FirstLevelScene, GameFlow.SecondLevelScene, GameFlow.GalleryScene }) ||
                 !EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).SequenceEqual(published))
-                throw new BuildFailedException("M2 build scenes must be MainMenu, then MechanismGallery. Use H-ONE/Use M2 Entry for Play and Build.");
+                throw new BuildFailedException("Build scenes must be MainMenu, Chapter01_01, Chapter01_02, MechanismGallery.");
         }
     }
 }

@@ -75,7 +75,7 @@ namespace HOne.Game
 
         private void Update()
         {
-            if (Input.ConsumePause()) SetPaused(!Paused);
+            if (Input.ConsumePause() && !session.Completed) SetPaused(!Paused);
             if (Paused || aimCamera == null) return;
             var pointer = aimCamera.ScreenToWorldPoint(new Vector3(Input.PointerPosition.x, Input.PointerPosition.y,
                 -aimCamera.transform.position.z));

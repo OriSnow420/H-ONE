@@ -7,5 +7,7 @@ namespace HOne.Game
     {
         public string LevelId = "ch01-core";
         public string[] FragmentIds = { "core-f1" };
+        public string[] SwitchIds = new string[0];
+        public string NextScene;
     }
 }

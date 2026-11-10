@@ -107,9 +107,9 @@
 - [ ] `NEW-001` P0 设计与可导入样板 — **未制作｜P0｜AD-01–06、FX-01**。风格板、实机尺度色稿、角色/机关语言/分层比例及样板包；七张技术图不能抵扣整批验收。先以一屏实机验证风格、PPU、比例和灰度可读性，再生产 P1/P2。
 - [ ] `NEW-002` 里拉琴及受击/反弹表现 — **部分已接入待验收｜P0→P1｜ME-04、FX-04 的里拉部分**。交框/有效弦/锚点、闲置/振弦/激活，弦面法线与实际反射一致。当前斜石是普通墙测试件，不能登记成里拉已实现。 **本轮更新：** 2026-11-10 改为**部分已接入待验收**：`IMG_6092.PNG` → `Delivery02/lyre.png`，673×1024/512 PPU/居中；`Lyre.prefab/Visual`、Gallery `Mechanisms/04_Instruments/Lyre`，`StarInstrument` / `InstrumentArtView`，有效弦面独立 Collider。共用单次反弹，点亮真实锁存接收器、开 `LyreGate`；失败/谜题复位保留，整关重开清除；工厂/运行 Catalog/文档导入导出已接入。振弦帧、独立琴弦光层、配对星纹教学和正式音频仍缺。
 - [ ] `NEW-003` 手鼓、鼓波与脆陶墙 — **部分已接入待验收｜P2｜ME-05、ME-08、FX-09/10**。鼓面、半径匹配波纹、墙体完整/破碎残缘与装饰碎片；里拉/手鼓/碎墙局部机制已接入试区，完整组合关卡仍待实现。 **本轮更新：** 2026-11-10 改为**部分已接入待验收**：`IMG_6089.PNG|IMG_6090.PNG` → `Delivery02/drum_idle.png|drum_hit_00–09.png`，同 512×1024/512 PPU/居中，20 fps 单次受击；`Drum.prefab/Visual`、Gallery `04_Instruments/Drum|DrumWaveWall`，`StarInstrument` / `BrittleWall` / `InstrumentArtView`，实际鼓波半径 3 unit（调参值）。鼓动画与判定分离；波纹/陶墙技术占位另见 NEW-003-a，陶墙绘画/碎片/完整 FX 与正式鼓音仍缺。
-- [ ] `NEW-004` 排箫控制器与升降平台 — **未制作｜P2｜ME-06/07、FX-12**。有效上/下管口、方向纹样、移动台/端点与流光；不能以普通平台/星桥占位算已交付。
-- [ ] `NEW-005` 锁存开关与机关连接语言 — **未制作｜P2｜ME-12/16**。S1/S2 独立纹样、未亮/撞亮/锁存、配对接收端与连线；不把当前持续压板当作锁存开关。
-- [ ] `NEW-006` 星座出口与两关完整星图 — **未制作｜P1/P2｜ME-15、UI-08、FX-13**。共用门框/门扇、各关三片节点/连线，第二关额外两开关徽记；开门条件和独立通关效果有真实程序接入后再验收。
+- [ ] `NEW-004` 排箫控制器与升降平台 — **程序占位已接入、正式素材未制作｜P2｜ME-06/07、FX-12**。有效上/下管口、方向纹样、移动台/端点与流光；不能以普通平台/星桥占位算已交付。
+- [ ] `NEW-005` 锁存开关与机关连接语言 — **程序占位已接入、正式素材未制作｜P2｜ME-12/16**。S1/S2 独立纹样、未亮/撞亮/锁存、配对接收端与连线；不把当前持续压板当作锁存开关。
+- [ ] `NEW-006` 星座出口与两关完整星图 — **程序占位已接入、正式素材未制作｜P1/P2｜ME-15、UI-08、FX-13**。共用门框/门扇、各关三片节点/连线，第二关额外两开关徽记；开门条件和独立通关效果有真实程序接入后再验收。
 - [ ] `NEW-007` 完整 HUD、操作图标与第二关教学 — **程序占位已接入、正式素材未制作｜P1/P2｜UI-01/04/05、TUT-05–09**。两关碎片栏、单影四态、动态键位字形、演示/重播/目标图标，以及推石/桥/鼓波/里拉 S1/排箫上下的图组；复用 ART-005/006/022，仍需逐关核对。
 - [ ] `NEW-008` 环境装饰与关卡布局补齐 — **前景部分已交付，其余未制作｜P1/P2｜ENV-06–09、ENV-11；ENV-04 第二关布局**。已有前景草图由 ART-010 接入；辅助构件、马赛克/边饰、装饰陶瓶、残石仍缺，复用 ART-010 背景套件；装饰不能形成假平台或假交互提示。 **本轮更新：** 2026-11-10 增加格点草地与圆形笔刷用途，见 ART-008/009 / NEW-008-a；装饰环境交付范围未取消。
 - [ ] `NEW-009` 尚缺的共用特效 — **部分程序占位已接入、正式素材未制作｜P1/P2｜FX-03/04/06/14**。发射尾迹、普通撞石粉、入槽展开、走路/落地/推石轻尘；与 §3 已列蓄力/收集/重组/召回及 NEW-002/003 的素材复用，按事件验收，无需为每个事件重复画全套纹理。
@@ -247,3 +247,24 @@ KEEP-004 的当前/最终实现路径均为 `Assets/Game/Runtime/Presentation/Ru
 | 更新日期 | 范围 | 同步与运行状态 |
 | --- | --- | --- |
 | 2026-11-10 | 上表技术层；声音另见音频交付清单 | Windows 已导入并完成本轮局部程序反馈验证：EditMode 29/29、PlayMode 35/35，画面返修后 CoreGameplay 8/8；Game view 四弹/召回暂停/三分辨率/静音/无后处理与灰度检查，最终 Console 0 errors。帧数、证据、恢复设置及听感限制见 13 记录；正式美术批次未签收 |
+
+
+## 12. 2026-11-10：首章两关第一版与逐步开放教学
+
+修订 `chapter-first-pass-20261110`。本节是原 ART/NEW ID 的新增使用与状态记录，父项全部保持 `[ ]`。新场景 `Assets/Game/Scenes/Chapter01_01.unity`、`Chapter01_02.unity` 的固定层级仍为 `LevelRoot/{Geometry,Background,Mechanisms,Collectibles,Checkpoints,Tutorial,Actors,Presentation}`。场景与新建配置的 .meta 由 Windows Editor 生成并保留；没有修改既有纹理 GUID、子 Sprite fileID、裁切、PPU、pivot、角色画布或共享 Prefab 的物理根。独立新场景的碰撞/ID/出生点按本版布局创作，没有覆盖既有用户场景。
+
+| 原条目 / 交付批次 | 本轮实际使用与程序 / 作者默认 | 当前源 / 最终源与剩余状态 |
+| --- | --- | --- |
+| ART-001–005/007–021；CH/ENV/ME/UI/FX 原批次 | 两关 Actors/ChapterPlayer、Collectibles/l1-f1–f3 或 l2-f1–f3、Checkpoints 各区星台、Geometry/草地块、Background、Mechanisms/星石/压板/门/桥/槽与 Presentation/Trajectory 复用对应 Prefab 和现有反馈。NEW-002/003/003-a 的 Lyre/Drum/BrittleWall 新增到第二关 C/D，第一关 B 用 Lyre | 当前仍 Delivery01/02、P0 同路径；源修订/PNG SHA/导入尺寸与来源许可快照沿用各自 manifest / SOURCE_USAGE、P0 README，不产生新原稿。正式角色/星台/星影/地形/陶墙/乐器缺失状态继续见 §3、§10/11，新增两关不等于整批验收 |
+| ART-022 / NEW-007；CH-12、TUT-01–08、UI-01/04/05，P1/P2 | `Tutorial/ChapterTutorial` 运行生成 `MosaicAndDemonstration`：实际路径地贴、空心人形/飞星幽灵；占槽/升台后换后续动作。`Presentation/ProgressiveGlyphs/CurrentAction` 每次只给当前动作字形；`Actors/ChapterPlayer/ProceduralFeedback/GameplayFeedbackHUD` 片栏/蓄力/单影/召回逐步开放。首次片、进入对应区、实际踩影/过桥为可见条件，重开重教、谜题复位保留 | 可编辑源 `Runtime/Presentation/ChapterTutorial.cs` / `GameplayFeedbackView.cs` 与 `Editor/ChapterFirstPassAuthoring.cs`，无新增 PNG/字体/PPU。动态键名沿用 Fonts/MenuSans 既有 manifest/OFL。最终黑绘壁画、手绘键帽/鼠标、独立演示重播图标和新玩家可读性签收仍缺 |
+| NEW-004；ME-06/07、FX-12，P2 | 第二关 `Mechanisms/E_Flute/UpperPipe|LowerPipe|FluteLift`；`ChapterMechanismView/SwitchAndFluteSymbols` 程序石管/上下箭纹，平台用原 `P0/stone.png` 单 Sprite（约 3×0.3 unit）承重条。`FlutePort.cs`、`PanFluteLift.cs` 持有控制/碰撞，Visual 不控制运动 | 可编辑源为上述 C#；程序形状无图源，stone 沿用 P0 源/子 Sprite；精确场景与代码 SHA 在本轮 manifest。最终石管、独立流光/移动端点、平台美术及到站/受阻反馈未交，不冒用暂缓的灰白石柱 |
+| NEW-005；ME-12/16，P2 | 第二关 `Mechanisms/D_Lyre/l2-s1`、`E_Flute/l2-s2`；`StarSwitch` 实际扫掠触发，`ChapterMechanismView` 画空/实心不同轮廓；普通门显式读 ProgressCondition，持续压板不锁存 | 当前为项目程序几何；最终两开关独立纹样、接收端/连线原画未交。源与 revision 同本节 manifest，不以颜色独立承担语义 |
+| NEW-006 / ART-006；ME-15、UI-01/08、FX-13，P1/P2 | 两关 `Mechanisms/ConstellationDoor/ProgressNodes/ConstellationNodes`：三片节点/连线；第二关再加两开关节点，`ChapterGoalView.cs` 读取必需 ID。`ChapterExit` 只在解锁后人形真正过门切关。Core 的历史 ART-006 小节点保留 | 当前门扇复用 P0/stone，图形由代码生成；最终星座陶片、完整门框/开关徽记/开门和通关演出未交。不能把通用节点当两关独特最终星图 |
+| ART-023 / NEW-010；UI-06–10，P1/P2 | 两关复用原暂停插画/音量；MainMenu 开始第一章；第二关 `Presentation/ChapterCompletion` 给重玩/回标题菜单。`ChapterCameraLayout` / `ChapterCamera2D` 按区取景，塔区包含高目标 | 原 Delivery01 标题/暂停/背景及 Fonts 同源同哈希；新菜单无新图。最终按钮、章节徽章、过场与完整音画未签收 |
+| KEEP-004 | 两张首版场景暂不挂 RuntimeLevelEditor；新专属机关尚无完整 JSON 契约。原工具、Gallery 与已有 Factory/Catalog 不删除/改图 | `ChapterFirstPassAuthoring` new-only 入口复用现有 Prefab。CoreSceneAuthoring/LevelPieceFactory/M2SceneAuthoring 继续保持原 greybox/已接入默认；未以新场景创建为由全局换七图或生成 P0 |
+
+程序几何/教学布局为项目内新编代码，未用外部图片 AI 生成。当前外部源 README 只读政策已复核，哈希、原 Delivery manifest 指向、源脚本和新场景 revision 见 [首章 manifest](chapter-first-pass-manifest.json)；正式分层原稿/完整独立授权清单仍缺。每关镜头/布局、碰撞与提示开放需在 Game view 验证；测试数量不能替代正式美术验收。
+
+| 日期 | 范围 | 验证边界 |
+| --- | --- | --- |
+| 2026-11-10/11 | 上表全部新增使用 | 两关已创作、导入、同步；EditMode 29/29、PlayMode 39/39，真实输入路线、实际 720p/1080p/16:10 与静音/灰度局部画面已检查；完成/暂停叠层返修通过。普通 Windows 构建 0 error / 186 条既有包警告，当前 Console 0 错误，Play/临时设置恢复。精确 dirty-file 哈希、设备/截图/局部布置与独立程序未通关等边界见 [15 记录](15-首章关卡第一版.md) 和本轮 manifest。正式交付父项不勾选，新玩家教学与最终音画签收仍待 |

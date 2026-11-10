@@ -13,6 +13,7 @@ namespace HOne.Game
         private readonly List<Vector2> points = new List<Vector2>(12);
         private readonly HashSet<string> touched = new HashSet<string>(StringComparer.Ordinal);
         private readonly HashSet<StarInstrument> instruments = new HashSet<StarInstrument>();
+        private readonly HashSet<FlutePort> flutePorts = new HashSet<FlutePort>();
         private StarFlightState path;
         private float speed;
         private float range;
@@ -39,6 +40,7 @@ namespace HOne.Game
             shotId++;
             touched.Clear();
             instruments.Clear();
+            flutePorts.Clear();
         }
 
         public bool Tick(float deltaTime)
@@ -52,6 +54,10 @@ namespace HOne.Game
             foreach (var queryContact in contacts)
             {
                 var contact = queryContact.WithShot(speed, charge, shotId);
+                var starSwitch = contact.Collider.GetComponentInParent<StarSwitch>();
+                if (starSwitch != null) { starSwitch.Strike(); continue; }
+                var flute = contact.Collider.GetComponentInParent<FlutePort>();
+                if (flute != null) { if (flutePorts.Add(flute)) flute.Strike(); continue; }
                 var fragment = contact.Collider.GetComponentInParent<StarFragment>();
                 if (fragment != null)
                 {

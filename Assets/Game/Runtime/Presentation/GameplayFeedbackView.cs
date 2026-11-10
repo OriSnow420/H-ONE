@@ -14,6 +14,7 @@ namespace HOne.Game
         private LevelSession session;
         private ShadowService shadows;
         private RuntimeLevelEditor levelEditor;
+        private ChapterTutorial tutorial;
         private Canvas canvas;
         private ProceduralHudGraphic fragmentHud, chargeHud, shadowHud;
         private UnityEngine.UI.Text chargeKey, recallKey;
@@ -36,6 +37,7 @@ namespace HOne.Game
             shadows = session != null ? session.Shadows : null;
             if (player == null || session == null) return;
             levelEditor = session.GetComponentInChildren<RuntimeLevelEditor>(true);
+            tutorial = session.GetComponentInChildren<ChapterTutorial>(true);
             EnsureVisuals();
             if (isActiveAndEnabled) Bind();
             ResetFeedback();
@@ -202,7 +204,10 @@ namespace HOne.Game
                 collected.Add(hasFragment);
                 if (hasFragment) DisplayedCollectedFragments++;
             }
-            fragmentHud.gameObject.SetActive(fragmentIds.Count > 0);
+            fragmentHud.gameObject.SetActive(fragmentIds.Count > 0 && (tutorial == null || tutorial.CollectionVisible));
+            chargeHud.gameObject.SetActive(tutorial == null || tutorial.ChargeVisible);
+            shadowHud.gameObject.SetActive(tutorial == null || tutorial.ShadowVisible);
+            recallKey.enabled = tutorial == null || tutorial.RecallVisible;
             fragmentHud.SetFragments(collected, fragmentIds.IndexOf(latestFragment),
                 Mathf.Clamp01(1f - (Time.time - collectedAt) / 0.55f));
 
