@@ -41,7 +41,8 @@
       "gain_db": -3.6127832425077937,
       "peak_dbfs": -6.000000000000001,
       "rights": "All rights reserved. Respective copyright holders.",
-      "status": "integrated_pending_listening_acceptance"
+      "status": "integrated_pending_listening_acceptance",
+      "creator": "墨鱼仔"
     },
     {
       "asset_id": "SFX-19",
@@ -65,7 +66,8 @@
       "gain_db": 6.532652474461624,
       "peak_dbfs": -6.000000000000001,
       "rights": "All rights reserved. Respective copyright holders.",
-      "status": "integrated_pending_listening_acceptance"
+      "status": "integrated_pending_listening_acceptance",
+      "creator": "墨鱼仔"
     },
     {
       "asset_id": "SFX-21",
@@ -89,7 +91,8 @@
       "gain_db": 1.1322061963729446,
       "peak_dbfs": -6.000000000000001,
       "rights": "All rights reserved. Respective copyright holders.",
-      "status": "integrated_pending_listening_acceptance"
+      "status": "integrated_pending_listening_acceptance",
+      "creator": "墨鱼仔"
     },
     {
       "asset_id": "SFX-23",
@@ -113,7 +116,8 @@
       "gain_db": -3.6739035758479925,
       "peak_dbfs": -5.999999999999998,
       "rights": "All rights reserved. Respective copyright holders.",
-      "status": "integrated_pending_listening_acceptance"
+      "status": "integrated_pending_listening_acceptance",
+      "creator": "墨鱼仔"
     },
     {
       "asset_id": "SFX-08",
@@ -137,7 +141,8 @@
       "gain_db": -2.016496950572142,
       "peak_dbfs": -6.000000000000001,
       "rights": "All rights reserved. Respective copyright holders.",
-      "status": "integrated_pending_listening_acceptance"
+      "status": "integrated_pending_listening_acceptance",
+      "creator": "墨鱼仔"
     },
     {
       "asset_id": "SFX-13",
@@ -161,30 +166,31 @@
       "gain_db": 1.5589256109107552,
       "peak_dbfs": -5.999999999999998,
       "rights": "All rights reserved. Respective copyright holders.",
-      "status": "integrated_pending_listening_acceptance"
+      "status": "integrated_pending_listening_acceptance",
+      "creator": "墨鱼仔"
     }
   ],
   "excluded": [
     {
       "source": "audio/Larse - 【免费可商用BGM】启程之前.mp3",
       "sha256": "638b78448af117841980ee6885b12a38d7035eb4f9ee603c46f40bc6495307da",
-      "reason": "Third-party Larse BGM; license/source evidence and scene placement not supplied. Not copied or shipped."
+      "reason": "Excluded from the original SFX batch. 2026-11-11: user supplied Larse attribution and commercial permission; 启程之前 is now integrated separately in ../Music/manifest.json."
     },
     {
       "source": "audio/Larse - 【免费可商用BGM】灰焰酒馆.mp3",
       "sha256": "033d8e661ea03c6b5af8ad73abbf46074bd11ee75252a16231259acef0771a39",
-      "reason": "Third-party Larse BGM; license/source evidence and scene placement not supplied. Not copied or shipped."
+      "reason": "Excluded from the original SFX batch. 2026-11-11: user supplied Larse attribution and commercial permission; no scene assigned, not copied or shipped."
     },
     {
       "source": "audio/Larse - 【免费可商用BGM】黑森林废墟.mp3",
       "sha256": "d07a8d809aa2278acf75b2347697140b2d3b893b6e16d754e746ea1ebaaddd17",
-      "reason": "Third-party Larse BGM; license/source evidence and scene placement not supplied. Not copied or shipped."
+      "reason": "Excluded from the original SFX batch. 2026-11-11: user supplied Larse attribution and commercial permission; no scene assigned, not copied or shipped."
     }
   ],
   "missing": [
     "SFX-22 drum.wave formal asset",
     "Additional variants in first-round 20-WAV production brief",
-    "Editable audio source / author and sample provenance details"
+    "Editable audio source / sample provenance details"
   ],
   "integration": {
     "configuration": "Resources/ChapterAudio.asset",
@@ -202,5 +208,7 @@
     "sampled_sfx_muted_peak": 0,
     "human_device_listening_acceptance": false,
     "formal_batch_acceptance": false
-  }
+  },
+  "creator": "墨鱼仔",
+  "attribution_updated": "2026-11-11 user supplied creator; see CREDITS.md."
 }

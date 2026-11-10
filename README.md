@@ -6,6 +6,8 @@
 
 策划、架构、交付清单与开发进度见 [制作文档索引](docs/README.md)。
 
+音乐 Larse、音效 墨鱼仔、美术 平常不在线、程序 [OriSnow420](https://github.com/OriSnow420)、策划 游里；作品链接与完整署名见 [CREDITS](CREDITS.md)。项目主页：[Uuuyv-325/H-ONE](https://github.com/Uuuyv-325/H-ONE)。
+
 ## 授权说明
 
 ### 代码：MIT

@@ -268,3 +268,16 @@ KEEP-004 的当前/最终实现路径均为 `Assets/Game/Runtime/Presentation/Ru
 | 日期 | 范围 | 验证边界 |
 | --- | --- | --- |
 | 2026-11-10/11 | 上表全部新增使用 | 两关已创作、导入、同步；EditMode 29/29、PlayMode 39/39，真实输入路线、实际 720p/1080p/16:10 与静音/灰度局部画面已检查；完成/暂停叠层返修通过。普通 Windows 构建 0 error / 186 条既有包警告，当前 Console 0 错误，Play/临时设置恢复。精确 dirty-file 哈希、设备/截图/局部布置与独立程序未通关等边界见 [15 记录](15-首章关卡第一版.md) 和本轮 manifest。正式交付父项不勾选，新玩家教学与最终音画签收仍待 |
+
+
+## 13. 2026-11-11：主页制作名单与字形补全
+
+- [ ] `NEW-010-a` Credits 补页 — **已接入待验收｜P1/P2｜UI-06/09/10**。保留 NEW-010 标题/设置/转场父项与 ART-023 暂停范围，本项只记录新增署名页。当前/最终程序路径为 `Runtime/Presentation/MainMenuCredits.cs`、`Editor/MainMenuPresentationAuthoring.cs`，使用点 `MainMenu/MainMenuCanvas/{Credits,CreditsPanel/{BlurredMenu,Shade,List}}`；作者默认由 `M2MenuAuthoring.CreateMainMenu` 调用增量 `Apply`，不重建原 Home/Settings。Canvas 仍 1920×1080 / match 0.5；入口右下角锚点/枢轴 (1,0)，152×48、边距 (32,28)，列表中央锚点 (0.16,0.04)–(0.84,0.96)。程序按钮沿用 `FeedbackMenuStyle`；返回/既有 UI Cancel Action 关闭，模态期间阻止后层按钮。
+
+背景为运行时四分之一分辨率 RenderTexture，复用 `Delivery01/PauseBlur.mat/.shader`，无需新 PNG、PPU、pivot 或 Sprite fileID。原 `Delivery01/title.png`、暂停图、所有 Prefab/关卡物理根/Collider/ID/出生点不变；`CoreSceneAuthoring`、`LevelPieceFactory`、`M2SceneAuthoring` 与 Runtime Catalog 没有新增占位依赖。保留图源的 SHA/配方/许可快照仍见 Delivery01/02 `manifest.json` / `SOURCE_USAGE.md`；本轮仅补署名“平常不在线”。分层源/最终按钮图仍缺，不将完整菜单套件标记完成。
+
+字形资源仍为 `Assets/Game/Art/Fonts/MenuSans.ttf`，保留原 .meta GUID 与 178 个既存 codepoint，当前 219 个 codepoint；修订 `menu-credits-20261111`，源 Noto Sans SC regular 400、OFL-1.1。源/产物 SHA 见同目录 `manifest.json`，OFL 与来源见 `LICENSE.txt` / `README.md`；本轮只扩充字体子集，没有图片生成。音乐在独立音频清单与 Music manifest 登记。
+
+| 日期 | 范围 | 同步与验证 |
+| --- | --- | --- |
+| 2026-11-11 | NEW-010-a / NEW-010、ART-023 共享字体依赖；UI-06/09/10，P1/P2 | 增量保存 MainMenu，35 个任务文件双副本内容一致；三档 Game view、真实 UI 射线、后层遮挡/返回/Esc 与字形检查通过，Console 0 errors、Windows 构建成功。EditMode 29/29，PlayMode 41/42 加既有输入失败项单独复测 1/1；精确边界/证据见 [17 记录](17-主页音乐与制作名单.md)。未签收正式美术批次，父项维持未勾选。 |

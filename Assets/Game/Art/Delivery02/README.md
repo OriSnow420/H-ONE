@@ -44,3 +44,8 @@ references for the PNG sequences already integrated in Delivery01.
 Integration and runtime evidence: `docs/11-剩余美术与格点地形接入.md` and the
 existing placeholder checklist. This is not acceptance of the complete P0/P1/P2
 art batches or completion of either authored Chapter 1 level.
+
+2026-11-11 attribution update: the supplied artwork is by **平常不在线**, as
+identified by the user. Credits are also recorded in the main-menu Credits and
+root CREDITS.md; source hashes, usage policy, crops and remaining deliveries above
+are unchanged.

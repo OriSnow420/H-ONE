@@ -1,7 +1,9 @@
 {
-  "revision": "m2-menu-20261110",
+  "revision": "menu-credits-20261111",
   "source": "https://github.com/google/fonts/tree/main/ofl/notosanssc",
   "source_sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
   "license": "OFL-1.1",
-  "output_sha256": "74db7976794ecced817c500c1d73a546c736edf2c40fe75a9202e416612643ec"
+  "output_sha256": "35bb06d7e2253f8fc205b024866d3bd2c5cf724137e7042881b2fbab556456ce",
+  "preserved_previous_codepoints": 178,
+  "glyph_scope": "219 supported codepoints: all 178 previous codepoints plus credits and current authoring strings; weight 400; font GUID unchanged."
 }

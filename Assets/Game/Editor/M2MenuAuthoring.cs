@@ -84,6 +84,7 @@ namespace HOne.Game.Editor
             canvas.gameObject.AddComponent<MainMenuController>().Configure(play, settings, quit, back, home.gameObject, controls.gameObject);
             controls.gameObject.SetActive(false);
             EventSystem(parent);
+            MainMenuPresentationAuthoring.Apply(canvas);
         }
         private static UnityEngine.UI.Slider Slider(Transform parent, string name, float y)
         {
