@@ -136,3 +136,5 @@ GitHub 只读检查确认：Actions 已启用，允许全部 Actions，默认 to
 随后[运行 42762576260](https://github.com/OriSnow420/H-ONE/actions/runs/42762576260)（提交 `6ec92ceb5be39b40f04b9096ede0ba5fdf0530a7`）确认 PlayMode 的 Editor 为 `Batch mode: NO`，但在启动 LicensingClient 后立即退出，尚未执行测试或生成 PlayMode XML；EditMode 仍为 26/26。为定位这一启动问题，CI 镜像增加 `strace`，只保存子进程可执行文件名及执行状态到 `playmode.log.startup-trace.log`，命令参数与环境值不写入诊断文件。此结果不能视为 PlayMode 通过或游戏代码失败。
 
 [运行 42764660810](https://github.com/OriSnow420/H-ONE/actions/runs/42764660810) 的启动追踪显示非 batchmode Editor 尝试执行 `dbus-launch`，镜像中未安装而返回 `ENOENT`；EditMode 26/26。CI 测试镜像补装 `dbus-x11` 提供该程序，追踪器改用独立进程，避免等待仍存活的 LicensingClient。这些调整只涉及 Linux CI 启动环境；PlayMode、四平台构建和 Pages 仍待新运行验证。
+
+[运行 42769225402](https://github.com/OriSnow420/H-ONE/actions/runs/42769225402) 的文件追踪进一步显示：非 batchmode Editor 连续查找光标主题与 `left_ptr`、`watch` 等光标均为 `ENOENT`，随后退出。CI 镜像补装 `dmz-cursor-theme`，显式设置 `XCURSOR_THEME=DMZ-White`，并在构建镜像时检查所需光标存在；定位后移除进程追踪，避免干扰许可证后台进程和编译子进程。该轮 EditMode 的失败是 Bee 内部管道关闭，汇总步骤随后完成导入与编译，未报告项目源码错误。新的真实测试结果仍以 Actions 报告为准。

@@ -1,10 +1,13 @@
 ARG UNITY_IMAGE
 FROM ${UNITY_IMAGE}
 
-# The non-batchmode Linux Editor starts a D-Bus session via dbus-launch.
-# Trace executable names for startup diagnostics; the launcher redacts args.
+# The non-batchmode Linux Editor needs D-Bus and actual X cursor assets.
+# The stock image provides neither; a missing cursor makes Unity exit at
+# startup before initializing the project or writing an explicit error.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends dbus-x11 strace \
+    && apt-get install -y --no-install-recommends dbus-x11 dmz-cursor-theme \
+    && test -s /usr/share/icons/DMZ-White/cursors/left_ptr \
+    && test -s /usr/share/icons/DMZ-White/cursors/watch \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
