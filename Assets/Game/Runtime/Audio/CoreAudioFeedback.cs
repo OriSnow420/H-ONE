@@ -4,12 +4,13 @@ using UnityEngine.Audio;
 
 namespace HOne.Game
 {
-    // Event-driven technical feedback. Gameplay never waits for or reads playback state.
+    // Event-driven feedback. Gameplay never waits for or reads playback state.
     public sealed class CoreAudioFeedback : MonoBehaviour
     {
         [SerializeField] private PlayerStateMachine player;
         [SerializeField] private AudioMixerGroup bus;
         [SerializeField] private AudioClip chargeStart, chargeLoop, launch, wall, fail, reform, collect;
+        [SerializeField] private ChapterAudioSet delivery;
         [SerializeField, Range(0f, 1f)] private float impactVolume = 0.85f;
         private AudioSource loop, oneShot;
         private ProceduralImpactAudio samples;
@@ -27,6 +28,9 @@ namespace HOne.Game
         public int LastCollectionStage { get; private set; }
         public StarImpactKind LastImpactKind { get; private set; }
         public bool SourcesPaused => paused;
+        public ChapterAudioSet Delivery => delivery;
+        public AudioClip LastPlayedClip { get; private set; }
+        public AudioClip LastImpactClip { get; private set; }
 
         public void Configure(PlayerStateMachine owner, AudioMixerGroup output, AudioClip start, AudioClip sustain,
             AudioClip shot, AudioClip hit, AudioClip failure, AudioClip reappear, AudioClip fragment)
@@ -46,6 +50,7 @@ namespace HOne.Game
             loop.priority = 100; oneShot.priority = 80;
             RouteSources();
             samples = new ProceduralImpactAudio();
+            if (delivery == null) delivery = ChapterAudioSet.LoadDefault();
         }
 
         private void RouteSources()
@@ -107,6 +112,7 @@ namespace HOne.Game
             if (clip == null || oneShot == null || bus == null || !isActiveAndEnabled ||
                 player == null || player.Paused) return false;
             oneShot.PlayOneShot(clip, volume);
+            LastPlayedClip = clip;
             return true;
         }
 
@@ -130,7 +136,7 @@ namespace HOne.Game
             {
                 struckInstruments.Clear();
                 currentShotId = -1;
-                Play(launch);
+                Play(delivery != null && delivery.Launch != null ? delivery.Launch : launch);
             }
             else if (state == PlayerState.Reforming && player.ReformReason == ReformReason.Failure) Play(fail);
         }
@@ -143,9 +149,10 @@ namespace HOne.Game
             switch (contact.Kind)
             {
                 case StarImpactKind.Stone:
-                    if (Play(samples.Stone[stoneVariant], strength))
+                    if (Play(delivery != null && delivery.Stone != null ? delivery.Stone : samples.Stone[stoneVariant], strength))
                     {
                         stoneVariant = (stoneVariant + 1) % samples.Stone.Length;
+                        LastImpactClip = LastPlayedClip;
                         ImpactPlaybackCount++;
                     }
                     break;
@@ -159,9 +166,13 @@ namespace HOne.Game
                     var instrument = contact.Collider.GetComponentInParent<StarInstrument>();
                     var target = instrument != null ? instrument.GetInstanceID() : contact.Collider.GetInstanceID();
                     if (!struckInstruments.Add(target)) return;
-                    if (Play(contact.Kind == StarImpactKind.Lyre ? samples.Lyre : samples.Drum, strength))
+                    var delivered = delivery != null ?
+                        (contact.Kind == StarImpactKind.Lyre ? delivery.Lyre : delivery.Drum) : null;
+                    if (Play(delivered != null ? delivered :
+                        (contact.Kind == StarImpactKind.Lyre ? samples.Lyre : samples.Drum), strength))
                     {
                         ImpactPlaybackCount++;
+                        LastImpactClip = LastPlayedClip;
                         if (contact.Kind == StarImpactKind.Drum) Play(samples.DrumWave, strength * 0.55f);
                     }
                     break;
@@ -174,7 +185,8 @@ namespace HOne.Game
         {
             if (samples == null || broken == null || !broken.Broken || player == null || player.Paused) return;
             if (Time.time - lastFractureAt < 0.075f) return;
-            if (!Play(samples.Ceramic[ceramicVariant], impactVolume * 0.82f)) return;
+            if (!Play(delivery != null && delivery.Ceramic != null ? delivery.Ceramic : samples.Ceramic[ceramicVariant],
+                impactVolume * 0.82f)) return;
             lastFractureAt = Time.time;
             ceramicVariant = (ceramicVariant + 1) % samples.Ceramic.Length;
             FracturePlaybackCount++;

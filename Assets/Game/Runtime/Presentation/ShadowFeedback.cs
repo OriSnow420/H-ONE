@@ -3,26 +3,36 @@ using UnityEngine.Audio;
 
 namespace HOne.Game
 {
-    // Replace these technical cues with P0 deliveries without changing gameplay or colliders.
+    // Recorded embed plus technical recall cues, independent of gameplay and colliders.
     public sealed class ShadowFeedback : MonoBehaviour
     {
         [SerializeField] private ShadowService shadows;
         [SerializeField] private PlayerStateMachine player;
         [SerializeField] private AudioMixerGroup bus;
         [SerializeField] private AudioClip embed, recallStart, recallEnd;
-        private AudioSource source;
+        [SerializeField] private ChapterAudioSet delivery;
+        private AudioSource source, embedSource;
         private bool hadShadow, paused;
         private Transform recallingVisual;
         private Vector3 recallingScale;
         private float nextUnavailableCue;
         private StarSocket[] sockets;
+        public AudioClip LastPlayedClip { get; private set; }
         public void Configure(ShadowService service, PlayerStateMachine owner, AudioMixerGroup output,
             AudioClip placed, AudioClip start, AudioClip end)
-        { shadows = service; player = owner; bus = output; embed = placed; recallStart = start; recallEnd = end; }
+        {
+            shadows = service; player = owner; bus = output; embed = placed; recallStart = start; recallEnd = end;
+            if (source != null) source.outputAudioMixerGroup = bus;
+            if (embedSource != null) embedSource.outputAudioMixerGroup = bus;
+        }
         private void Awake()
         {
             source = gameObject.AddComponent<AudioSource>();
             source.playOnAwake = false; source.spatialBlend = 0f; source.outputAudioMixerGroup = bus;
+            // The old recall cues use pitch shifts; keep those off the recorded embed tail.
+            embedSource = gameObject.AddComponent<AudioSource>();
+            embedSource.playOnAwake = false; embedSource.spatialBlend = 0f; embedSource.outputAudioMixerGroup = bus;
+            if (delivery == null) delivery = ChapterAudioSet.LoadDefault();
             RefreshSockets();
         }
         public void RefreshSockets() => sockets = shadows.GetComponentsInChildren<StarSocket>(true);
@@ -34,16 +44,29 @@ namespace HOne.Game
             player.StarImpact -= Impact;
             RestoreVisual();
             if (source != null) source.Stop();
+            if (embedSource != null) embedSource.Stop();
         }
         private void Play(AudioClip clip, float pitch)
-        { if (clip != null) { source.pitch = pitch; source.PlayOneShot(clip, 0.6f); } }
+        {
+            if (clip == null || bus == null || player.Paused || !isActiveAndEnabled) return;
+            source.pitch = pitch; source.PlayOneShot(clip, 0.6f); LastPlayedClip = clip;
+        }
         private void RestoreVisual()
         { if (recallingVisual != null) recallingVisual.localScale = recallingScale; recallingVisual = null; }
         private void Changed()
         {
             RestoreVisual();
             if (!shadows.HasShadow && source != null) source.Stop();
-            if (shadows.HasShadow && !hadShadow) Play(embed, 1.4f);
+            if (!shadows.HasShadow && embedSource != null) embedSource.Stop();
+            if (shadows.HasShadow && !hadShadow)
+            {
+                if (delivery != null && delivery.Embed != null && bus != null && !player.Paused)
+                {
+                    embedSource.PlayOneShot(delivery.Embed, 0.6f);
+                    LastPlayedClip = delivery.Embed;
+                }
+                else Play(embed, 1.4f);
+            }
             hadShadow = shadows.HasShadow;
         }
         private void Recall()
@@ -74,7 +97,13 @@ namespace HOne.Game
                 recallingVisual.localScale = recallingScale * (1f - 0.35f * shadows.RecallProgress);
             if (paused == player.Paused) return;
             paused = player.Paused;
-            if (paused) source.Pause(); else source.UnPause();
+            if (paused) { source.Pause(); embedSource.Pause(); }
+            else { source.UnPause(); embedSource.UnPause(); }
+        }
+        private void OnDestroy()
+        {
+            if (source != null) Destroy(source);
+            if (embedSource != null) Destroy(embedSource);
         }
     }
 }
