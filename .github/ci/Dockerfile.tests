@@ -1,6 +1,13 @@
 ARG UNITY_IMAGE
 FROM ${UNITY_IMAGE}
 
+# Trace only executable names when diagnosing GUI startup; arguments are
+# redacted by the launcher before any trace is written to an artifact.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends strace \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Keep GameCI's Xvfb setup and version-specific hooks. Its stock launcher also
 # adds -batchmode, independently of the test runner's command-line arguments.
 RUN test "$(grep -o -- '-batchmode' /usr/bin/unity-editor | wc -l)" -eq 1 \
