@@ -5,7 +5,7 @@ FROM ${UNITY_IMAGE}
 # The stock image provides neither; a missing cursor makes Unity exit at
 # startup before initializing the project or writing an explicit error.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends dbus-x11 dmz-cursor-theme \
+    && apt-get install -y --no-install-recommends dbus-x11 dmz-cursor-theme gdb \
     && test -s /usr/share/icons/DMZ-White/cursors/left_ptr \
     && test -s /usr/share/icons/DMZ-White/cursors/watch \
     && apt-get clean \
@@ -16,7 +16,9 @@ RUN apt-get update \
 RUN test "$(grep -o -- '-batchmode' /usr/bin/unity-editor | wc -l)" -eq 1 \
     && mv /usr/bin/unity-editor /usr/bin/unity-editor-batchmode \
     && sed 's/ -batchmode / /' /usr/bin/unity-editor-batchmode > /usr/bin/unity-editor-rendering \
+    && sed -i 's@ "$UNITY_PATH/Editor/Unity" @ gdb --batch --return-child-result -x /usr/share/h-one-ci/startup.gdb --args "$UNITY_PATH/Editor/Unity" @' /usr/bin/unity-editor-rendering \
     && ! grep -q -- '-batchmode' /usr/bin/unity-editor-rendering \
     && chmod 755 /usr/bin/unity-editor-rendering
 
 COPY --chmod=755 unity-editor.sh /usr/bin/unity-editor
+COPY startup.gdb /usr/share/h-one-ci/startup.gdb
