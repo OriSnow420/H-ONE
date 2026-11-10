@@ -64,6 +64,59 @@ namespace HOne.Game.Tests
             var camera = player.transform.root.GetComponentInChildren<Camera>();
             var point = camera.WorldToScreenPoint(target); Set(mouse.position, new Vector2(point.x, point.y));
         }
+
+        [UnityTest] public IEnumerator GrassSeamsJumpArtworkAndPauseKeepTheOriginalMotor()
+        {
+            var root = scene.GetRootGameObjects()[0];
+            DeliveredArtSet art = null;
+#if UNITY_EDITOR
+            art = UnityEditor.AssetDatabase.LoadAssetAtPath<DeliveredArtSet>("Assets/Game/Art/Delivery01/ChapterArt.asset");
+#endif
+            if (art == null) Assert.Ignore("Requires the imported Editor delivery asset.");
+            var body = player.GetComponent<Rigidbody2D>();
+            var drawing = player.transform.Find("Visual/Human").GetComponent<SpriteRenderer>();
+            var start = player.Position;
+            Set(keyboard.dKey,1f); yield return new WaitForSeconds(.65f); Set(keyboard.dKey,0f);
+            Assert.That(player.Position.x-start.x,Is.GreaterThan(2.5f));
+            Assert.That(player.Position.y,Is.EqualTo(start.y).Within(.03f));
+            Set(keyboard.spaceKey,1f); yield return new WaitForFixedUpdate(); Set(keyboard.spaceKey,0f);
+            yield return new WaitForSeconds(.12f);
+            Assert.IsFalse(player.IsGrounded); Assert.AreEqual(art.Jump,drawing.sprite);
+            player.SetPaused(true); var position = body.position;
+            yield return new WaitForSecondsRealtime(.15f);
+            Assert.AreEqual(position,body.position); Assert.AreEqual(art.Jump,drawing.sprite);
+            player.SetPaused(false); yield return new WaitForSeconds(1f);
+            Assert.IsTrue(player.IsGrounded); Assert.AreNotEqual(art.Jump,drawing.sprite);
+            Assert.IsNotNull(root.GetComponentInChildren<GrassTerrainView>());
+        }
+
+        [UnityTest] public IEnumerator InstrumentPredictionIsPureAndProgressSurvivesFailureAndPuzzleReset()
+        {
+            var root = scene.GetRootGameObjects()[0];
+            var lyre = root.GetComponentsInChildren<StarInstrument>().Single(i => i.Kind == StarInstrumentKind.Lyre);
+            var drum = root.GetComponentsInChildren<StarInstrument>().Single(i => i.Kind == StarInstrumentKind.Drum);
+            var wall = root.GetComponentInChildren<BrittleWall>();
+            var dais = root.GetComponentsInChildren<Checkpoint>().Single(c => c.name == "InstrumentDais");
+            player.Session.TryActivate(dais);
+            var body = player.GetComponent<Rigidbody2D>(); body.position = new Vector2(51,.7f); body.linearVelocity = Vector2.zero;
+            yield return new WaitForSeconds(.2f);
+            var path = new StarFlightState(player.Position,(Vector2)lyre.transform.position-player.Position);
+            new StarPathSolver(player.Tuning.StarRadius,player.WorldMask,player.transform).Advance(ref path,6f,null,null);
+            Assert.AreEqual(0,path.BouncesLeft); Assert.IsFalse(lyre.Value); Assert.IsFalse(wall.Broken);
+            yield return Shoot(lyre.transform.position); Assert.IsTrue(lyre.Value);
+            body.position = new Vector2(59,.7f); body.linearVelocity = Vector2.zero; yield return new WaitForSeconds(.2f);
+            yield return Shoot(drum.transform.position); Assert.IsTrue(wall.Broken);
+            player.Fail(); yield return new WaitForSeconds(.6f);
+            Assert.IsTrue(lyre.Value); Assert.IsTrue(wall.Broken);
+            Assert.IsTrue(player.Session.ResetCurrentPuzzle(player)); yield return new WaitForSeconds(.6f);
+            Assert.IsTrue(lyre.Value); Assert.IsTrue(wall.Broken);
+            Assert.IsTrue(player.Session.RestartLevel(player)); yield return new WaitForSeconds(.6f);
+            Assert.IsFalse(lyre.Value); Assert.IsFalse(wall.Broken); Assert.IsTrue(wall.GetComponent<Collider2D>().enabled);
+            drum.Strike(); yield return null;
+            var wave = drum.GetComponentInChildren<LineRenderer>(); Assert.IsTrue(wave.enabled);
+            Assert.IsTrue(player.Session.ResetCurrentPuzzle(player)); yield return null;
+            Assert.IsFalse(wave.enabled);
+        }
         [UnityTest] public IEnumerator GallerySupportsCollectionEmbeddingBridgeCrossingAndStonePlate()
         {
             yield return Shoot(new Vector2(-4, 2));

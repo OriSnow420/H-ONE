@@ -46,6 +46,26 @@ namespace HOne.Game.Editor
             var visual = go.transform.Find("Visual");
             switch (kind)
             {
+                case LevelPiece.Lyre:
+                case LevelPiece.Drum:
+                    var instrument = go.GetComponent<StarInstrument>();
+                    var sprite = kind == LevelPiece.Lyre ? art.Lyre : art.DrumIdle;
+                    if (sprite == null) break;
+                    var instrumentDrawing = visual.GetComponent<SpriteRenderer>();
+                    Set(instrumentDrawing,sprite,Vector3.zero,kind == LevelPiece.Lyre ? 1.2f : .9f);
+                    LineRenderer wave = null;
+                    if (kind == LevelPiece.Drum)
+                    {
+                        wave = Ensure<LineRenderer>(Child(go.transform,"DrumWave").gameObject);
+                        wave.sharedMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Game/Art/P0/Trajectory.mat");
+                        wave.useWorldSpace = false; wave.loop = true; wave.positionCount = 48;
+                        wave.startWidth = wave.endWidth = .035f; wave.sortingOrder = 15; wave.enabled = false;
+                    }
+                    Ensure<InstrumentArtView>(go).Configure(instrument,instrumentDrawing,art,wave);
+                    break;
+                case LevelPiece.Solid:
+                    if (art.TerrainMiddle != null && art.TerrainMaterial != null) Ensure<GrassTerrainView>(go).Configure(art);
+                    break;
                 case LevelPiece.PlatformSocket:
                 case LevelPiece.PlateSocket:
                     if (visual == null || art.RockDark == null || art.RockLight == null) break;
@@ -102,6 +122,7 @@ namespace HOne.Game.Editor
             foreach (var plate in root.GetComponentsInChildren<PressurePlate>(true)) ApplyToPiece(plate.gameObject, LevelPiece.PressurePlate);
             foreach (var stone in root.GetComponentsInChildren<PressureWeight>(true))
                 if (stone.Kind == PressureWeightKind.Stone) ApplyToPiece(stone.gameObject, LevelPiece.Stone);
+            RemainingArtAuthoring.ApplyScene(root);
             var camera = root.GetComponentInChildren<Camera>(true);
             if (camera != null)
             {

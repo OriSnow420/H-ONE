@@ -17,6 +17,8 @@ namespace HOne.Game.Editor
         private Vector2Field positionField, sizeField;
         private FloatField gridField;
         private Toggle paint;
+        private Toggle grassBrush;
+        private FloatField brushRadius;
         private VisualElement results, inspector;
         [MenuItem("H-ONE/Chapter Level Editor")]
         public static void Open() => GetWindow<ChapterLevelEditorWindow>("H-ONE Level Editor");
@@ -43,6 +45,10 @@ namespace HOne.Game.Editor
             gridField = new FloatField("Grid (1 or 0.25)") { value = 0.25f }; palette.Add(gridField);
             positionField = new Vector2Field("World position"); palette.Add(positionField);
             paint = new Toggle("Place with left click in Scene view"); palette.Add(paint);
+            grassBrush = new Toggle("Round grass brush (fills 1-unit grid cells)"); palette.Add(grassBrush);
+            brushRadius = new FloatField("Brush radius") { value = 2f }; palette.Add(brushRadius);
+            var brushPreview = new UnityEngine.UIElements.Image { sprite = DeliveredArtAuthoring.Art != null ? DeliveredArtAuthoring.Art.TerrainBrush : null };
+            brushPreview.AddToClassList("terrain-brush-preview"); palette.Add(brushPreview);
             palette.Add(new Label("Alt navigates; Esc stops placing. Selection and transforms use normal Unity tools."));
             AddButton(palette, "Place piece", () => Place(positionField.value));
             sizeField = new Vector2Field("Box / Visual size") { value = new Vector2(4f, 0.5f) }; palette.Add(sizeField);
@@ -105,6 +111,14 @@ namespace HOne.Game.Editor
         {
             var level = GetSession();
             var parent = parentField.value as Transform;
+            if (grassBrush.value)
+            {
+                parent = parent != null ? parent : level.transform.Find("Geometry");
+                if (parent.gameObject.scene != level.gameObject.scene) throw new InvalidOperationException("Parent must belong to the active level.");
+                Undo.IncrementCurrentGroup(); var brushUndo = Undo.GetCurrentGroup();
+                RemainingArtAuthoring.PaintGrassDisk(parent,new Vector2(Mathf.Round(position.x),Mathf.Round(position.y)),Mathf.Clamp(brushRadius.value,.5f,16f),level);
+                Undo.CollapseUndoOperations(brushUndo); EditorSceneManager.MarkSceneDirty(level.gameObject.scene); return;
+            }
             var kind = (LevelPiece)pieceField.value;
             if (parent == null && groupField.value is PuzzleGroup group && kind != LevelPiece.Solid && kind != LevelPiece.Hazard &&
                 kind != LevelPiece.Fragment && kind != LevelPiece.Checkpoint) parent = group.transform;
@@ -130,7 +144,9 @@ namespace HOne.Game.Editor
             var ray = HandleUtility.GUIPointToWorldRay(current.mousePosition);
             if (!new Plane(Vector3.forward, Vector3.zero).Raycast(ray, out var distance)) return;
             var point = Snap(ray.GetPoint(distance));
-            Handles.color = Color.yellow; Handles.DrawWireCube(point, new Vector3(1f, 1f, 0f));
+            Handles.color = Color.yellow;
+            if (grassBrush.value) Handles.DrawWireDisc(point,Vector3.forward,Mathf.Clamp(brushRadius.value,.5f,16f));
+            else Handles.DrawWireCube(point, new Vector3(1f, 1f, 0f));
             if (current.type == EventType.MouseDown && current.button == 0)
             {
                 try { Place(point); } catch (Exception exception) { paint.value = false; Debug.LogWarning(exception.Message); }

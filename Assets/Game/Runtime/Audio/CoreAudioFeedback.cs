@@ -66,7 +66,8 @@ namespace HOne.Game
             else if (state == PlayerState.Reforming && player.ReformReason == ReformReason.Failure) Play(fail);
         }
         private void Impact(StarContact contact)
-        { if (!contact.Embedded && contact.Collider.GetComponent<StarSocket>() == null) Play(wall); }
+        { if (!contact.Embedded && contact.Collider.GetComponent<StarSocket>() == null &&
+              contact.Collider.GetComponentInParent<StarInstrument>() == null) Play(wall); }
         private void Reformed() => Play(reform);
         private void Collected(string id) => Play(collect);
     }

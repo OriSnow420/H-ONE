@@ -10,6 +10,11 @@ namespace HOne.Game
         public Sprite Background, ForegroundGrass, Title;
         public Sprite[] PauseProgress;
         public Material PauseBlur;
+        public Sprite Jump, Lyre, DrumIdle;
+        public Sprite[] DrumHit;
+        public Sprite TerrainMiddle, TerrainLeft, TerrainRight, TerrainSoil, TerrainBrush;
+        public Material TerrainMaterial;
+        public Rect[] TerrainAtlasRects;
 
         public static Sprite Frame(Sprite[] frames, float time, float fps)
         {

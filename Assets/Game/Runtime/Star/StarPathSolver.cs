@@ -12,6 +12,7 @@ namespace HOne.Game
         public bool Ended;
         internal Collider2D LastSurface;
         internal Vector2 LastNormal;
+        internal HashSet<BrittleWall> PredictedBroken;
 
         public StarFlightState(Vector2 origin, Vector2 direction)
         {
@@ -22,6 +23,7 @@ namespace HOne.Game
             Ended = false;
             LastSurface = null;
             LastNormal = Vector2.zero;
+            PredictedBroken = new HashSet<BrittleWall>();
         }
     }
 
@@ -97,6 +99,12 @@ namespace HOne.Game
                     var collider = hit.collider;
                     if (collider == null || (ignoredRoot != null && collider.transform.IsChildOf(ignoredRoot)))
                         continue;
+                    var wall = collider.GetComponentInParent<BrittleWall>();
+                    if (wall != null)
+                    {
+                        if (!wall.Broken && state.PredictedBroken.Add(wall)) contacts?.Add(new StarContact(hit, false));
+                        continue;
+                    }
                     var hazard = collider.GetComponentInParent<Hazard2D>() != null;
                     var fragment = collider.GetComponentInParent<StarFragment>() != null;
                     var socket = collider.GetComponent<StarSocket>();
@@ -114,6 +122,11 @@ namespace HOne.Game
                     state.Travelled += hit.distance;
                     remaining -= hit.distance;
                     points?.Add(state.Position);
+                    var instrument = collider.GetComponentInParent<StarInstrument>();
+                    if (instrument != null && instrument.Kind == StarInstrumentKind.Drum)
+                        foreach (var target in instrument.WaveTargets)
+                            if (target != null && Vector2.Distance(instrument.transform.position, target.transform.position) <= instrument.WaveRadius)
+                                state.PredictedBroken.Add(target);
                     if (!hazard && socket != null && socket.Available)
                     {
                         contacts?.Add(new StarContact(hit, false, true));

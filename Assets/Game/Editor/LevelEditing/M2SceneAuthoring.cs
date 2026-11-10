@@ -165,7 +165,9 @@ namespace HOne.Game.Editor
                 }
                 if (go.GetComponentInParent<StarSocket>() != null && go.GetComponent<StarSocket>() == null) continue;
                 RuntimeLevelPieceKind? kind = null;
-                if (go.GetComponent<Checkpoint>() != null) kind = RuntimeLevelPieceKind.Checkpoint;
+                if (go.TryGetComponent<StarInstrument>(out var instrument)) kind = instrument.Kind == StarInstrumentKind.Lyre ? RuntimeLevelPieceKind.Lyre : RuntimeLevelPieceKind.Drum;
+                else if (go.GetComponent<BrittleWall>() != null) kind = RuntimeLevelPieceKind.BrittleWall;
+                else if (go.GetComponent<Checkpoint>() != null) kind = RuntimeLevelPieceKind.Checkpoint;
                 else if (go.GetComponent<StarFragment>() != null) kind = RuntimeLevelPieceKind.Fragment;
                 else if (go.GetComponent<StarSocket>() != null)
                     kind = go.GetComponentInChildren<PressurePlate>(true) != null ? RuntimeLevelPieceKind.PlateSocket : RuntimeLevelPieceKind.PlatformSocket;
@@ -208,6 +210,7 @@ namespace HOne.Game.Editor
         public static void Resize(GameObject go, Vector2 size)
         {
             go.GetComponent<BoxCollider2D>().size = size;
+            if (go.TryGetComponent<GrassTerrainView>(out var terrain)) terrain.Rebuild();
             LevelPieceFactory.SetVisualSize(go.GetComponentInChildren<SpriteRenderer>(), size);
             PrefabUtility.RecordPrefabInstancePropertyModifications(go.GetComponent<BoxCollider2D>());
             PrefabUtility.RecordPrefabInstancePropertyModifications(go.GetComponentInChildren<SpriteRenderer>());

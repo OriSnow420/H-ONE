@@ -8,7 +8,7 @@ namespace HOne.Game
     public enum RuntimeLevelPieceKind
     {
         Solid, Hazard, Checkpoint, Fragment, PlatformSocket, PlateSocket,
-        PressurePlate, Bridge, Gate, Stone
+        PressurePlate, Bridge, Gate, Stone, Lyre, Drum, BrittleWall
     }
 
     [Serializable]
@@ -34,6 +34,7 @@ namespace HOne.Game
         public string weightId;
         public string shadowWeightId;
         public string sourcePieceId;
+        public string[] waveTargetIds;
         public bool barrierSolidWhenTrue = true;
     }
 

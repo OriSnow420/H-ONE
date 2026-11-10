@@ -11,6 +11,7 @@ namespace HOne.Game
         private readonly PlayerTuning tuning;
         private readonly List<StarContact> contacts = new List<StarContact>(16);
         private readonly HashSet<string> touched = new HashSet<string>(StringComparer.Ordinal);
+        private readonly HashSet<StarInstrument> instruments = new HashSet<StarInstrument>();
         private StarFlightState path;
         private float speed;
         private float range;
@@ -30,6 +31,7 @@ namespace HOne.Game
             speed = tuning.SpeedAt(charge);
             range = tuning.RangeAt(charge);
             touched.Clear();
+            instruments.Clear();
         }
 
         public bool Tick(float deltaTime)
@@ -46,6 +48,10 @@ namespace HOne.Game
                 }
                 else
                 {
+                    var instrument = contact.Collider.GetComponentInParent<StarInstrument>();
+                    if (instrument != null && instruments.Add(instrument)) instrument.Strike();
+                    var wall = contact.Collider.GetComponentInParent<BrittleWall>();
+                    if (wall != null) wall.Break();
                     if (contact.Embedded)
                     {
                         var socket = contact.Collider.GetComponent<StarSocket>();

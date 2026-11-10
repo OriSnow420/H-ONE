@@ -43,6 +43,7 @@ namespace HOne.Game
             {
                 var moving = state == PlayerState.Human && player.IsGrounded && Mathf.Abs(body.linearVelocity.x) > 0.1f;
                 var humanFrame = DeliveredArtSet.Frame(moving ? art.Walk : art.Idle, Time.time, moving ? 6f : 4f);
+                if (state == PlayerState.Human && !player.IsGrounded && art.Jump != null) humanFrame = art.Jump;
                 if (humanFrame != null) human.sprite = humanFrame;
                 if (state == PlayerState.StarFlight)
                 {

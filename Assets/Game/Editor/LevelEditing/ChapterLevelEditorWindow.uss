@@ -5,3 +5,8 @@
 .section > Button { margin-top: 4px; min-height: 24px; }
 .section > Label { white-space: normal; margin-bottom: 6px; }
 .section-title { -unity-font-style: bold; color: #f5d281; }
+.terrain-brush-preview {
+    width: 64px;
+    height: 64px;
+    -unity-background-scale-mode: scale-to-fit;
+}

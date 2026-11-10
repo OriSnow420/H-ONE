@@ -46,7 +46,7 @@
 
 ### 3.1 角色、收集与安全点
 
-- [ ] `ART-001` 人形与动作 — **部分已接入待验收｜P0→P1；推石 P2｜CH-01–06、CH-11**。`sprite_03.PNG` → `D/human_idle_00–03.png`、`human_walk_00–03.png`；`sprite_01.PNG` → `human_launch_00–09.png`。接入 `ChapterPlayer.prefab/Visual/Human|Star`、`PlayerView.cs` 和两灰盒实例；1024×832 待机/行走画布、512 PPU、统一脚底 pivot，832² 变星画布，发射前 0.18 s 与真实飞行重叠。跳落/推石/蓄力专用帧、成功动作和完整 CH 状态仍缺；目前这些人形状态回退待机。11-09 样例运行不代表整组动作或 P0 风格已签收。
+- [ ] `ART-001` 人形与动作 — **部分已接入待验收｜P0→P1；推石 P2｜CH-01–06、CH-11**。`sprite_03.PNG` → `D/human_idle_00–03.png`、`human_walk_00–03.png`；`sprite_01.PNG` → `human_launch_00–09.png`。接入 `ChapterPlayer.prefab/Visual/Human|Star`、`PlayerView.cs` 和两灰盒实例；1024×832 待机/行走画布、512 PPU、统一脚底 pivot，832² 变星画布，发射前 0.18 s 与真实飞行重叠。跳落/推石/蓄力专用帧、成功动作和完整 CH 状态仍缺；目前这些人形状态回退待机。11-09 样例运行不代表整组动作或 P0 风格已签收。 **本轮更新：** 2026-11-10 补 `Delivery02/human_jump.png`：`jump.png` 单帧、1024×832/512 PPU/脚底 (512,32)，`ChapterArt.Jump` / `PlayerView` 随真实离地/落地切换，跳落共用，完整专用动作仍缺。
 
 - [ ] `ART-002` 星弹主体 — **部分已接入待验收｜P1｜CH-07**。`sprite_02.PNG` → `D/star_00–03.png`，704²、512 PPU；`ChapterPlayer.prefab/Visual/Star` 由 `PlayerView` 6 fps 循环，显示 scale 0.55，原查询半径不改。月桂/光晕独立拆层尚缺，四帧运动轮廓/高速可读性仍需美术确认；星槽内的星影核心继续用原 P0，未全局覆盖 `star.png`。
 
@@ -62,9 +62,9 @@
 
 ### 3.2 地形与背景
 
-- [ ] `ART-008` 实体地墙 — **占位｜P0→P1｜ENV-01**。当前拉伸 `stone.png`；接入 `Solid.prefab`、Core `Geometry` 直挂视觉和 M2 地形实例。用模块拼接、切片或平铺替换拉长色块，墙角/顶面/收口连续，视觉碰撞边不漂移；薄墙与斜墙仍遵循各自物理轮廓。
+- [ ] `ART-008` 实体地墙 — **部分已接入待验收｜P0→P1｜ENV-01**。原拉伸 `stone.png`，本轮已接方形草地格点表现；接入 `Solid.prefab`、Core `Geometry` 直挂视觉和 M2 地形实例。用模块拼接、切片或平铺替换拉长色块，墙角/顶面/收口连续，视觉碰撞边不漂移；薄墙与斜墙仍遵循各自物理轮廓。 **本轮更新：** 2026-11-10 改为**部分已接入待验收**：`Delivery02/terrain_middle|left|right|soil.png`、`terrain_atlas.png|GrassTerrain.mat`；`Solid.prefab/GrassCells`、Core/ShadowSlice/Gallery 普通静态实体；`GrassTerrainView` 在原 BoxCollider2D 区块内按 1-unit 格铺图、按邻接选端头/中段/土层，零散边缘裁 UV，不拉长整张图。`DeliveredArtAuthoring.ApplyToScene`、Core 制作收尾、`LevelPieceFactory`、`M2SceneAuthoring.Resize`、Runtime Catalog / 元数据导入与运行编辑器 resize 同步维护；保留旧 Visual 节点但停用渲染器，物理根/稳定 ID/出生点不变。
 
-- [ ] `ART-009` 普通平台与台阶 — **占位｜P1｜ENV-02**。当前同用 `stone.png`，例如 Core `JumpLedge` / `FarLanding`，也可由 Solid 元件制作。替换为有厚度和端部的可站立结构，验脚踏面与碰撞线；不与星影承重面、星桥、装饰残垣混淆。
+- [ ] `ART-009` 普通平台与台阶 — **部分已接入待验收｜P1｜ENV-02**。原同用 `stone.png`，本轮已接方形草地格点表现，例如 Core `JumpLedge` / `FarLanding`，也可由 Solid 元件制作。替换为有厚度和端部的可站立结构，验脚踏面与碰撞线；不与星影承重面、星桥、装饰残垣混淆。 **本轮更新：** 2026-11-10 改为**部分已接入待验收**：复用 ART-008 的方图网格表现，包含 Core `JumpLedge|FarLanding` 及 Gallery 台阶；薄平台裁切图内 UV，保留原碰撞顶面和尺寸。神庙平台独立模块、端部与美术圆角的正式碰撞轮廓验收仍缺。
 
 - [ ] `ART-010` 背景与柱子 — **部分已接入待验收｜P1｜ENV-03–05**。`bg-level1.PNG`、`fg-level1-grass.PNG` → `D/background.png|foreground_grass.png`（1920×1080、128 PPU）；两场景 `LevelRoot/Background/DeliveryBackground|DeliveryForeground` 由 `CameraBackdrop` 覆盖视口跟随，无碰撞，sorting -100/40。Core 六个旧装饰柱仅停用渲染器，不删节点。尚缺分层神庙/柱套件、逐房间构图与正式两关背景验收；前景遮挡边界随关卡继续复核。
 
@@ -105,13 +105,13 @@
 以下 10 个父项均保持 `[ ]`：除 NEW-008 部分前景、NEW-010 标题单图外，成套交付仍缺；不伪造“当前占位文件”。它们与 §3 的共用素材相互关联，不重复计费；完整状态、数量、尺寸和批次以美术交付文档的 ID 为准。将来出现占位或正式文件时，在原 ID 下更新路径/接入点，不另开同义任务。
 
 - [ ] `NEW-001` P0 设计与可导入样板 — **未制作｜P0｜AD-01–06、FX-01**。风格板、实机尺度色稿、角色/机关语言/分层比例及样板包；七张技术图不能抵扣整批验收。先以一屏实机验证风格、PPU、比例和灰度可读性，再生产 P1/P2。
-- [ ] `NEW-002` 里拉琴及受击/反弹表现 — **未制作｜P0→P1｜ME-04、FX-04 的里拉部分**。交框/有效弦/锚点、闲置/振弦/激活，弦面法线与实际反射一致。当前斜石是普通墙测试件，不能登记成里拉已实现。
-- [ ] `NEW-003` 手鼓、鼓波与脆陶墙 — **未制作｜P2｜ME-05、ME-08、FX-09/10**。鼓面、半径匹配波纹、墙体完整/破碎残缘与装饰碎片；相关玩法接入尚待实现。
+- [ ] `NEW-002` 里拉琴及受击/反弹表现 — **部分已接入待验收｜P0→P1｜ME-04、FX-04 的里拉部分**。交框/有效弦/锚点、闲置/振弦/激活，弦面法线与实际反射一致。当前斜石是普通墙测试件，不能登记成里拉已实现。 **本轮更新：** 2026-11-10 改为**部分已接入待验收**：`IMG_6092.PNG` → `Delivery02/lyre.png`，673×1024/512 PPU/居中；`Lyre.prefab/Visual`、Gallery `Mechanisms/04_Instruments/Lyre`，`StarInstrument` / `InstrumentArtView`，有效弦面独立 Collider。共用单次反弹，点亮真实锁存接收器、开 `LyreGate`；失败/谜题复位保留，整关重开清除；工厂/运行 Catalog/文档导入导出已接入。振弦帧、独立琴弦光层、配对星纹教学和正式音频仍缺。
+- [ ] `NEW-003` 手鼓、鼓波与脆陶墙 — **部分已接入待验收｜P2｜ME-05、ME-08、FX-09/10**。鼓面、半径匹配波纹、墙体完整/破碎残缘与装饰碎片；里拉/手鼓/碎墙局部机制已接入试区，完整组合关卡仍待实现。 **本轮更新：** 2026-11-10 改为**部分已接入待验收**：`IMG_6089.PNG|IMG_6090.PNG` → `Delivery02/drum_idle.png|drum_hit_00–09.png`，同 512×1024/512 PPU/居中，20 fps 单次受击；`Drum.prefab/Visual`、Gallery `04_Instruments/Drum|DrumWaveWall`，`StarInstrument` / `BrittleWall` / `InstrumentArtView`，实际鼓波半径 3 unit（调参值）。鼓动画与判定分离；波纹/陶墙技术占位另见 NEW-003-a，陶墙绘画/碎片/完整 FX 与正式鼓音仍缺。
 - [ ] `NEW-004` 排箫控制器与升降平台 — **未制作｜P2｜ME-06/07、FX-12**。有效上/下管口、方向纹样、移动台/端点与流光；不能以普通平台/星桥占位算已交付。
 - [ ] `NEW-005` 锁存开关与机关连接语言 — **未制作｜P2｜ME-12/16**。S1/S2 独立纹样、未亮/撞亮/锁存、配对接收端与连线；不把当前持续压板当作锁存开关。
 - [ ] `NEW-006` 星座出口与两关完整星图 — **未制作｜P1/P2｜ME-15、UI-08、FX-13**。共用门框/门扇、各关三片节点/连线，第二关额外两开关徽记；开门条件和独立通关效果有真实程序接入后再验收。
 - [ ] `NEW-007` 完整 HUD、操作图标与第二关教学 — **未制作｜P1/P2｜UI-01/04/05、TUT-05–09**。两关碎片栏、单影四态、动态键位字形、演示/重播/目标图标，以及推石/桥/鼓波/里拉 S1/排箫上下的图组；复用 ART-005/006/022，仍需逐关核对。
-- [ ] `NEW-008` 环境装饰与关卡布局补齐 — **前景部分已交付，其余未制作｜P1/P2｜ENV-06–09、ENV-11；ENV-04 第二关布局**。已有前景草图由 ART-010 接入；辅助构件、马赛克/边饰、装饰陶瓶、残石仍缺，复用 ART-010 背景套件；装饰不能形成假平台或假交互提示。
+- [ ] `NEW-008` 环境装饰与关卡布局补齐 — **前景部分已交付，其余未制作｜P1/P2｜ENV-06–09、ENV-11；ENV-04 第二关布局**。已有前景草图由 ART-010 接入；辅助构件、马赛克/边饰、装饰陶瓶、残石仍缺，复用 ART-010 背景套件；装饰不能形成假平台或假交互提示。 **本轮更新：** 2026-11-10 增加格点草地与圆形笔刷用途，见 ART-008/009 / NEW-008-a；装饰环境交付范围未取消。
 - [ ] `NEW-009` 尚缺的共用特效 — **未制作｜P1/P2｜FX-03/04/06/14**。发射尾迹、普通撞石粉、入槽展开、走路/落地/推石轻尘；与 §3 已列蓄力/收集/重组/召回及 NEW-002/003 的素材复用，按事件验收，无需为每个事件重复画全套纹理。
 - [ ] `NEW-010` 标题、设置、转场与菜单补页 — **部分已接入待验收｜P1/P2｜UI-06–10**。实际源文件 `tittle-screen.PNG`（README 写作 title-screen）→ `D/title.png`，`ChapterArt.asset.Title` 已接入 `MainMenu/MainMenuCanvas/TitleArtwork`；`M2MenuAuthoring` 创作默认布局，`MainMenuController` 进入试场/操作声音页/退出，右侧独立 uGUI 为程序布局。音量设置已接，独立四态按钮/最终字版、转场、成功章纹仍缺，暂停插画改记 ART-023。来源/配方/修订沿用 §3；不能把备妥单图视为菜单套件完成。
 
@@ -205,3 +205,18 @@
 | 日期 | 范围 | 变化与验证 |
 | --- | --- | --- |
 | 2026-11-10 | ART-011；ME-02，P0→P1；ART-012/013/014 分层依赖 | 按当前源 README 复核原图指纹，复用 Delivery01 双图；Windows live Editor 保存两型槽 Prefab/两场景、导入新组件并同步 WSL。实际发射入槽、完整召回与暂停、压板/桥、失败保留、谜题复位/重开及三种分辨率检查通过；两型新建默认也已检查。五个原 Prefab 物理块、场景物理覆盖、稳定 ID/出生点未改，双副本任务文件一致。仍缺完整拆层/锁形/教学，父项不勾选；证据及两次诊断截图失败见 09 记录 |
+
+## 10. 2026-11-10：剩余素材、地形格点与乐器试区
+
+统一来源、PNG 路径/原稿哈希、裁切、画布、PPU、锚点和 atlas UV：`Assets/Game/Art/Delivery02/manifest.json` / `SOURCE_USAGE.md` / `README.md`，revision `delivery02-20261110`。原始栅格来自只读 `../H-ONE-arts`；分层绘画工程及独立授权清单仍未交，未 AI 生图。沿用上方 ART/NEW 及交付 ID，不新增平行规格。当前父项均未勾选；具体新层级、制作默认和同步/运行证据见 [11 接入记录](11-剩余美术与格点地形接入.md)。
+
+- [ ] `NEW-008-a` 圆形草地笔刷 — **已接入待验收｜P1｜ENV-01/02（扩展原 NEW-008 的工具用途）**。用户说明 `IMG_6075.PNG` 的原设想为笔刷，本轮提出“按半径选格、方块落地”的方案；`Delivery02/terrain_brush.png` 为 1024²、1024 PPU、中心 pivot，现有 Chapter Level Editor `Round grass brush` 的预览图；`RemainingArtAuthoring.PaintGrassDisk` 生成整格 Solid 行区块、选左右端/中段，跳过已占地形且可 Undo。新写入元件复用 `Solid.prefab/GrassCells` 与 Runtime Catalog；圆图不产生独立圆形物理台。原 NEW-008 装饰/布局仍未齐。
+- [ ] `NEW-003-a` 陶墙与鼓波当前技术占位 — **占位｜P2｜ME-08、FX-09/10（保留原 NEW-003 范围）**。新 `BrittleWall.prefab/Visual` 沿用 `P0/stone.png` 的 128 PPU Multiple-mode 原 Sprite/fileID、陶土临时染色；`Drum/DrumWave` 由 `InstrumentArtView` / `LineRenderer` 使用既有 `P0/Trajectory.mat` 生成，半径对应实际 3-unit 作用区。Gallery `04_Instruments/DrumWaveWall` 是实际使用点，工厂/运行 Catalog 已登记。美术原稿/分层源/正式 manifest 未交付；P0 原创来源沿用 `P0/README.md`，新增用途及程序修订记录于 11 文档。不得将其当作已交正式陶墙/波纹。
+
+`IMG_6091.PNG`（灰白破损石柱）按用户 2026-11-10 决定暂缓；本轮无项目拷贝或引用，记录于 Delivery02 manifest.deferred。两 GIF 沿用备用动作参考，未叠加第二套角色动画。Delivery01 已接入资源保留，新静态地形的 Mesh 为受控运行生成物，不保存假 `.meta` 或手改 Sprite fileID。
+
+| 更新日期 | 条目与范围 | 接入与验收记录 |
+| --- | --- | --- |
+| 2026-11-10 | ART-001/008/009、NEW-002/003/008-a，新增占位 NEW-003-a | 93 个任务文件已同步 Windows/WSL；三场景与四类 Prefab 已导入/保存。最终 EditMode 26/26、PlayMode 29/29；实际走跳、两乐器发射、碎墙及笔刷去重/Undo 通过，720p/1080p/16:10、静音/无后处理/灰度局部检查完成。最终 Console 0 错误，Play 与临时设置已恢复。证据、热重载导致的早期失败及剩余教学/状态/音频边界见 [11 接入记录](11-剩余美术与格点地形接入.md)；各父项仍未勾选，不授予整批正式美术验收 |
+
+更新记录：本轮实现并导入跳跃、三方地块/土层和圆形编辑笔刷、里拉/手鼓试区，保留三个旧试区和两技术样例；正式两关、最终状态/音画包仍待验收。最终运行范围与限制以 11 记录为准。

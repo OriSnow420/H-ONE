@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace HOne.Game.Editor
 {
-    public enum LevelPiece { Solid, Hazard, Checkpoint, Fragment, PlatformSocket, PlateSocket, PressurePlate, Bridge, Gate, Stone }
+    public enum LevelPiece { Solid, Hazard, Checkpoint, Fragment, PlatformSocket, PlateSocket, PressurePlate, Bridge, Gate, Stone, Lyre, Drum, BrittleWall }
 
     public static class LevelPieceFactory
     {
@@ -41,6 +41,19 @@ namespace HOne.Game.Editor
             var blue = new Color(0.36f, 0.55f, 0.75f);
             switch (kind)
             {
+                case LevelPiece.Lyre:
+                case LevelPiece.Drum:
+                    var instrument = go.AddComponent<StarInstrument>();
+                    instrument.Configure(kind == LevelPiece.Lyre ? StarInstrumentKind.Lyre : StarInstrumentKind.Drum, null, NewId("instrument"));
+                    var face = Box(go, new Vector2(.12f, kind == LevelPiece.Lyre ? 1.8f : 1.6f));
+                    face.offset = new Vector2(kind == LevelPiece.Lyre ? 0f : -.12f, 0f);
+                    View(go.transform,"stone",Vector2.one,Color.white);
+                    break;
+                case LevelPiece.BrittleWall:
+                    var brittleShape = Box(go, new Vector2(.35f,2f));
+                    var brittleView = View(go.transform,"stone",new Vector2(.35f,2f),new Color(.7f,.35f,.2f));
+                    go.AddComponent<BrittleWall>().Configure(null,brittleShape,brittleView.gameObject,NewId("brittle"));
+                    break;
                 case LevelPiece.Solid:
                     Box(go, new Vector2(4f, 0.5f)); View(go.transform, "stone", new Vector2(4f, 0.5f), blue); break;
                 case LevelPiece.Hazard:
@@ -163,6 +176,10 @@ namespace HOne.Game.Editor
             var group = go.GetComponent<Checkpoint>()?.Puzzle ?? go.GetComponentInParent<PuzzleGroup>();
             metadata.Configure((RuntimeLevelPieceKind)Enum.Parse(typeof(RuntimeLevelPieceKind), kind.ToString()), NewId("piece"),
                 group != null ? group.StableId : null);
+            if (go.TryGetComponent<StarInstrument>(out var instrument))
+                instrument.Configure(instrument.Kind, session, metadata.InstanceId);
+            if (go.TryGetComponent<BrittleWall>(out var brittle))
+                brittle.Configure(session, go.GetComponent<BoxCollider2D>(), go.transform.Find("Visual").gameObject, metadata.InstanceId);
             PrefabUtility.RecordPrefabInstancePropertyModifications(metadata);
             return go;
         }

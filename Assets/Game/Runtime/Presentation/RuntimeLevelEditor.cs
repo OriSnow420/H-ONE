@@ -530,12 +530,16 @@ namespace HOne.Game
             }
             if (!document.pieces.Any(p => p.kind == RuntimeLevelPieceKind.Checkpoint && p.checkpointId == document.entryCheckpointId))
                 return "Add at least one checkpoint and select it as the entry dais.";
+            foreach(var record in document.pieces)
+                foreach(var target in record.waveTargetIds ?? Array.Empty<string>())
+                    if(record.kind != RuntimeLevelPieceKind.Drum || !document.pieces.Any(p=>p.id==target && p.kind==RuntimeLevelPieceKind.BrittleWall))
+                        return "A drum wave must reference existing brittle walls.";
             foreach (var barrier in document.pieces.Where(p => p.kind == RuntimeLevelPieceKind.Bridge || p.kind == RuntimeLevelPieceKind.Gate))
             {
                 if (string.IsNullOrEmpty(barrier.sourcePieceId)) continue;
                 var source = document.pieces.FirstOrDefault(p => p.id == barrier.sourcePieceId);
-                if (source == null || (source.kind != RuntimeLevelPieceKind.PressurePlate && source.kind != RuntimeLevelPieceKind.PlateSocket))
-                    return "A bridge or gate must connect to a pressure plate.";
+                if (source == null || (source.kind != RuntimeLevelPieceKind.PressurePlate && source.kind != RuntimeLevelPieceKind.PlateSocket && source.kind != RuntimeLevelPieceKind.Lyre))
+                    return "A bridge or gate must connect to a pressure plate or lyre.";
             }
             return null;
         }
@@ -607,6 +611,9 @@ namespace HOne.Game
             }
             foreach (var record in document.pieces)
             {
+                if (elements.TryGetValue(record.id, out var piece) && piece.TryGetComponent<StarInstrument>(out var instrument))
+                    instrument.Configure(instrument.Kind,session,record.id,(record.waveTargetIds ?? Array.Empty<string>())
+                        .Where(elements.ContainsKey).Select(id => elements[id].GetComponent<BrittleWall>()).Where(w => w != null).ToArray());
                 if (record.kind != RuntimeLevelPieceKind.Bridge && record.kind != RuntimeLevelPieceKind.Gate) continue;
                 if (!elements.TryGetValue(record.id, out var metadata) || !elements.TryGetValue(record.sourcePieceId ?? string.Empty, out var sourcePiece)) continue;
                 var source = sourcePiece.GetComponentInChildren<BoolSignal>(true);
@@ -726,8 +733,9 @@ namespace HOne.Game
                 !float.TryParse(heightInput.text, NumberStyles.Float, CultureInfo.InvariantCulture, out var height) || width <= 0f || height <= 0f)
             { statusText.text = "Select a box piece and enter positive width and height."; return; }
             box.size = new Vector2(width, height);
+            if (selected.TryGetComponent<GrassTerrainView>(out var terrain)) terrain.Rebuild();
             var view = selected.GetComponentInChildren<SpriteRenderer>();
-            if (view != null && view.sprite != null)
+            if (view != null && view.sprite != null && selected.GetComponent<StarInstrument>() == null)
             {
                 var native = view.sprite.bounds.size;
                 if (native.x > 0f && native.y > 0f) view.transform.localScale = new Vector3(width / native.x, height / native.y, 1f);

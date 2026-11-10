@@ -37,6 +37,29 @@ namespace HOne.Game.Tests
         }
         private object Invoke(string method) => typeof(RuntimeLevelEditor).GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(editor, null);
 
+        [UnityTest] public IEnumerator InstrumentLinksAndArtScaleSurviveLayoutRoundtrip()
+        {
+            var lyre = editor.PlacePieceAt(RuntimeLevelPieceKind.Lyre,new Vector2(-3,3));
+            var drum = editor.PlacePieceAt(RuntimeLevelPieceKind.Drum,new Vector2(3,3));
+            var brittle = editor.PlacePieceAt(RuntimeLevelPieceKind.BrittleWall,new Vector2(5,3));
+            var gate = editor.PlacePieceAt(RuntimeLevelPieceKind.Gate,new Vector2(7,2));
+            drum.GetComponent<StarInstrument>().Configure(StarInstrumentKind.Drum,player.Session,drum.InstanceId,brittle.GetComponent<BrittleWall>());
+            gate.GetComponent<SignalBarrier>().Configure(lyre.GetComponent<StarInstrument>(),false,gate.GetComponent<BoxCollider2D>(),gate.GetComponentInChildren<SpriteRenderer>());
+            var scale = lyre.transform.Find("Visual").localScale;
+            var lyreId=lyre.InstanceId; var drumId=drum.InstanceId; var brittleId=brittle.InstanceId; var gateId=gate.InstanceId;
+            var document=(RuntimeLevelDocument)Invoke("CaptureDocument");
+            editor.ApplyDocument(RuntimeLevelDocumentStore.Deserialize(RuntimeLevelDocumentStore.Serialize(document)));
+            yield return null;
+            var pieces=root.GetComponentsInChildren<LevelPieceMetadata>();
+            lyre=pieces.Single(p=>p.InstanceId==lyreId); drum=pieces.Single(p=>p.InstanceId==drumId);
+            brittle=pieces.Single(p=>p.InstanceId==brittleId); gate=pieces.Single(p=>p.InstanceId==gateId);
+            Assert.AreEqual(scale,lyre.transform.Find("Visual").localScale);
+            Assert.AreSame(lyre.GetComponent<StarInstrument>(),gate.GetComponent<SignalBarrier>().Source);
+            Assert.AreSame(brittle.GetComponent<BrittleWall>(),drum.GetComponent<StarInstrument>().WaveTargets.Single());
+            drum.GetComponent<StarInstrument>().Strike(); Assert.IsTrue(brittle.GetComponent<BrittleWall>().Broken);
+            Assert.IsTrue(player.Session.RestartLevel(player)); Assert.IsFalse(brittle.GetComponent<BrittleWall>().Broken);
+        }
+
         [UnityTest] public IEnumerator DynamicPiecesSurviveLayoutRoundtripAndRestart()
         {
             Invoke("AddGroup");

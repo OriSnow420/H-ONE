@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace HOne.Game
@@ -51,6 +52,8 @@ namespace HOne.Game
                 sourcePieceId = sourcePieceId
             };
             var box = GetComponent<BoxCollider2D>();
+            if (TryGetComponent<StarInstrument>(out var instrument))
+                record.waveTargetIds = instrument.WaveTargets.Where(t => t != null).Select(t => t.GetComponent<LevelPieceMetadata>()?.InstanceId).Where(id => id != null).ToArray();
             if (box != null) record.size = box.size;
             if (TryGetComponent<SignalBarrier>(out var barrier))
             {
@@ -78,8 +81,9 @@ namespace HOne.Game
                 kind != RuntimeLevelPieceKind.PressurePlate)
             {
                 box.size = record.size;
+                if (TryGetComponent<GrassTerrainView>(out var terrain)) terrain.Rebuild();
                 var view = GetComponentInChildren<SpriteRenderer>();
-                if (view != null) ResizeVisual(view, record.size);
+                if (view != null && GetComponent<StarInstrument>() == null) ResizeVisual(view, record.size);
             }
             if (TryGetComponent<Checkpoint>(out var checkpoint))
             {
@@ -107,6 +111,9 @@ namespace HOne.Game
             }
             if (TryGetComponent<SignalBarrier>(out var barrier))
                 barrier.Configure(source, record.barrierSolidWhenTrue, GetComponent<BoxCollider2D>(), GetComponentInChildren<SpriteRenderer>());
+            if (TryGetComponent<StarInstrument>(out var instrument)) instrument.Configure(instrument.Kind,session,record.id);
+            if (TryGetComponent<BrittleWall>(out var brittle))
+                brittle.Configure(session,GetComponent<BoxCollider2D>(),transform.Find("Visual").gameObject,record.id);
             RefreshReferences();
         }
 

@@ -12,12 +12,16 @@ namespace HOne.Game
         [SerializeField] private ShadowService shadows;
         [SerializeField] private PuzzleGroup[] puzzles = new PuzzleGroup[0];
         private readonly HashSet<string> collected = new HashSet<string>(StringComparer.Ordinal);
+        private readonly HashSet<string> mechanisms = new HashSet<string>(StringComparer.Ordinal);
+        public bool HasMechanism(string id) => mechanisms.Contains(id);
+        public bool TryTriggerMechanism(string id) => !string.IsNullOrWhiteSpace(id) && mechanisms.Add(id);
         private HashSet<string> allowedFragments = new HashSet<string>(StringComparer.Ordinal);
         private string runtimeLevelId;
 
         public event Action<string> FragmentCollected;
         public event Action<Checkpoint> CheckpointChanged;
         public event Action ProgressReset;
+        public event Action PuzzleReset;
         public ShadowService Shadows => shadows;
         public int FragmentCount => collected.Count;
         public LevelDefinition Definition => definition;
@@ -58,6 +62,7 @@ namespace HOne.Game
             runtimeLevelId = string.IsNullOrWhiteSpace(levelId) ? "untitled" : levelId;
             allowedFragments = new HashSet<string>(fragmentIds ?? Enumerable.Empty<string>(), StringComparer.Ordinal);
             collected.Clear();
+            mechanisms.Clear();
             puzzles = groups ?? Array.Empty<PuzzleGroup>();
             shadows?.Clear();
             ProgressReset?.Invoke();
@@ -74,6 +79,7 @@ namespace HOne.Game
             if (player == null || player.Session != this || !player.BeginPuzzleReset(CurrentCheckpoint)) return false;
             if (shadows != null) shadows.Clear();
             if (CurrentCheckpoint.Puzzle != null) CurrentCheckpoint.Puzzle.ResetObjects();
+            PuzzleReset?.Invoke();
             return true;
         }
 
@@ -82,6 +88,7 @@ namespace HOne.Game
             if (player == null || player.Session != this || !player.BeginPuzzleReset(entry)) return false;
             currentCheckpoint = entry;
             collected.Clear();
+            mechanisms.Clear();
             if (shadows != null) shadows.Clear();
             ProgressReset?.Invoke();
             foreach (var puzzle in puzzles) if (puzzle != null) puzzle.ResetObjects();
