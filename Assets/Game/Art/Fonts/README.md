@@ -7,3 +7,5 @@ Derived with tools/m2/prepare_font.py (local tooling), fontTools 4.46.0, regular
 2026-11-11: Expanded the existing subset for the credits names and track title. All previous codepoints and the Unity font GUID are retained. Revision: menu-credits-20261111; source and license unchanged.
 
 2026-11-11: Corrected art credit to 不眠巷 and sound credit to 阿锰. Revision: credits-attribution-20261111. Preserved all 219 previous codepoints and added 眠/巷/阿/锰 (223 total), using the same regular-400 source, OFL-1.1 license and Unity font GUID. Source/output hashes are in manifest.json.
+
+2026-11-11 r4: Sound credit updated to 锦鲤元宵. Added 锦/鲤/元/宵 while preserving all 223 existing codepoints (227 total). Revision: credits-sound-20261111-r4; regular-400 source, OFL-1.1 and Unity font GUID retained.

@@ -143,5 +143,92 @@
     },
     "smoke": "Standalone 1280x720 startup and normal quit passed; player.log has no errors. Automated click did not open Credits, so standalone credits/Esc are not claimed. Previous Editor visual verification retained.",
     "tests": "Full suite not rerun, per user speed priority."
+  },
+  "release_r4": {
+    "revision": "credits-sound-20261111-r4",
+    "date": "2026-11-11",
+    "sound_credit": "锦鲤元宵",
+    "scope": "Text attribution and the four required font glyphs; existing layout and gameplay retained. Earlier root validation/files and release_r3 describe the previous attribution revision.",
+    "font": {
+      "path": "Assets/Game/Art/Fonts/MenuSans.ttf",
+      "preserved": 223,
+      "added": [
+        "锦",
+        "鲤",
+        "元",
+        "宵"
+      ],
+      "codepoints": 227,
+      "guid_preserved": true,
+      "provenance": "Assets/Game/Art/Fonts/{manifest.json,README.md,LICENSE.txt}"
+    },
+    "validation": {
+      "editor": "Windows Unity 6000.0.84f1 / NVIDIA GeForce RTX 4060 Laptop GPU",
+      "resolution": [
+        1423,
+        656
+      ],
+      "frames": [
+        3552,
+        3554,
+        8783
+      ],
+      "runtime": "UI raycast open/back, all Credits glyphs and modal release passed; screenshot visually inspected.",
+      "console": "No runtime errors; compilationFailed=false. Three earlier diagnostic errors came from CLI command-name parsing and were resolved by quoting the full command.",
+      "evidence": "Windows local Screenshots/CreditsSoundR4/",
+      "restored": "Play Mode stopped, isPaused=false, clean MainMenu loaded; original auto tick true / 16 ms and runInBackground=true retained.",
+      "tests": "No full suite rerun for this text-only change, per user speed priority.",
+      "formal_art_acceptance": false,
+      "standalone": "1280x720 startup and normal window-close quit passed; player log has no errors. Automated OS mouse clicks did not open Credits, so standalone Credits interaction is not claimed; Editor open/back and actual screenshot passed.",
+      "built_scene": "Built level0 contains the exact new sound attribution and no previous sound attribution."
+    },
+    "build": {
+      "buildId": "build_d2408ac4e219",
+      "result": "Succeeded",
+      "platform": "StandaloneWindows64",
+      "totalErrors": 0,
+      "totalWarnings": 186,
+      "buildTimeMs": 36073,
+      "totalSizeBytes": 300715467
+    },
+    "package": {
+      "archive": "Builds/GreekStar-Windows-x64-20261111-r4.zip",
+      "bytes": 82376031,
+      "files": 201,
+      "sha256": "b6c74031306561efc82ba369e26217a18cebc99a289079c15bb05897ee593fec",
+      "crcVerified": true
+    },
+    "windows_input_comparison": {
+      "files": 575,
+      "missing": [],
+      "different": [
+        "Assets/Settings/UniversalRP.asset",
+        "Assets/UniversalRenderPipelineGlobalSettings.asset",
+        "ProjectSettings/ProjectSettings.asset",
+        "ProjectSettings/TimeManager.asset",
+        "ProjectSettings/VersionControlSettings.asset"
+      ],
+      "scene_note": "Only Unity-added trailing whitespace differed; normalized after build."
+    },
+    "base_commit": "cfba868",
+    "changed_files": [
+      "README.md",
+      "CREDITS.md",
+      "Assets/Game/Editor/MainMenuPresentationAuthoring.cs",
+      "Assets/Game/Tests/PlayMode/MainMenuPresentationTests.cs",
+      "Assets/Game/Audio/Delivery01/README.md",
+      "Assets/Game/Audio/Delivery01/manifest.json",
+      "docs/03-音频交付清单.md",
+      "docs/04-开发进度.md",
+      "docs/16-首批音频接入.md",
+      "docs/17-主页音乐与制作名单.md",
+      "Assets/Game/Scenes/MainMenu.unity",
+      "Assets/Game/Art/Fonts/MenuSans.ttf",
+      "Assets/Game/Art/Fonts/README.md",
+      "Assets/Game/Art/Fonts/manifest.json",
+      "docs/02-美术交付清单.md",
+      "docs/06-占位美术替换Checklist.md",
+      "docs/credits-attribution-manifest.json"
+    ]
   }
 }

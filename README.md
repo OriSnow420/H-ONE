@@ -6,7 +6,7 @@
 
 策划、架构、交付清单与开发进度见 [制作文档索引](docs/README.md)。
 
-音效 阿锰、美术 不眠巷、程序 [OriSnow420](https://github.com/OriSnow420)、策划 游里；作品链接与完整署名见 [CREDITS](CREDITS.md)。项目主页：[Uuuyv-325/H-ONE](https://github.com/Uuuyv-325/H-ONE)。
+音效 锦鲤元宵、美术 不眠巷、程序 [OriSnow420](https://github.com/OriSnow420)、策划 游里；作品链接与完整署名见 [CREDITS](CREDITS.md)。项目主页：[Uuuyv-325/H-ONE](https://github.com/Uuuyv-325/H-ONE)。
 
 本项目使用了 [Larse](https://space.bilibili.com/18212244) 老师制作的音乐. 感谢 Larse 老师开源! 伟大!
 

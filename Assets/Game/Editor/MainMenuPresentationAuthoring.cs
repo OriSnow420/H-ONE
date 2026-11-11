@@ -32,7 +32,7 @@ namespace HOne.Game.Editor
             M2MenuAuthoring.Label(content, "Music", "音乐\n《启程之前》 · Larse", new Vector2(0f, .70f), new Vector2(1f, .85f), 31);
             var artist = Link(content, "MusicAuthor", "Bilibili 主页", new Vector2(.20f, .635f), new Vector2(.49f, .69f));
             var track = Link(content, "MusicTrack", "作品 · BV1QhA5efEq9", new Vector2(.51f, .635f), new Vector2(.80f, .69f));
-            M2MenuAuthoring.Label(content, "Sound", "音效 · 阿锰", new Vector2(0f, .53f), new Vector2(1f, .60f), 32);
+            M2MenuAuthoring.Label(content, "Sound", "音效 · 锦鲤元宵", new Vector2(0f, .53f), new Vector2(1f, .60f), 32);
             M2MenuAuthoring.Label(content, "Art", "美术 · 不眠巷", new Vector2(0f, .44f), new Vector2(1f, .51f), 32);
             var programmer = Link(content, "Programmer", "程序 · OriSnow420 · GitHub", new Vector2(.16f, .35f), new Vector2(.84f, .42f));
             programmer.GetComponentInChildren<UnityEngine.UI.Text>().fontSize = 32;

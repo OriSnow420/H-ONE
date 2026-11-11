@@ -320,3 +320,5 @@ NEW-010-a / UI-06/09/10（P1/P2）维持“已接入待验收”。按用户指�
 更新记录：代码、字体和文档已更新；Windows 导入、场景保存/回写及本轮精确验证范围见 [17 记录](17-主页音乐与制作名单.md) 的署名更正记录。历史三档截图和整批签收不视为本轮字形的验收。本次 1423×656 实际截图、灰度副本、字形与返回检查通过；精确范围和未完成检查见 [本轮 manifest](credits-attribution-manifest.json)。
 
 2026-11-11 r3 交付补记：NEW-010-a / NEW-010-b / ART-023 已随当前菜单与署名构建 Windows x64 包，0 errors / 186 包警告，快速 ZIP/CRC 通过；独立 1280×720 启动/退出检查通过，Credits 仍以上述 Editor 实际画面验证为界。未重跑整关或正式美术验收，父项状态不变。包指纹与限制见 [17 记录](17-主页音乐与制作名单.md) r3 节及 [署名 manifest](credits-attribution-manifest.json)。
+
+2026-11-11 r4 更新记录：NEW-010-a / UI-10（P1/P2）音效署名按用户最新要求由“阿锰”更正为“锦鲤元宵”。当前/最终资源仍为 `Assets/Game/Scenes/MainMenu.unity` 的 `MainMenu/MainMenuCanvas/CreditsPanel/List/Sound`；制作默认 `Assets/Game/Editor/MainMenuPresentationAuthoring.cs`、现有测试、根 CREDITS/README 与音频来源记录同步。字体 `Assets/Game/Art/Fonts/MenuSans.ttf` 保留原 223 个 codepoint，补锦/鲤/元/宵（227 个），GUID 保留；修订 `credits-sound-20261111-r4`，同源 Noto Sans SC regular 400 / OFL-1.1，可编辑源指纹、输出指纹及授权仍在该目录 manifest/README/LICENSE。仅文字/字形更新，布局、Sprite、PPU、pivot、Prefab、碰撞和玩法不变，父项维持“已接入待验收”；本轮 Windows 同步、运行截图与构建结果单独见 [署名 manifest](credits-attribution-manifest.json) 的 `release_r4`。

@@ -42,7 +42,7 @@
       "peak_dbfs": -6.000000000000001,
       "rights": "All rights reserved. Respective copyright holders.",
       "status": "integrated_pending_listening_acceptance",
-      "creator": "阿锰"
+      "creator": "锦鲤元宵"
     },
     {
       "asset_id": "SFX-19",
@@ -67,7 +67,7 @@
       "peak_dbfs": -6.000000000000001,
       "rights": "All rights reserved. Respective copyright holders.",
       "status": "integrated_pending_listening_acceptance",
-      "creator": "阿锰"
+      "creator": "锦鲤元宵"
     },
     {
       "asset_id": "SFX-21",
@@ -92,7 +92,7 @@
       "peak_dbfs": -6.000000000000001,
       "rights": "All rights reserved. Respective copyright holders.",
       "status": "integrated_pending_listening_acceptance",
-      "creator": "阿锰"
+      "creator": "锦鲤元宵"
     },
     {
       "asset_id": "SFX-23",
@@ -117,7 +117,7 @@
       "peak_dbfs": -5.999999999999998,
       "rights": "All rights reserved. Respective copyright holders.",
       "status": "integrated_pending_listening_acceptance",
-      "creator": "阿锰"
+      "creator": "锦鲤元宵"
     },
     {
       "asset_id": "SFX-08",
@@ -142,7 +142,7 @@
       "peak_dbfs": -6.000000000000001,
       "rights": "All rights reserved. Respective copyright holders.",
       "status": "integrated_pending_listening_acceptance",
-      "creator": "阿锰"
+      "creator": "锦鲤元宵"
     },
     {
       "asset_id": "SFX-13",
@@ -167,7 +167,7 @@
       "peak_dbfs": -5.999999999999998,
       "rights": "All rights reserved. Respective copyright holders.",
       "status": "integrated_pending_listening_acceptance",
-      "creator": "阿锰"
+      "creator": "锦鲤元宵"
     }
   ],
   "excluded": [
@@ -209,6 +209,6 @@
     "human_device_listening_acceptance": false,
     "formal_batch_acceptance": false
   },
-  "creator": "阿锰",
-  "attribution_updated": "2026-11-11 user corrected sound credit to 阿锰; see CREDITS.md."
+  "creator": "锦鲤元宵",
+  "attribution_updated": "2026-11-11 user corrected sound credit to 锦鲤元宵; see CREDITS.md."
 }

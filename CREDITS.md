@@ -3,7 +3,7 @@
 | 项目 | 署名 |
 | --- | --- |
 | 音乐 | [Larse](https://space.bilibili.com/18212244/) — [《启程之前》](https://www.bilibili.com/video/BV1QhA5efEq9/)（BV1QhA5efEq9） |
-| 音效 | 阿锰 |
+| 音效 | 锦鲤元宵 |
 | 美术 | 不眠巷 |
 | 程序 | [OriSnow420](https://github.com/OriSnow420) |
 | 策划 | 游里 |

@@ -72,7 +72,7 @@ namespace HOne.Game.Tests
             Assert.IsFalse(start.IsInteractable()); Assert.IsFalse(open.IsInteractable());
             Assert.AreSame(back.gameObject, EventSystem.current.currentSelectedGameObject);
             var text = string.Join("\n", panel.GetComponentsInChildren<Text>().Select(t => t.text));
-            foreach (var name in new[] { "启程之前", "Larse", "阿锰", "不眠巷", "OriSnow420", "游里", "Uuuyv-325/H-ONE" })
+            foreach (var name in new[] { "启程之前", "Larse", "锦鲤元宵", "不眠巷", "OriSnow420", "游里", "Uuuyv-325/H-ONE" })
                 StringAssert.Contains(name, text);
             foreach (var c in text.Where(c => !char.IsWhiteSpace(c)))
                 Assert.IsTrue(panel.GetComponentInChildren<Text>().font.HasCharacter(c), "Missing credits glyph: " + c);
